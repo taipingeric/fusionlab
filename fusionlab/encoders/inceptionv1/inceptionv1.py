@@ -41,11 +41,44 @@ class InceptionBlock(nn.Module):
 class InceptionNetV1(nn.Module):
     def __init__(self, cin=3):
         super().__init__()
+        self.stem = nn.Sequential(
+            ConvBlock(cin, 64, 7, stride=2),
+            nn.MaxPool2d(3, 2, padding=autopad(3)),
+            ConvBlock(64, 192, 3),
+            nn.MaxPool2d(3, 2, padding=autopad(3)),
+        )
+        self.incept3a = InceptionBlock(192, 64, (96, 128), (16, 32), 32)
+        self.incept3b = InceptionBlock(256, 128, (128, 192), (32, 96), 64)
+        self.pool3 = nn.MaxPool2d(3, 2, padding=autopad(3))
+        self.incept4a = InceptionBlock(480, 192, (96, 208), (16, 48), 64)
+        self.incept4b = InceptionBlock(512, 160, (112, 224), (24, 64), 64)
+        self.incept4c = InceptionBlock(512, 128, (128, 256), (24, 64), 64)
+        self.incept4d = InceptionBlock(512, 112, (144, 288), (32, 64), 64)
+        self.incept4e = InceptionBlock(528, 256, (160, 320), (32, 128), 128)
+        self.pool4 = nn.MaxPool2d(3, 2, padding=autopad(3))
+        self.incept5a = InceptionBlock(832, 256, (160, 320), (32, 128), 128)
+        self.incept5b = InceptionBlock(832, 384, (192, 384), (48, 128), 128)
 
     def forward(self, x):
-        return self.features(x)
+        x = self.stem(x)
+        x = self.incept3a(x)
+        x = self.incept3b(x)
+        x = self.pool3(x)
+        x = self.incept4a(x)
+        x = self.incept4b(x)
+        x = self.incept4c(x)
+        x = self.incept4d(x)
+        x = self.incept4e(x)
+        x = self.pool4(x)
+        x = self.incept5a(x)
+        x = self.incept5b(x)
+        return x
 
 if __name__ == "__main__":
     inputs = torch.normal(0, 1, (1, 3, 224, 224))
     outputs = InceptionBlock(3, 64, (96, 128), (16, 32), 32)(inputs)
     print(outputs.shape)
+    assert list(outputs.shape) == [1, 256, 224, 224]
+
+    outputs = InceptionNetV1()(inputs)
+    assert list(outputs.shape) == [1, 1024, 7, 7]
