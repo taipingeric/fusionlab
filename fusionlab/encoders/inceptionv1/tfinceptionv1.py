@@ -1,8 +1,6 @@
 import tensorflow as tf
 from tensorflow.keras import Model, layers, Sequential
 
-from fusionlab.utils import autopad
-
 # ref: https://arxiv.org/abs/1409.4842
 # Going Deeper with Convolutions
 
