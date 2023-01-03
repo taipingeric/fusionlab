@@ -1,3 +1,7 @@
+# Mac M1
+# ref: https://www.youtube.com/watch?v=5DgWvU0p2bk
+# ref: https://github.com/jeffheaton/t81_558_deep_learning/blob/master/install/tensorflow-install-conda-mac-metal-jul-2022.ipynb
+
 torchvision>=0.5.0
 tensorflow-macos>=2.9.2
 tensorflow-metal>=0.5.0
