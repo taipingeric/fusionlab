@@ -42,12 +42,12 @@ cd fusionlab
 ```bash
 conda deactivate 
 ```
-5. Create conda environment using [config](./configs/tf-apple-m1-conda.yaml)
+6. Create conda environment using [config](./configs/tf-apple-m1-conda.yaml)
 ```bash
 conda env create -f ./configs/tf-apple-m1-conda.yaml -n fusionlab
 ```
-6. Replace [requirements.txt](requirements.txt) with [requirements-m1.txt](configs/requirements-m1.txt)
-7. Install by pip
+7. Replace [requirements.txt](requirements.txt) with [requirements-m1.txt](configs/requirements-m1.txt)
+8. Install by pip
 ```bash
 pip install -r requirements-m1.txt
 ```
