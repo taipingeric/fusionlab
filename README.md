@@ -9,8 +9,8 @@
 FusionLab is an open-source frameworks built for Deep Learning research written in PyTorch and Tensorflow. The code is easy to read and modify 
 especially for newbie. Feel free to send pull requests :D
 
-* [Installation](##Installation)
-* [How to use](##How-to-use)
+* [Installation](#Installation)
+* [How to use](#How-to-use)
 
 ## Installation
 
