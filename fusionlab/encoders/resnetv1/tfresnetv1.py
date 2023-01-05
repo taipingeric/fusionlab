@@ -21,7 +21,7 @@ class ConvBlock(Model):
         self.conv = layers.Conv2D(cout, kernel_size, stride,
                                   padding='same' if padding else 'valid')
         self.bn = layers.BatchNormalization()
-        self.act = layers.ReLU() if activation is True else Identity()
+        self.act = layers.ReLU() if activation else Identity()
 
     def call(self, inputs, training=None):
         x = self.conv(inputs)
