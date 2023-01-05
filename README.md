@@ -11,6 +11,7 @@ especially for newbie. Feel free to send pull requests :D
 
 * [Installation](#Installation)
 * [How to use](#How-to-use)
+* [Encoders](#Encoders)
 
 ## Installation
 
@@ -64,3 +65,7 @@ model = fl.encoders.VGG16()
 model = fl.encoders.TFVGG16()
 
 ```
+
+## Encoders
+
+[encoder list](fusionlab/encoders/README.md)
