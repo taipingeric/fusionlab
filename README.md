@@ -2,7 +2,7 @@
 
 <p align="center">
     <br>
-    <img src="https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/transformers_logo_name.png" width="400"/>
+    <img src="assets/imgs/fusionlab_banner.png" width="400"/>
     <br>
 <p>
 
