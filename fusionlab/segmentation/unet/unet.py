@@ -46,10 +46,7 @@ class Decoder(nn.Module):
         self.d1 = DecoderBlock(base_dim//4, cin//16, base_dim//8)
 
     def forward(self, x):
-        # print('encoder' , x.shape)
         f1, f2, f3, f4, f5 = x
-        for i in x:
-            print('f1 ~ f5' , i.shape)
         x = self.d4(f5, f4)
         x = self.d3(x, f3)
         x = self.d2(x, f2)
@@ -63,8 +60,6 @@ class Bridger(nn.Module):
 
     def forward(self, x):
         outputs = [nn.Identity()(i) for i in x]
-        for o in outputs:
-            print("Bridger", o.shape)
         return outputs
 
 
@@ -102,36 +97,29 @@ class DecoderBlock(nn.Module):
 
 if __name__ == '__main__':
     H = W = 224
+    dim = 64
     inputs = torch.normal(0, 1, (1, 3, H, W))
-    # encoder = Encoder(3, base_dim=16)
-    # outputs = encoder(inputs)
-    # for o in outputs:
-    #     print(o.shape)
-    #
-    # bridger = Bridger()
-    # outputs = bridger(outputs)
-    # for o in outputs:
-    #     print(o.shape)
-    #
-    # i1 = torch.normal(0, 1, (1, 16, H, W))
-    # i2 = torch.normal(0, 1, (1, 32, H//2, W//2))
-    # upblock = DecoderBlock(32, 16, 64)
-    # outputs = upblock(i2, i1)
-    # print(outputs.shape)
-    #
-    # i1 = torch.normal(0, 1, (1, 64, 224, 224))
-    # i2 = torch.normal(0, 1, (1, 128, 112, 112))
-    # i3 = torch.normal(0, 1, (1, 256, 56, 56))
-    # i4 = torch.normal(0, 1, (1, 512, 28, 28))
-    # i5 = torch.normal(0, 1, (1, 1024, 14, 14))
-    # decoder = Decoder(1024, 512)
-    # outputs = decoder([i1, i2, i3, i4, i5])
-    # print(outputs.shape)
-    #
-    # head = Head(64, 10)
-    # outputs = head(outputs)
-    # print(outputs.shape)
+
+    encoder = Encoder(3, base_dim=dim)
+    outputs = encoder(inputs)
+    for i, o in enumerate(outputs):
+        assert list(o.shape) == [1, dim*(2**i), H//(2**i), W//(2**i)]
+
+    bridger = Bridger()
+    outputs = bridger(outputs)
+    for i, o in enumerate(outputs):
+        assert list(o.shape) == [1, dim * (2 ** i), H // (2 ** i), W // (2 ** i)]
+
+    features = [torch.normal(0, 1, (1, dim * (2 ** i), H // (2 ** i), W // (2 ** i))) for i in range(5)]
+    decoder = Decoder(1024, 512)
+    outputs = decoder(features)
+    assert list(outputs.shape) == [1, 64, H, W]
+
+    head = Head(64, 10)
+    outputs = head(outputs)
+    assert list(outputs.shape) == [1, 10, H, W]
 
     unet = UNet(3, 10)
     outputs = unet(inputs)
-    print(outputs.shape)
+    assert list(outputs.shape) == [1, 10, H, W]
+
