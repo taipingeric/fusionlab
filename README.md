@@ -59,11 +59,10 @@ ref [link](https://github.com/jeffheaton/t81_558_deep_learning/blob/master/insta
 ```python
 import fusionlab as fl
 
-# PyTorch VGG16
-model = fl.encoders.VGG16()
+# PyTorch
+encoder = fl.encoders.VGG16()
 # Tensorflow
-model = fl.encoders.TFVGG16()
-
+encoder = fl.encoders.TFVGG16()
 ```
 
 ## Encoders
