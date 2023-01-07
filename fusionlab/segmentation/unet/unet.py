@@ -5,16 +5,30 @@ from fusionlab.utils import autopad
 
 
 class UNet(SegmentationModel):
-    def __init__(self, cin, cout):
+    def __init__(self, cin, num_cls, base_dim=64):
+        """
+        Base Unet
+        Args:
+            cin (int): input channels
+            num_cls (int): number of classes
+            base_dim (int): 1st stage dim of conv output
+        """
         super().__init__()
-        self.encoder = Encoder(cin, base_dim=64)
+        stage = 5
+        self.encoder = Encoder(cin, base_dim=base_dim)
         self.bridger = Bridger()
-        self.decoder = Decoder(1024, 512)
-        self.head = Head(64, cout)
+        self.decoder = Decoder(cin=base_dim*(2**(stage-1)), base_dim=base_dim*(2**(stage-2)))  # 1024, 512
+        self.head = Head(base_dim, num_cls)
 
 
 class Encoder(nn.Module):
     def __init__(self, cin, base_dim):
+        """
+        UNet Encoder
+        Args:
+            cin (int): input channels
+            base_dim (int): 1st stage dim of conv output
+        """
         super().__init__()
         self.pool = nn.MaxPool2d(2, 2)
         self.stage1 = BasicBlock(cin, base_dim)
@@ -39,6 +53,12 @@ class Encoder(nn.Module):
 
 class Decoder(nn.Module):
     def __init__(self, cin, base_dim):
+        """
+        Base UNet decoder
+        Args:
+            cin (int): input channels
+            base_dim (int): output dim of deepest stage output
+        """
         super().__init__()
         self.d4 = DecoderBlock(cin, cin//2, base_dim)
         self.d3 = DecoderBlock(base_dim, cin//4, base_dim//2)
@@ -65,6 +85,11 @@ class Bridger(nn.Module):
 
 class Head(nn.Sequential):
     def __init__(self, cin, cout):
+        """
+        Basic Identity
+        :param int cin: input channel
+        :param int cout: output channel
+        """
         conv = nn.Conv2d(cin, cout, 1)
         super().__init__(conv)
 
@@ -84,6 +109,13 @@ class BasicBlock(nn.Sequential):
 
 class DecoderBlock(nn.Module):
     def __init__(self, c1, c2, cout):
+        """
+        Base Unet decoder block for merging the outputs from 2 stages
+        Args:
+            c1: input dim of the deeper stage
+            c2: input dim of the shallower stage
+            cout: output dim of the block
+        """
         super().__init__()
         self.up = nn.Upsample(scale_factor=2)
         self.conv = BasicBlock(c1 + c2, cout)
@@ -122,4 +154,3 @@ if __name__ == '__main__':
     unet = UNet(3, 10)
     outputs = unet(inputs)
     assert list(outputs.shape) == [1, 10, H, W]
-

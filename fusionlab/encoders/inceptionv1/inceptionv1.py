@@ -9,7 +9,6 @@ class ConvBlock(nn.Module):
     def __init__(self, cin, cout, kernel_size=3, stride=1):
         super().__init__()
         self.conv = nn.Conv2d(cin, cout, kernel_size, stride, padding=autopad(kernel_size))
-        # self.conv = nn.Conv2d(cin, cout, kernel_size, stride, padding=kernel_size//2)
         self.act = nn.ReLU(inplace=True)
 
     def forward(self, x):
