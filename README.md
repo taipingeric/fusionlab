@@ -69,9 +69,9 @@ encoder = fl.encoders.TFVGG16()
 num_cls = 10
 
 # PyTorch UNet
-unet = fl.segmentation.UNet(num_cls)
+unet = fl.segmentation.UNet(cin=3, num_cls=10, base_dim=64)
 # Tensorflow UNet
-unet = fl.segmentation.TFUNet(num_cls)
+unet = fl.segmentation.TFUNet(num_cls=10, base_dim=64)
 
 ```
 
