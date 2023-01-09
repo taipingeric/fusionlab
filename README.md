@@ -39,6 +39,9 @@ cd fusionlab
    1. Miniconda3 macOS Apple M1 64-bit pkg
    2. Miniconda3 macOS Apple M1 64-bit bash
 4. Install the xcode-select command-line
+```bash
+xcode-select --install
+```
 5. Deactivate the base environment
 ```bash
 conda deactivate 
@@ -53,7 +56,9 @@ conda env create -f ./configs/tf-apple-m1-conda.yaml -n fusionlab
 pip install -r requirements-m1.txt
 ```
 
-ref [link](https://github.com/jeffheaton/t81_558_deep_learning/blob/master/install/tensorflow-install-conda-mac-metal-jul-2022.ipynb), [video](https://www.youtube.com/watch?v=5DgWvU0p2bk) 
+ref: [https://github.com/jeffheaton/t81_558_deep_learning/install/tensorflow-install-conda-mac-metal-jan-2023.ipynb](https://github.com/jeffheaton/t81_558_deep_learning/install/tensorflow-install-conda-mac-metal-jan-2023.ipynb)
+
+[video](https://www.youtube.com/watch?v=5DgWvU0p2bk) 
 
 ## How to use
 
