@@ -12,6 +12,7 @@ especially for newbie. Feel free to send pull requests :D
 * [Installation](#Installation)
 * [How to use](#How-to-use)
 * [Encoders](#Encoders)
+* [Segmentation](#Segmentation)
 
 ## Installation
 
@@ -63,8 +64,21 @@ import fusionlab as fl
 encoder = fl.encoders.VGG16()
 # Tensorflow
 encoder = fl.encoders.TFVGG16()
+
+# Segmentation Model
+num_cls = 10
+
+# PyTorch UNet
+unet = fl.segmentation.UNet(num_cls)
+# Tensorflow UNet
+unet = fl.segmentation.TFUNet(num_cls)
+
 ```
 
 ## Encoders
 
 [encoder list](fusionlab/encoders/README.md)
+
+## Segmentation
+
+* UNet, TFUNet
