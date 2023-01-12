@@ -3,6 +3,8 @@ from torch import nn
 from fusionlab.segmentation.base import SegmentationModel
 from fusionlab.utils import autopad
 
+# ref: https://github.com/4uiiurz1/pytorch-nested-unet
+
 
 class UNet2plus(SegmentationModel):
     def __init__(self, cin, num_cls, base_dim):
