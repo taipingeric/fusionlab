@@ -85,5 +85,7 @@ unet = fl.segmentation.TFUNet(num_cls=10, base_dim=64)
 
 ## Segmentation
 
+[Segmentation model list](fusionlab/segmentation/README.md)
+
 * UNet, TFUNet
 * UNet2plus
