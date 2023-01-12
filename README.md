@@ -70,6 +70,17 @@ encoder = fl.encoders.VGG16()
 # Tensorflow
 encoder = fl.encoders.TFVGG16()
 
+```
+
+## Encoders
+
+[encoder list](fusionlab/encoders/README.md)
+
+## Segmentation
+
+```python
+import fusionlab as fl
+
 # Segmentation Model
 
 # PyTorch UNet
@@ -78,12 +89,6 @@ unet = fl.segmentation.UNet(cin=3, num_cls=10, base_dim=64)
 unet = fl.segmentation.TFUNet(num_cls=10, base_dim=64)
 
 ```
-
-## Encoders
-
-[encoder list](fusionlab/encoders/README.md)
-
-## Segmentation
 
 [Segmentation model list](fusionlab/segmentation/README.md)
 
