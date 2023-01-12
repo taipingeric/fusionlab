@@ -1,4 +1,8 @@
-from tensorflow.python import training
+import tensorflow as tf
+from tensorflow.keras import layers, Model, Sequential
+from fusionlab.segmentation.base import TFSegmentationModel
+
+
 class TFUNet2plus(TFSegmentationModel):
     def __init__(self, num_cls, base_dim):
         super().__init__()
@@ -48,7 +52,7 @@ class Encoder(Model):
 
 
 class Bridger(Model):
-    def call(self, x):
+    def call(self, x, training=None):
         return [tf.identity(i) for i in x]
 
 
