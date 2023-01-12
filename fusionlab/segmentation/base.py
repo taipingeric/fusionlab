@@ -18,9 +18,9 @@ class TFSegmentationModel(Model):
     """
     Base PyTorch class of the segmentation model with Encoder, Bridger, Decoder, Head
     """
-    def call(self, x):
-        features = self.encoder(x)
-        feature_fusion = self.bridger(features)
-        decoder_output = self.decoder(feature_fusion)
-        output = self.head(decoder_output)
+    def call(self, x, training=None):
+        features = self.encoder(x, training)
+        feature_fusion = self.bridger(features, training)
+        decoder_output = self.decoder(feature_fusion, training)
+        output = self.head(decoder_output, training)
         return output
