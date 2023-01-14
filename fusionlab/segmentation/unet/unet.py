@@ -17,7 +17,8 @@ class UNet(SegmentationModel):
         stage = 5
         self.encoder = Encoder(cin, base_dim=base_dim)
         self.bridger = Bridger()
-        self.decoder = Decoder(cin=base_dim*(2**(stage-1)), base_dim=base_dim*(2**(stage-2)))  # 1024, 512
+        self.decoder = Decoder(cin=base_dim*(2**(stage-1)),
+                               base_dim=base_dim*(2**(stage-2)))  # 1024, 512
         self.head = Head(base_dim, num_cls)
 
 
@@ -86,7 +87,7 @@ class Bridger(nn.Module):
 class Head(nn.Sequential):
     def __init__(self, cin, cout):
         """
-        Basic Identity
+        Basic conv head
         :param int cin: input channel
         :param int cout: output channel
         """
