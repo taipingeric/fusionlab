@@ -34,16 +34,16 @@ class Encoder(Model):
         self.stage4 = BasicBlock(base_dim * 8)
         self.stage5 = BasicBlock(base_dim * 16)
 
-    def call(self, x):
-        s1 = self.stage1(x)
-        x = self.pool(s1)
-        s2 = self.stage2(x)
-        x = self.pool(s2)
-        s3 = self.stage3(x)
-        x = self.pool(s3)
-        s4 = self.stage4(x)
-        x = self.pool(s4)
-        s5 = self.stage5(x)
+    def call(self, x, training=None):
+        s1 = self.stage1(x, training)
+        x = self.pool(s1, training)
+        s2 = self.stage2(x, training)
+        x = self.pool(s2, training)
+        s3 = self.stage3(x, training)
+        x = self.pool(s3, training)
+        s4 = self.stage4(x, training)
+        x = self.pool(s4, training)
+        s5 = self.stage5(x, training)
 
         return [s1, s2, s3, s4, s5]
 
@@ -61,12 +61,12 @@ class Decoder(Model):
         self.d2 = DecoderBlock(base_dim//4)
         self.d1 = DecoderBlock(base_dim//8)
 
-    def call(self, x):
+    def call(self, x, training=None):
         f1, f2, f3, f4, f5 = x
-        x = self.d4(f5, f4)
-        x = self.d3(x, f3)
-        x = self.d2(x, f2)
-        x = self.d1(x, f1)
+        x = self.d4(f5, f4, training)
+        x = self.d3(x, f3, training)
+        x = self.d2(x, f2, training)
+        x = self.d1(x, f1, training)
         return x
 
 
@@ -74,7 +74,7 @@ class Bridger(Model):
     def __init__(self):
         super().__init__()
 
-    def call(self, x):
+    def call(self, x, training):
         outputs = [tf.identity(i) for i in x]
         return outputs
 
@@ -113,10 +113,10 @@ class DecoderBlock(Model):
         self.up = layers.UpSampling2D()
         self.conv = BasicBlock(cout)
 
-    def call(self, x1, x2):
-        x1 = self.up(x1)
+    def call(self, x1, x2, training=None):
+        x1 = self.up(x1, training)
         x = tf.concat([x1, x2], axis=-1)
-        x = self.conv(x)
+        x = self.conv(x, training)
         return x
 
 
