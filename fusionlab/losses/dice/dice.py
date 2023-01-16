@@ -60,7 +60,7 @@ class DiceLoss(nn.Module):
         assert y_true.size(0) == y_pred.size(0)
         bs = y_true.size(0)
         num_classes = y_pred.size(1)
-        dims = (0, 2)
+        dims = (0, 2) # # (N, -1, H*W)
 
         if self.from_logits:
             # get [0..1] class probabilities
