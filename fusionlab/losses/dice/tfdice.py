@@ -20,7 +20,7 @@ MULTICLASS_MODE = "multiclass"
 class TFDiceLoss(tf.keras.losses.Loss):
     def __init__(
         self,
-        mode="multiclass",  # binary
+        mode="binary",  # binary, multiclass
         log_loss=False,
         from_logits=True,
     ):
@@ -50,7 +50,7 @@ class TFDiceLoss(tf.keras.losses.Loss):
         assert y_true_shape[0] == y_pred_shape[0]
         bs = y_true_shape[0]
         num_classes = y_pred_shape[-1]
-        dims = [0, 1]
+        dims = [0, 1]  # (N, H*W)
 
         if self.from_logits:
             # get [0..1] class probabilities
@@ -64,9 +64,8 @@ class TFDiceLoss(tf.keras.losses.Loss):
             y_pred = tf.reshape(y_pred, [bs, -1, 1])
         elif self.mode == MULTICLASS_MODE:
             y_true = tf.reshape(y_true, [bs, -1])
-            y_pred = tf.reshape(y_pred, [bs, -1, num_classes])
-
             y_true = tf.one_hot(y_true, num_classes)  # N, H*W -> N, H*W, C
+            y_pred = tf.reshape(y_pred, [bs, -1, num_classes])
         else:
             AssertionError("Not implemented")
 
@@ -94,8 +93,8 @@ def soft_dice_score(pred, target, dims=None):
     dice_score = (2.0 * intersection) / tf.clip_by_value(cardinality, clip_value_min=eps, clip_value_max=cardinality.dtype.max)
     return dice_score
 
-if __name__ == '__main__':
 
+if __name__ == '__main__':
     pred = tf.convert_to_tensor([[
         [1., 2., 3.],
         [2., 6., 4.],
@@ -103,7 +102,17 @@ if __name__ == '__main__':
         [4., 8., 12.]
     ]])
     true = tf.convert_to_tensor([[2, 1, 0, 2]])
-    # from pytorch_toolbelt.losses import DiceLoss
     dice = TFDiceLoss("multiclass", from_logits=True)
     loss = dice(pred, true)
-    print(loss, "0.13497286")
+    print(loss, "== 0.13497286?")
+
+    print("Binary")
+    pred = tf.convert_to_tensor([0.4, 0.2, 0.3, 0.5])
+    pred = tf.reshape(pred, [1, 2, 2, 1])
+    true = tf.convert_to_tensor([0, 1, 0, 1])
+    true = tf.reshape(true, [1, 2, 2])
+
+    print(pred.shape, true.shape)
+    dice = TFDiceLoss("binary", from_logits=True)
+    loss = dice(pred, true)
+    print(loss, '== 0.4604469')
