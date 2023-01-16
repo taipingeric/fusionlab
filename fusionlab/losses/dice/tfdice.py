@@ -44,13 +44,13 @@ class TFDiceLoss(tf.keras.losses.Loss):
         :param y_true: (N, H, W)
         :return: scalar
         """
-        # assert y_true.size(0) == y_pred.size(0)
+
         y_true_shape = y_true.shape.as_list()
         y_pred_shape = y_pred.shape.as_list()
         assert y_true_shape[0] == y_pred_shape[0]
-        bs = y_true_shape[0]
+        # bs = y_true_shape[0]
         num_classes = y_pred_shape[-1]
-        dims = [0, 1]  # (N, H*W)
+        dims = [1]  # (NHW, 1)
 
         if self.from_logits:
             # get [0..1] class probabilities
@@ -60,12 +60,12 @@ class TFDiceLoss(tf.keras.losses.Loss):
                 y_pred = tf.nn.sigmoid(y_pred)
 
         if self.mode == BINARY_MODE:
-            y_true = tf.reshape(y_true, [bs, -1, 1])
-            y_pred = tf.reshape(y_pred, [bs, -1, 1])
+            y_true = tf.reshape(y_true, [-1, 1])  # (NHW, 1)
+            y_pred = tf.reshape(y_pred, [-1, 1])  # (NHW, 1)
         elif self.mode == MULTICLASS_MODE:
-            y_true = tf.reshape(y_true, [bs, -1])
+            y_true = tf.reshape(y_true, [-1])
             y_true = tf.one_hot(y_true, num_classes)  # N, H*W -> N, H*W, C
-            y_pred = tf.reshape(y_pred, [bs, -1, num_classes])
+            y_pred = tf.reshape(y_pred, [-1, num_classes])
         else:
             AssertionError("Not implemented")
 
@@ -84,9 +84,6 @@ def soft_dice_score(pred, target, dims=None):
         - Target: :math:`(N, C, *)`, same shape as the input
         - Output: scalar.
     """
-    pred_shape = pred.shape.as_list()
-    target_shape = target.shape.as_list()
-    assert pred_shape == target_shape
     eps = 1e-7
     intersection = tf.reduce_sum(pred * target, axis=dims)
     cardinality = tf.reduce_sum(pred + target, axis=dims)
