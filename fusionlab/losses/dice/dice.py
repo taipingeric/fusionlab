@@ -67,7 +67,7 @@ class DiceLoss(nn.Module):
             if self.mode == MULTICLASS_MODE:
                 y_pred = F.softmax(y_pred, dim=1)
             else:
-                y_pred = F.sigmoid(y_pred)
+                y_pred = torch.sigmoid(y_pred)
 
         if self.mode == BINARY_MODE:
             y_true = y_true.view(bs, 1, -1)
@@ -96,7 +96,6 @@ def soft_dice_score(pred, target, dims=None):
         - Target: :math:`(N, C, *)`, same shape as the input
         - Output: scalar.
     """
-    print(pred.size(), target.size())
     assert pred.size() == target.size()
     eps = 1e-7
     intersection = torch.sum(pred * target, dim=dims)
@@ -117,4 +116,12 @@ if __name__ == "__main__":
     dice = DiceLoss("multiclass", from_logits=True)
     loss = dice(pred, true)
     print(loss, '== 0.1350?')
+
+    print("Binary")
+    pred = torch.tensor([0.4, 0.2, 0.3, 0.5]).reshape(1, 1, 2, 2)
+    true = torch.tensor([0, 1, 0, 1]).reshape(1, 2, 2)
+    print(pred.shape, true.shape)
+    dice = DiceLoss("binary", from_logits=True)
+    loss = dice(pred, true)
+    print(loss, "== 0.4604?")
 
