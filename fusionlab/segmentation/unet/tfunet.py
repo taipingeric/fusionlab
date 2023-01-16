@@ -36,13 +36,13 @@ class Encoder(Model):
 
     def call(self, x, training=None):
         s1 = self.stage1(x, training)
-        x = self.pool(s1, training)
+        x = self.pool(s1)
         s2 = self.stage2(x, training)
-        x = self.pool(s2, training)
+        x = self.pool(s2)
         s3 = self.stage3(x, training)
-        x = self.pool(s3, training)
+        x = self.pool(s3)
         s4 = self.stage4(x, training)
-        x = self.pool(s4, training)
+        x = self.pool(s4)
         s5 = self.stage5(x, training)
 
         return [s1, s2, s3, s4, s5]
@@ -74,7 +74,7 @@ class Bridger(Model):
     def __init__(self):
         super().__init__()
 
-    def call(self, x, training):
+    def call(self, x, training=None):
         outputs = [tf.identity(i) for i in x]
         return outputs
 
@@ -114,7 +114,7 @@ class DecoderBlock(Model):
         self.conv = BasicBlock(cout)
 
     def call(self, x1, x2, training=None):
-        x1 = self.up(x1, training)
+        x1 = self.up(x1)
         x = tf.concat([x1, x2], axis=-1)
         x = self.conv(x, training)
         return x
