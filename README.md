@@ -85,9 +85,22 @@ import fusionlab as fl
 
 # PyTorch UNet
 unet = fl.segmentation.UNet(cin=3, num_cls=10, base_dim=64)
-# Tensorflow UNet
-unet = fl.segmentation.TFUNet(num_cls=10, base_dim=64)
 
+# Tensorflow UNet
+import tensorflow as tf
+# Binary Segmentation
+unet = tf.keras.Sequential([
+   fl.segmentation.TFUNet(num_cls=10, base_dim=64),
+   tf.keras.layers.Activation(tf.nn.sigmoid),
+])
+unet.compile(loss=fl.losses.TFDiceLoss("binary"))
+
+# Multiclass Segmentation
+unet = tf.keras.Sequential([
+   fl.segmentation.TFUNet(num_cls=10, base_dim=64),
+   tf.keras.layers.Activation(tf.nn.softmax),
+])
+unet.compile(loss=fl.losses.TFDiceLoss("multiclass"))
 ```
 
 [Segmentation model list](fusionlab/segmentation/README.md)
