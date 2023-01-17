@@ -1,6 +1,8 @@
 import torch
 from torch import nn
 import torch.nn.functional as F
+from einops import rearrange
+
 
 __all__ = ["DiceLoss", "DiceCE"]
 
@@ -53,14 +55,13 @@ class DiceLoss(nn.Module):
 
     def forward(self, y_pred, y_true):
         """
-        :param y_pred: (N, C, H, W)
-        :param y_true: (N, H, W)
+        :param y_pred: (N, C, *)
+        :param y_true: (N, *)
         :return: scalar
         """
         assert y_true.size(0) == y_pred.size(0)
-        bs = y_true.size(0)
         num_classes = y_pred.size(1)
-        dims = (0, 2)  # (N, -1, H*W)
+        dims = (0, 2)  # (N, C, HW)
 
         if self.from_logits:
             # get [0..1] class probabilities
@@ -70,16 +71,15 @@ class DiceLoss(nn.Module):
                 y_pred = torch.sigmoid(y_pred)
 
         if self.mode == BINARY_MODE:
-            y_true = y_true.view(bs, 1, -1)
-            y_pred = y_pred.view(bs, 1, -1)
+            y_true = rearrange(y_true, "N ... -> N 1 (...)")
+            y_pred = rearrange(y_pred, "N 1 ... -> N 1 (...)")
         elif self.mode == MULTICLASS_MODE:
-            y_pred = y_pred.view(bs, num_classes, -1) # N, C, HW
-
-            y_true = y_true.view(bs, -1)
-            y_true = F.one_hot(y_true, num_classes)  # N, HW -> N, HW, C
-            y_true = y_true.permute(0, 2, 1)  # N, C, HW
+            y_pred = rearrange(y_pred, "N C ... -> N C (...)")
+            y_true = F.one_hot(y_true, num_classes)  # (N, *) -> (N, *, C)
+            y_true = rearrange(y_true, "N ... C -> N C (...)")
         else:
             AssertionError("Not implemented")
+
         scores = soft_dice_score(y_pred, y_true.type_as(y_pred), dims=dims)
         if self.log_loss:
             loss = -torch.log(scores.clamp_min(1e-7))
@@ -115,20 +115,19 @@ if __name__ == "__main__":
 
     dice = DiceLoss("multiclass", from_logits=True)
     loss = dice(pred, true)
-    assert loss.item() == 0.5519775748252869
-    print(loss.item()) # 0.5519775748252869
+    print(loss.item(), "== 0.5519775748252869")
 
     print("Binary")
     pred = torch.tensor([0.4, 0.2, 0.3, 0.5]).reshape(1, 1, 2, 2)
     true = torch.tensor([0, 1, 0, 1]).reshape(1, 2, 2)
     dice = DiceLoss("binary", from_logits=True)
     loss = dice(pred, true)
-    print(loss.item()) #0.46044689416885376
+    print(loss.item(), "== 0.46044695377349854")
 
     print("Binary Logloss")
     pred = torch.tensor([0.4, 0.2, 0.3, 0.5]).reshape(1, 1, 2, 2)
     true = torch.tensor([0, 1, 0, 1]).reshape(1, 2, 2)
     dice = DiceLoss("binary", from_logits=True, log_loss=True)
     loss = dice(pred, true)
-    print(loss.item()) #0.6170140504837036
+    print(loss.item(), "== 0.6170141696929932")
 
