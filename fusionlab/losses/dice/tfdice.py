@@ -50,10 +50,10 @@ class TFDiceLoss(tf.keras.losses.Loss):
         self.from_logits = from_logits
         self.log_loss = log_loss
 
-    def call(self, y_pred, y_true):
+    def call(self, y_true, y_pred):
         """
-        :param y_pred: (N, *, C)
         :param y_true: (N, *)
+        :param y_pred: (N, *, C)
         :return: scalar
         """
         y_true_shape = y_true.shape.as_list()
@@ -73,6 +73,7 @@ class TFDiceLoss(tf.keras.losses.Loss):
             y_true = rearrange(y_true, "N ... -> N (...) 1")
             y_pred = rearrange(y_pred, "N ... 1 -> N (...) 1")
         elif self.mode == MULTICLASS_MODE:
+            y_true = tf.cast(y_true, tf.int32)
             y_true = tf.one_hot(y_true, num_classes)
             y_true = rearrange(y_true, "N ... C -> N (...) C")
             y_pred = rearrange(y_pred, "N ... C -> N (...) C")
@@ -114,7 +115,7 @@ if __name__ == '__main__':
     true = tf.convert_to_tensor([[2, 1, 0, 2]])
 
     dice = TFDiceLoss("multiclass", from_logits=True)
-    loss = dice(pred, true)
+    loss = dice(true, pred)
     assert float(loss) == 0.5519775748252869
     print(round(float(loss), 7) , '== 0.5519775748252869')
 
@@ -124,7 +125,7 @@ if __name__ == '__main__':
     true = tf.convert_to_tensor([0, 1, 0, 1])
     true = tf.reshape(true, [1, 2, 2])
     dice = TFDiceLoss("binary", from_logits=True)
-    loss = dice(pred, true)
+    loss = dice(true, pred)
     print(round(float(loss), 7), '== 0.46044689416885376')
 
     print("Binary Log loss")
@@ -133,5 +134,5 @@ if __name__ == '__main__':
     true = tf.convert_to_tensor([0, 1, 0, 1])
     true = tf.reshape(true, [1, 2, 2])
     dice = TFDiceLoss("binary", from_logits=True, log_loss=True)
-    loss = dice(pred, true)
+    loss = dice(true, pred)
     print(round(float(loss), 7), '== 0.6170140504837036')
