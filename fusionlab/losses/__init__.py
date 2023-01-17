@@ -1,2 +1,3 @@
 from .dice.dice import DiceLoss, DiceCE
-from .dice.tfdice import TFDiceLoss
+from .dice.tfdice import TFDiceLoss, TFDiceCE
+

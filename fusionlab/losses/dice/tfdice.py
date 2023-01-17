@@ -1,31 +1,33 @@
 import tensorflow as tf
 from einops import rearrange
 
-__all__ = ["TFDiceLoss"]
+__all__ = ["TFDiceLoss", "TFDiceCE"]
 
 BINARY_MODE = "binary"
 MULTICLASS_MODE = "multiclass"
 
 # TODO: Test code
 class TFDiceCE(tf.keras.losses.Loss):
-    def __init__(self, w_dice=0.5, w_ce=0.5, mode="binary", from_logits=False):
+    def __init__(self, mode="binary", from_logits=False, w_dice=0.5, w_ce=0.5):
         """
         Dice Loss + Cross Entropy Loss
         Args:
             w_dice: weight of Dice Loss
             w_ce: weight of CrossEntropy loss
             mode: Metric mode {'binary', 'multiclass'}
-            log_loss: If True, loss computed as `-log(jaccard)`; otherwise `1 - jaccard`
         """
         super().__init__()
         self.w_dice = w_dice
         self.w_ce = w_ce
         self.dice = TFDiceLoss(mode, from_logits)
-        self.ce = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=from_logits)
+        if mode == BINARY_MODE:
+            self.ce = tf.keras.losses.BinaryCrossentropy(from_logits)
+        elif mode == MULTICLASS_MODE:
+            self.ce = tf.keras.losses.SparseCategoricalCrossentropy(from_logits)
 
-    def forward(self, y_pred, y_true):
-        loss_dice = self.dice(y_pred, y_true)
-        loss_ce = self.ce(y_pred, y_true)
+    def call(self, y_true, y_pred):
+        loss_dice = self.dice(y_true, y_pred)
+        loss_ce = self.ce(y_true, y_pred)
         return self.w_dice * loss_dice + self.w_ce * loss_ce
 
 
