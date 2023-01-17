@@ -1,20 +1,30 @@
 import tensorflow as tf
+from einops import rearrange
 
 __all__ = ["TFDiceLoss"]
 
 BINARY_MODE = "binary"
 MULTICLASS_MODE = "multiclass"
 
-# class TFDiceCE(tf.keras.losses.Loss):
-#     def __init__(self, cls_weight):
-#         self.cls_weight = cls_weight
-#         self.dice = DiceLoss()
-#         self.ce = nn.CrossEntropyLoss(weight=cls_weight)
+class TFDiceCE(tf.keras.losses.Loss):
+    def __init__(self, w_dice=0.5, w_ce=0.5):
+        """
+        Dice Loss + Cross Entropy Loss
+        Args:
+            w_dice: weight of Dice Loss
+            w_ce: weight of CrossEntropy loss
+            cls_weight:
+        """
+        super().__init__()
+        self.w_dice = w_dice
+        self.w_ce = w_ce
+        self.dice = TFDiceLoss()
+        self.ce = 1
 
-#     def forward(self, y_pred: Tensor, y_true: Tensor) -> Tensor:
-#         loss_dice = self.dice(y_pred, y_true)
-#         loss_ce = self.ce(y_pred, y_true)
-#         return 0.5*loss_dice + 0.5*loss_ce
+    def forward(self, y_pred, y_true):
+        loss_dice = self.dice(y_pred, y_true)
+        loss_ce = self.ce(y_pred, y_true)
+        return self.w_dice * loss_dice + self.w_ce * loss_ce
 
 
 class TFDiceLoss(tf.keras.losses.Loss):
@@ -22,7 +32,7 @@ class TFDiceLoss(tf.keras.losses.Loss):
         self,
         mode="binary",  # binary, multiclass
         log_loss=False,
-        from_logits=True,
+        from_logits=False,
     ):
         """
         Implementation of Dice loss for image segmentation task.
@@ -40,17 +50,15 @@ class TFDiceLoss(tf.keras.losses.Loss):
 
     def call(self, y_pred, y_true):
         """
-        :param y_pred: (N, H, W, C)
-        :param y_true: (N, H, W)
+        :param y_pred: (N, *, C)
+        :param y_true: (N, *)
         :return: scalar
         """
-
         y_true_shape = y_true.shape.as_list()
         y_pred_shape = y_pred.shape.as_list()
         assert y_true_shape[0] == y_pred_shape[0]
-        # bs = y_true_shape[0]
         num_classes = y_pred_shape[-1]
-        dims = [1]  # (NHW, 1)
+        axis = [0, 1]
 
         if self.from_logits:
             # get [0..1] class probabilities
@@ -60,56 +68,68 @@ class TFDiceLoss(tf.keras.losses.Loss):
                 y_pred = tf.nn.sigmoid(y_pred)
 
         if self.mode == BINARY_MODE:
-            y_true = tf.reshape(y_true, [-1, 1])  # (NHW, 1)
-            y_pred = tf.reshape(y_pred, [-1, 1])  # (NHW, 1)
+            y_true = rearrange(y_true, "N ... -> N (...) 1")
+            y_pred = rearrange(y_pred, "N ... 1 -> N (...) 1")
         elif self.mode == MULTICLASS_MODE:
-            y_true = tf.reshape(y_true, [-1])
-            y_true = tf.one_hot(y_true, num_classes)  # N, H*W -> N, H*W, C
-            y_pred = tf.reshape(y_pred, [-1, num_classes])
+            y_true = tf.one_hot(y_true, num_classes)
+            y_true = rearrange(y_true, "N ... C -> N (...) C")
+            y_pred = rearrange(y_pred, "N ... C -> N (...) C")
         else:
             AssertionError("Not implemented")
 
-        scores = soft_dice_score(y_pred, tf.cast(y_true, y_pred.dtype), dims=dims)
+        scores = soft_dice_score(y_pred, tf.cast(y_true, y_pred.dtype), axis=axis)
         if self.log_loss:
-            loss = -tf.math.log(tf.clip_by_value(scores, clip_value_min=1e-7))
+            loss = -tf.math.log(tf.clip_by_value(scores, clip_value_min=1e-7, clip_value_max=scores.dtype.max))
         else:
             loss = 1.0 - scores
         return tf.math.reduce_mean(loss)
 
 
-def soft_dice_score(pred, target, dims=None):
+def soft_dice_score(pred, target, axis=None):
     """
     Shape:
-        - Input: :math:`(N, C, *)` where :math:`*` means any number of additional dimensions
-        - Target: :math:`(N, C, *)`, same shape as the input
+        - Input: :math:`(*, C)` where :math:`*` means any number of additional dimensions
+        - Target: :math:`(*, C)`, same shape as the input
         - Output: scalar.
     """
     eps = 1e-7
-    intersection = tf.reduce_sum(pred * target, axis=dims)
-    cardinality = tf.reduce_sum(pred + target, axis=dims)
-    dice_score = (2.0 * intersection) / tf.clip_by_value(cardinality, clip_value_min=eps, clip_value_max=cardinality.dtype.max)
+    intersection = tf.reduce_sum(pred * target, axis=axis)
+    cardinality = tf.reduce_sum(pred + target, axis=axis)
+    dice_score = (2.0 * intersection) / tf.clip_by_value(cardinality,
+                                                         clip_value_min=eps,
+                                                         clip_value_max=cardinality.dtype.max)
     return dice_score
 
 
 if __name__ == '__main__':
+    print("Multiclass")
     pred = tf.convert_to_tensor([[
-        [1., 2., 3.],
-        [2., 6., 4.],
-        [9., 6., 3.],
-        [4., 8., 12.]
+        [1., 2., 3., 4.],
+        [2., 6., 4., 4.],
+        [9., 6., 3., 4.]
     ]])
+    pred = rearrange(pred, "N C H -> N H C")
     true = tf.convert_to_tensor([[2, 1, 0, 2]])
+
     dice = TFDiceLoss("multiclass", from_logits=True)
     loss = dice(pred, true)
-    print(loss, "== 0.13497286?")
+    assert float(loss) == 0.5519775748252869
+    print(round(float(loss), 7) , '== 0.5519775748252869')
 
     print("Binary")
     pred = tf.convert_to_tensor([0.4, 0.2, 0.3, 0.5])
     pred = tf.reshape(pred, [1, 2, 2, 1])
     true = tf.convert_to_tensor([0, 1, 0, 1])
     true = tf.reshape(true, [1, 2, 2])
-
-    print(pred.shape, true.shape)
     dice = TFDiceLoss("binary", from_logits=True)
     loss = dice(pred, true)
-    print(loss, '== 0.4604469')
+    print(round(float(loss), 7), '== 0.46044689416885376')
+
+    print("Binary Log loss")
+    pred = tf.convert_to_tensor([0.4, 0.2, 0.3, 0.5])
+    pred = tf.reshape(pred, [1, 2, 2, 1])
+    true = tf.convert_to_tensor([0, 1, 0, 1])
+    true = tf.reshape(true, [1, 2, 2])
+    dice = TFDiceLoss("binary", from_logits=True, log_loss=True)
+    loss = dice(pred, true)
+    print(round(float(loss), 7), '== 0.6170140504837036')
