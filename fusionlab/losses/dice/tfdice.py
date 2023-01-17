@@ -6,20 +6,22 @@ __all__ = ["TFDiceLoss"]
 BINARY_MODE = "binary"
 MULTICLASS_MODE = "multiclass"
 
+# TODO: Test code
 class TFDiceCE(tf.keras.losses.Loss):
-    def __init__(self, w_dice=0.5, w_ce=0.5):
+    def __init__(self, w_dice=0.5, w_ce=0.5, mode="binary", from_logits=False):
         """
         Dice Loss + Cross Entropy Loss
         Args:
             w_dice: weight of Dice Loss
             w_ce: weight of CrossEntropy loss
-            cls_weight:
+            mode: Metric mode {'binary', 'multiclass'}
+            log_loss: If True, loss computed as `-log(jaccard)`; otherwise `1 - jaccard`
         """
         super().__init__()
         self.w_dice = w_dice
         self.w_ce = w_ce
-        self.dice = TFDiceLoss()
-        self.ce = 1
+        self.dice = TFDiceLoss(mode, from_logits)
+        self.ce = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=from_logits)
 
     def forward(self, y_pred, y_true):
         loss_dice = self.dice(y_pred, y_true)
