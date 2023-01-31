@@ -45,7 +45,7 @@ class TFDiceLoss(tf.keras.losses.Loss):
         https://github.com/BloodAxe/pytorch-toolbelt/blob/develop/pytorch_toolbelt/losses/dice.py
         Args:
             mode: Metric mode {'binary', 'multiclass'}
-            log_loss: If True, loss computed as `-log(jaccard)`; otherwise `1 - jaccard`
+            log_loss: If True, loss computed as `-log(dice)`; otherwise `1 - dice`
             from_logits: If True assumes input is raw logits
         """
         super().__init__()
