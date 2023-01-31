@@ -2,31 +2,33 @@ import tensorflow as tf
 from einops import rearrange
 from fusionlab.functional import tf_dice_score
 
-__all__ = ["TFDiceLoss"]
+__all__ = ["TFDiceLoss", "TFDiceCE"]
 
 BINARY_MODE = "binary"
 MULTICLASS_MODE = "multiclass"
 
 # TODO: Test code
 class TFDiceCE(tf.keras.losses.Loss):
-    def __init__(self, w_dice=0.5, w_ce=0.5, mode="binary", from_logits=False):
+    def __init__(self, mode="binary", from_logits=False, w_dice=0.5, w_ce=0.5):
         """
         Dice Loss + Cross Entropy Loss
         Args:
             w_dice: weight of Dice Loss
             w_ce: weight of CrossEntropy loss
             mode: Metric mode {'binary', 'multiclass'}
-            log_loss: If True, loss computed as `-log(jaccard)`; otherwise `1 - jaccard`
         """
         super().__init__()
         self.w_dice = w_dice
         self.w_ce = w_ce
         self.dice = TFDiceLoss(mode, from_logits)
-        self.ce = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=from_logits)
+        if mode == BINARY_MODE:
+            self.ce = tf.keras.losses.BinaryCrossentropy(from_logits)
+        elif mode == MULTICLASS_MODE:
+            self.ce = tf.keras.losses.SparseCategoricalCrossentropy(from_logits)
 
-    def forward(self, y_pred, y_true):
-        loss_dice = self.dice(y_pred, y_true)
-        loss_ce = self.ce(y_pred, y_true)
+    def call(self, y_true, y_pred):
+        loss_dice = self.dice(y_true, y_pred)
+        loss_ce = self.ce(y_true, y_pred)
         return self.w_dice * loss_dice + self.w_ce * loss_ce
 
 
@@ -51,10 +53,10 @@ class TFDiceLoss(tf.keras.losses.Loss):
         self.from_logits = from_logits
         self.log_loss = log_loss
 
-    def call(self, y_pred, y_true):
+    def call(self, y_true, y_pred):
         """
-        :param y_pred: (N, *, C)
         :param y_true: (N, *)
+        :param y_pred: (N, *, C)
         :return: scalar
         """
         y_true_shape = y_true.shape.as_list()
@@ -74,6 +76,7 @@ class TFDiceLoss(tf.keras.losses.Loss):
             y_true = rearrange(y_true, "N ... -> N (...) 1")
             y_pred = rearrange(y_pred, "N ... 1 -> N (...) 1")
         elif self.mode == MULTICLASS_MODE:
+            y_true = tf.cast(y_true, tf.int32)
             y_true = tf.one_hot(y_true, num_classes)
             y_true = rearrange(y_true, "N ... C -> N (...) C")
             y_pred = rearrange(y_pred, "N ... C -> N (...) C")
@@ -99,7 +102,7 @@ if __name__ == '__main__':
     true = tf.convert_to_tensor([[2, 1, 0, 2]])
 
     dice = TFDiceLoss("multiclass", from_logits=True)
-    loss = dice(pred, true)
+    loss = dice(true, pred)
     assert float(loss) == 0.5519775748252869
     print(round(float(loss), 7) , '== 0.5519775748252869')
 
@@ -109,7 +112,7 @@ if __name__ == '__main__':
     true = tf.convert_to_tensor([0, 1, 0, 1])
     true = tf.reshape(true, [1, 2, 2])
     dice = TFDiceLoss("binary", from_logits=True)
-    loss = dice(pred, true)
+    loss = dice(true, pred)
     print(round(float(loss), 7), '== 0.46044689416885376')
 
     print("Binary Log loss")
@@ -118,5 +121,5 @@ if __name__ == '__main__':
     true = tf.convert_to_tensor([0, 1, 0, 1])
     true = tf.reshape(true, [1, 2, 2])
     dice = TFDiceLoss("binary", from_logits=True, log_loss=True)
-    loss = dice(pred, true)
+    loss = dice(true, pred)
     print(round(float(loss), 7), '== 0.6170140504837036')
