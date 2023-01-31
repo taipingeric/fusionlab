@@ -25,6 +25,7 @@ def tf_dice_score(pred, target, axis=None):
     """
     intersection = tf.reduce_sum(pred * target, axis=axis)
     cardinality = tf.reduce_sum(pred + target, axis=axis)
-    return (2.0 * intersection) / tf.clip_by_value(cardinality,
-                                                   clip_value_min=eps,
-                                                   clip_value_max=cardinality.dtype.max)
+    cardinality = tf.clip_by_value(cardinality,
+                                   clip_value_min=eps,
+                                   clip_value_max=cardinality.dtype.max)
+    return (2.0 * intersection) / cardinality
