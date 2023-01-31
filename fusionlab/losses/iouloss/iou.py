@@ -38,7 +38,7 @@ class IoULoss(nn.Module):
         """
         assert y_true.size(0) == y_pred.size(0)
         num_classes = y_pred.size(1)
-        dims = (0, 2)  # (N, C, HW)
+        dims = (0, 2)  # (N, C, *)
 
         if self.from_logits:
             # get [0..1] class probabilities
@@ -75,21 +75,21 @@ if __name__ == "__main__":
     ]]).view(1, 3, 4)
     true = torch.tensor([[2, 1, 0, 2]]).view(1, 4)
 
-    dice = DiceLoss("multiclass", from_logits=True)
-    loss = dice(pred, true)
+    iou = IoULoss("multiclass", from_logits=True)
+    loss = iou(pred, true)
     print(loss.item(), "== 0.5519775748252869")
 
     print("Binary")
     pred = torch.tensor([0.4, 0.2, 0.3, 0.5]).reshape(1, 1, 2, 2)
     true = torch.tensor([0, 1, 0, 1]).reshape(1, 2, 2)
-    dice = DiceLoss("binary", from_logits=True)
-    loss = dice(pred, true)
+    iou = IoULoss("binary", from_logits=True)
+    loss = iou(pred, true)
     print(loss.item(), "== 0.46044695377349854")
 
     print("Binary Logloss")
     pred = torch.tensor([0.4, 0.2, 0.3, 0.5]).reshape(1, 1, 2, 2)
     true = torch.tensor([0, 1, 0, 1]).reshape(1, 2, 2)
-    dice = DiceLoss("binary", from_logits=True, log_loss=True)
-    loss = dice(pred, true)
+    iou = IoULoss("binary", from_logits=True, log_loss=True)
+    loss = iou(pred, true)
     print(loss.item(), "== 0.6170141696929932")
 
