@@ -10,3 +10,7 @@ python setup.py sdist bdist_wheel
 twine upload dist/*
 # testpypi
 twine upload --repository testpypi dist/*
+
+# testpypi install
+!pip install --upgrade fusionlab==?
+!pip install -i https://test.pypi.org/simple/ --upgrade fusionlab==?
