@@ -13,6 +13,7 @@ especially for newbie. Feel free to send pull requests :D
 * [How to use](#How-to-use)
 * [Encoders](#Encoders)
 * [Segmentation](#Segmentation)
+* [Acknowledgements](#Acknowledgements)
 
 ## Installation
 
@@ -95,3 +96,7 @@ unet = fl.segmentation.TFUNet(num_cls=10, base_dim=64)
 * UNet, TFUNet
 * ResUNet, TFResUNet
 * UNet2plus, TFUNet2plus
+
+## Acknowledgements
+
+* [BloodAxe/pytorch-toolbelt](https://github.com/BloodAxe/pytorch-toolbelt)
