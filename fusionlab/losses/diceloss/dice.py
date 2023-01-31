@@ -101,19 +101,16 @@ if __name__ == "__main__":
 
     dice = DiceLoss("multiclass", from_logits=True)
     loss = dice(pred, true)
-    print(loss.item(), "== 0.5519775748252869")
 
     print("Binary")
     pred = torch.tensor([0.4, 0.2, 0.3, 0.5]).reshape(1, 1, 2, 2)
     true = torch.tensor([0, 1, 0, 1]).reshape(1, 2, 2)
     dice = DiceLoss("binary", from_logits=True)
     loss = dice(pred, true)
-    print(loss.item(), "== 0.46044695377349854")
 
     print("Binary Logloss")
     pred = torch.tensor([0.4, 0.2, 0.3, 0.5]).reshape(1, 1, 2, 2)
     true = torch.tensor([0, 1, 0, 1]).reshape(1, 2, 2)
     dice = DiceLoss("binary", from_logits=True, log_loss=True)
     loss = dice(pred, true)
-    print(loss.item(), "== 0.6170141696929932")
 

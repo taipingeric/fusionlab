@@ -78,7 +78,6 @@ if __name__ == '__main__':
     true = tf.convert_to_tensor([[2, 1, 0, 2]])
 
     loss = TFIoULoss("multiclass", from_logits=True)(true, pred)
-    print(round(float(loss), 7) , '== 0.5519775748252869')
 
     print("Binary")
     pred = tf.convert_to_tensor([0.4, 0.2, 0.3, 0.5])
@@ -86,7 +85,6 @@ if __name__ == '__main__':
     true = tf.convert_to_tensor([0, 1, 0, 1])
     true = tf.reshape(true, [1, 2, 2])
     loss = TFIoULoss("binary", from_logits=True)(true, pred)
-    print(round(float(loss), 7), '== 0.46044695377349854')
 
     print("Binary Log loss")
     pred = tf.convert_to_tensor([0.4, 0.2, 0.3, 0.5])
@@ -94,4 +92,3 @@ if __name__ == '__main__':
     true = tf.convert_to_tensor([0, 1, 0, 1])
     true = tf.reshape(true, [1, 2, 2])
     loss = TFIoULoss("binary", from_logits=True, log_loss=True)(true, pred)
-    print(round(float(loss), 7), '== 0.6170141696929932')

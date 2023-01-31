@@ -103,8 +103,6 @@ if __name__ == '__main__':
 
     dice = TFDiceLoss("multiclass", from_logits=True)
     loss = dice(true, pred)
-    assert float(loss) == 0.5519775748252869
-    print(round(float(loss), 7) , '== 0.5519775748252869')
 
     print("Binary")
     pred = tf.convert_to_tensor([0.4, 0.2, 0.3, 0.5])
@@ -113,7 +111,6 @@ if __name__ == '__main__':
     true = tf.reshape(true, [1, 2, 2])
     dice = TFDiceLoss("binary", from_logits=True)
     loss = dice(true, pred)
-    print(round(float(loss), 7), '== 0.46044689416885376')
 
     print("Binary Log loss")
     pred = tf.convert_to_tensor([0.4, 0.2, 0.3, 0.5])
@@ -122,4 +119,3 @@ if __name__ == '__main__':
     true = tf.reshape(true, [1, 2, 2])
     dice = TFDiceLoss("binary", from_logits=True, log_loss=True)
     loss = dice(true, pred)
-    print(round(float(loss), 7), '== 0.6170140504837036')

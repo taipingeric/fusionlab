@@ -76,17 +76,14 @@ if __name__ == "__main__":
     true = torch.tensor([[2, 1, 0, 2]]).view(1, 4)
 
     loss = IoULoss("multiclass", from_logits=True)(pred, true)
-    print(loss.item(), "== 0.6969285607337952")
 
     print("Binary")
     pred = torch.tensor([0.4, 0.2, 0.3, 0.5]).reshape(1, 1, 2, 2)
     true = torch.tensor([0, 1, 0, 1]).reshape(1, 2, 2)
     loss = IoULoss("binary", from_logits=True)(pred, true)
-    print(loss.item(), "== 0.6305561661720276")
 
     print("Binary Logloss")
     pred = torch.tensor([0.4, 0.2, 0.3, 0.5]).reshape(1, 1, 2, 2)
     true = torch.tensor([0, 1, 0, 1]).reshape(1, 2, 2)
     loss = IoULoss("binary", from_logits=True, log_loss=True)(pred, true)
-    print(loss.item(), "== 0.9957565665245056")
 
