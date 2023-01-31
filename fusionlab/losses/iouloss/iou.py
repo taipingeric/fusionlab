@@ -2,7 +2,7 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 from einops import rearrange
-from fusionlab.functional import dice_score
+from fusionlab.functional import iou_score
 
 __all__ = ["IoULoss"]
 
@@ -57,7 +57,7 @@ class IoULoss(nn.Module):
         else:
             AssertionError("Not implemented")
 
-        scores = dice_score(y_pred, y_true.type_as(y_pred), dims=dims)
+        scores = iou_score(y_pred, y_true.type_as(y_pred), dims=dims)
         if self.log_loss:
             loss = -torch.log(scores.clamp_min(1e-7))
         else:
@@ -75,21 +75,18 @@ if __name__ == "__main__":
     ]]).view(1, 3, 4)
     true = torch.tensor([[2, 1, 0, 2]]).view(1, 4)
 
-    iou = IoULoss("multiclass", from_logits=True)
-    loss = iou(pred, true)
-    print(loss.item(), "== 0.5519775748252869")
+    loss = IoULoss("multiclass", from_logits=True)(pred, true)
+    print(loss.item(), "== 0.6969285607337952")
 
     print("Binary")
     pred = torch.tensor([0.4, 0.2, 0.3, 0.5]).reshape(1, 1, 2, 2)
     true = torch.tensor([0, 1, 0, 1]).reshape(1, 2, 2)
-    iou = IoULoss("binary", from_logits=True)
-    loss = iou(pred, true)
-    print(loss.item(), "== 0.46044695377349854")
+    loss = IoULoss("binary", from_logits=True)(pred, true)
+    print(loss.item(), "== 0.6305561661720276")
 
     print("Binary Logloss")
     pred = torch.tensor([0.4, 0.2, 0.3, 0.5]).reshape(1, 1, 2, 2)
     true = torch.tensor([0, 1, 0, 1]).reshape(1, 2, 2)
-    iou = IoULoss("binary", from_logits=True, log_loss=True)
-    loss = iou(pred, true)
-    print(loss.item(), "== 0.6170141696929932")
+    loss = IoULoss("binary", from_logits=True, log_loss=True)(pred, true)
+    print(loss.item(), "== 0.9957565665245056")
 
