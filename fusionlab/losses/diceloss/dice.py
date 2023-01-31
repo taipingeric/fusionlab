@@ -3,7 +3,7 @@ from torch import nn
 import torch.nn.functional as F
 from einops import rearrange
 from fusionlab.functional import dice_score
-from fusionlab import EPS
+from fusionlab.configs import EPS
 
 __all__ = ["DiceLoss", "DiceCELoss"]
 

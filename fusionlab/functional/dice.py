@@ -1,6 +1,6 @@
 import torch
 import tensorflow as tf
-from fusionlab import EPS
+from fusionlab.configs import EPS
 
 
 def dice_score(pred, target, dims=None):
