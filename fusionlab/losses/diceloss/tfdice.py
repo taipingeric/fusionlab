@@ -1,5 +1,6 @@
 import tensorflow as tf
 from einops import rearrange
+from fusionlab.functional import tf_dice_score
 
 __all__ = ["TFDiceLoss"]
 
@@ -79,28 +80,12 @@ class TFDiceLoss(tf.keras.losses.Loss):
         else:
             AssertionError("Not implemented")
 
-        scores = soft_dice_score(y_pred, tf.cast(y_true, y_pred.dtype), axis=axis)
+        scores = tf_dice_score(y_pred, tf.cast(y_true, y_pred.dtype), axis=axis)
         if self.log_loss:
             loss = -tf.math.log(tf.clip_by_value(scores, clip_value_min=1e-7, clip_value_max=scores.dtype.max))
         else:
             loss = 1.0 - scores
         return tf.math.reduce_mean(loss)
-
-
-def soft_dice_score(pred, target, axis=None):
-    """
-    Shape:
-        - Input: :math:`(*, C)` where :math:`*` means any number of additional dimensions
-        - Target: :math:`(*, C)`, same shape as the input
-        - Output: scalar.
-    """
-    eps = 1e-7
-    intersection = tf.reduce_sum(pred * target, axis=axis)
-    cardinality = tf.reduce_sum(pred + target, axis=axis)
-    dice_score = (2.0 * intersection) / tf.clip_by_value(cardinality,
-                                                         clip_value_min=eps,
-                                                         clip_value_max=cardinality.dtype.max)
-    return dice_score
 
 
 if __name__ == '__main__':

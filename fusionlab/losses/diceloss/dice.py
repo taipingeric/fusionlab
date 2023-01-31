@@ -2,15 +2,15 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 from einops import rearrange
+from fusionlab.functional import dice_score
 
-
-__all__ = ["DiceLoss", "DiceCE"]
+__all__ = ["DiceLoss", "DiceCELoss"]
 
 BINARY_MODE = "binary"
 MULTICLASS_MODE = "multiclass"
 
 
-class DiceCE(nn.Module):
+class DiceCELoss(nn.Module):
     def __init__(self, w_dice=0.5, w_ce=0.5, cls_weight=None):
         """
         Dice Loss + Cross Entropy Loss
@@ -42,7 +42,7 @@ class DiceLoss(nn.Module):
         """
         Implementation of Dice loss for image segmentation task.
         It supports "binary", "multiclass"
-        https://github.com/BloodAxe/pytorch-toolbelt/blob/develop/pytorch_toolbelt/losses/dice.py
+        ref: https://github.com/BloodAxe/pytorch-toolbelt/blob/develop/pytorch_toolbelt/losses/dice.py
         Args:
             mode: Metric mode {'binary', 'multiclass'}
             log_loss: If True, loss computed as `-log(jaccard)`; otherwise `1 - jaccard`
@@ -80,27 +80,12 @@ class DiceLoss(nn.Module):
         else:
             AssertionError("Not implemented")
 
-        scores = soft_dice_score(y_pred, y_true.type_as(y_pred), dims=dims)
+        scores = dice_score(y_pred, y_true.type_as(y_pred), dims=dims)
         if self.log_loss:
             loss = -torch.log(scores.clamp_min(1e-7))
         else:
             loss = 1.0 - scores
         return loss.mean()
-
-
-def soft_dice_score(pred, target, dims=None):
-    """
-    Shape:
-        - Input: :math:`(N, C, *)`
-        - Target: :math:`(N, C, *)`
-        - Output: scalar.
-    """
-    assert pred.size() == target.size()
-    eps = 1e-7
-    intersection = torch.sum(pred * target, dim=dims)
-    cardinality = torch.sum(pred + target, dim=dims)
-    dice_score = (2.0 * intersection) / cardinality.clamp(min=eps)
-    return dice_score
 
 
 if __name__ == "__main__":
