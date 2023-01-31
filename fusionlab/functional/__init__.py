@@ -6,4 +6,3 @@ from .iou import (
     tf_jaccard_score,
 )
 
-eps = 1e-7

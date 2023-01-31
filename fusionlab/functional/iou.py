@@ -1,6 +1,6 @@
 import torch
 import tensorflow as tf
-from fusionlab.functional import eps
+from fusionlab import EPS
 
 
 def iou_score(pred, target, dims=None):
@@ -15,7 +15,7 @@ def iou_score(pred, target, dims=None):
     intersection = torch.sum(pred * target, dim=dims)
     cardinality = torch.sum(pred + target, dim=dims)
     union = cardinality - intersection
-    iou = intersection / union.clamp_min(eps)
+    iou = intersection / union.clamp_min(EPS)
     return iou
 
 
@@ -29,7 +29,7 @@ def tf_iou_score(pred, target, axis=None):
     intersection = tf.reduce_sum(pred * target, axis=axis)
     cardinality = tf.reduce_sum(pred + target, axis=axis)
     cardinality = tf.clip_by_value(cardinality,
-                                   clip_value_min=eps,
+                                   clip_value_min=EPS,
                                    clip_value_max=cardinality.dtype.max)
     union = cardinality - intersection
     return intersection / union

@@ -3,37 +3,14 @@ from torch import nn
 import torch.nn.functional as F
 from einops import rearrange
 from fusionlab.functional import dice_score
-from fusionlab import EPS
 
-__all__ = ["DiceLoss", "DiceCELoss"]
+__all__ = ["IoULoss"]
 
 BINARY_MODE = "binary"
 MULTICLASS_MODE = "multiclass"
 
 
-class DiceCELoss(nn.Module):
-    def __init__(self, w_dice=0.5, w_ce=0.5, cls_weight=None):
-        """
-        Dice Loss + Cross Entropy Loss
-        Args:
-            w_dice: weight of Dice Loss
-            w_ce: weight of CrossEntropy loss
-            cls_weight:
-        """
-        super().__init__()
-        self.w_dice = w_dice
-        self.w_ce = w_ce
-        self.cls_weight = cls_weight
-        self.dice = DiceLoss()
-        self.ce = nn.CrossEntropyLoss(weight=cls_weight)
-
-    def forward(self, y_pred, y_true):
-        loss_dice = self.dice(y_pred, y_true)
-        loss_ce = self.ce(y_pred, y_true)
-        return self.w_dice * loss_dice + self.w_ce * loss_ce
-
-
-class DiceLoss(nn.Module):
+class IoULoss(nn.Module):
     def __init__(
         self,
         mode="multiclass",  # binary, multiclass
@@ -41,12 +18,11 @@ class DiceLoss(nn.Module):
         from_logits=True,
     ):
         """
-        Implementation of Dice loss for image segmentation task.
+        Implementation of Iou loss for image segmentation task.
         It supports "binary", "multiclass"
-        ref: https://github.com/BloodAxe/pytorch-toolbelt/blob/develop/pytorch_toolbelt/losses/dice.py
         Args:
             mode: Metric mode {'binary', 'multiclass'}
-            log_loss: If True, loss computed as `-log(dice)`; otherwise `1 - dice`
+            log_loss: If True, loss computed as `-log(jaccard)`; otherwise `1 - jaccard`
             from_logits: If True assumes input is raw logits
         """
         super().__init__()
@@ -83,7 +59,7 @@ class DiceLoss(nn.Module):
 
         scores = dice_score(y_pred, y_true.type_as(y_pred), dims=dims)
         if self.log_loss:
-            loss = -torch.log(scores.clamp_min(EPS))
+            loss = -torch.log(scores.clamp_min(1e-7))
         else:
             loss = 1.0 - scores
         return loss.mean()

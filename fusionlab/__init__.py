@@ -7,3 +7,5 @@ from . import (
     functional,
 )
 from .__version__ import __version__
+
+EPS = 1e-7
