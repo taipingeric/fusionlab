@@ -2,7 +2,7 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 from einops import rearrange
-from fusionlab.functional import dice_score
+from fusionlab.functional import dice_score, eps
 
 __all__ = ["DiceLoss", "DiceCELoss"]
 
@@ -45,7 +45,7 @@ class DiceLoss(nn.Module):
         ref: https://github.com/BloodAxe/pytorch-toolbelt/blob/develop/pytorch_toolbelt/losses/dice.py
         Args:
             mode: Metric mode {'binary', 'multiclass'}
-            log_loss: If True, loss computed as `-log(jaccard)`; otherwise `1 - jaccard`
+            log_loss: If True, loss computed as `-log(dice)`; otherwise `1 - dice`
             from_logits: If True assumes input is raw logits
         """
         super().__init__()
@@ -82,7 +82,7 @@ class DiceLoss(nn.Module):
 
         scores = dice_score(y_pred, y_true.type_as(y_pred), dims=dims)
         if self.log_loss:
-            loss = -torch.log(scores.clamp_min(1e-7))
+            loss = -torch.log(scores.clamp_min(eps))
         else:
             loss = 1.0 - scores
         return loss.mean()
