@@ -4,5 +4,5 @@
 |:------------------------------|:------------|------------|
 | Dice Loss                     | DiceLoss    | TFDiceLoss |
 | IoU Loss                      | IoULoss     | TFIoULoss  |
- | Dice Loss + CrossEntropy Loss | DiceCELoss  | **TODO**   |
+ | Dice Loss + CrossEntropy Loss | DiceCELoss  | DiceCELoss |
 

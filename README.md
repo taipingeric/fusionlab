@@ -79,6 +79,8 @@ encoder = fl.encoders.TFVGG16()
 [encoder list](fusionlab/encoders/README.md)
 
 ## Losses
+
+[Loss func list](fusionlab/losses/README.md)
 * DiceLoss, TFDiceLoss
 * IoULoss, TFIoULoss
 
