@@ -43,6 +43,7 @@ class TestSegLoss:
         # Binary Loss
         data = BinaryData()
         true_loss = 0.46044695377349854
+
         pred = torch.tensor(data.pred).reshape(1, 1, 2, 2)
         true = torch.tensor(data.target).reshape(1, 2, 2)
         # PT

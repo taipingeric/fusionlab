@@ -63,7 +63,7 @@ class TFDiceLoss(tf.keras.losses.Loss):
         y_pred_shape = y_pred.shape.as_list()
         assert y_true_shape[0] == y_pred_shape[0]
         num_classes = y_pred_shape[-1]
-        axis = [0, 1]
+        axis = [0]
 
         if self.from_logits:
             # get [0..1] class probabilities
@@ -73,13 +73,13 @@ class TFDiceLoss(tf.keras.losses.Loss):
                 y_pred = tf.nn.sigmoid(y_pred)
 
         if self.mode == BINARY_MODE:
-            y_true = rearrange(y_true, "N ... -> N (...) 1")
-            y_pred = rearrange(y_pred, "N ... 1 -> N (...) 1")
+            y_true = rearrange(y_true, "... -> (...) 1")
+            y_pred = rearrange(y_pred, "... -> (...) 1")
         elif self.mode == MULTICLASS_MODE:
             y_true = tf.cast(y_true, tf.int32)
             y_true = tf.one_hot(y_true, num_classes)
-            y_true = rearrange(y_true, "N ... C -> N (...) C")
-            y_pred = rearrange(y_pred, "N ... C -> N (...) C")
+            y_true = rearrange(y_true, "... C -> (...) C")
+            y_pred = rearrange(y_pred, "... C -> (...) C")
         else:
             AssertionError("Not implemented")
 
