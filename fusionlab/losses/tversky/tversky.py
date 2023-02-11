@@ -88,4 +88,29 @@ def tversky_score(pred, target, alpha, beta, dims):
     denominator = intersection + alpha * fp + beta * fn
     return intersection / denominator.clamp(min=EPS)
 
+if __name__ == "__main__":
+    print("multiclass")
+    pred = torch.tensor([[
+        [1., 2., 3., 4.],
+        [2., 6., 4., 4.],
+        [9., 6., 3., 4.]
+    ]]).unsqueeze(-1)
+    true = torch.tensor([[2, 1, 0, 2]]).view(1, 4).unsqueeze(-1)
 
+    loss_fn = TverskyLoss(0.5, 0.5, "multiclass", from_logits=True)
+    loss = loss_fn(pred, true)
+    print(loss.item())
+
+    print("Binary")
+    pred = torch.tensor([0.4, 0.2, 0.3, 0.5]).reshape(1, 1, 2, 2)
+    true = torch.tensor([0, 1, 0, 1]).reshape(1, 2, 2)
+    loss_fn = TverskyLoss(0.5, 0.5, "binary", from_logits=True)
+    loss = loss_fn(pred, true)
+    print(loss.item())
+
+    print("Binary Logloss")
+    pred = torch.tensor([0.4, 0.2, 0.3, 0.5]).reshape(1, 1, 2, 2)
+    true = torch.tensor([0, 1, 0, 1]).reshape(1, 2, 2)
+    loss_fn = TverskyLoss(0.5, 0.5, "binary", from_logits=True, log_loss=True)
+    loss = loss_fn(pred, true)
+    print(loss.item())
