@@ -19,8 +19,11 @@ class TFTverskyLoss(tf.keras.losses.Loss):
         """
         Implementation of Dice loss for image segmentation task.
         It supports "binary", "multiclass"
-        https://github.com/BloodAxe/pytorch-toolbelt/blob/develop/pytorch_toolbelt/losses/dice.py
+        ref: https://github.com/kornia/kornia/blob/master/kornia/losses/tversky.py
+        ref: https://github.com/kevinzakka/pytorch-goodies/blob/master/losses.py
         Args:
+            alpha: controls the penalty for false positives(FP).
+            beta: controls the penalty for false negatives(FN).
             mode: Metric mode {'binary', 'multiclass'}
             log_loss: If True, loss computed as `-log(dice)`; otherwise `1 - dice`
             from_logits: If True assumes input is raw logits
