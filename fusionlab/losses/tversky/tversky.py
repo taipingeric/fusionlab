@@ -86,6 +86,6 @@ def tversky_score(pred, target, alpha, beta, dims):
     fn = torch.sum((1. - pred) * target, dims)
 
     denominator = intersection + alpha * fp + beta * fn
-    return intersection / (denominator + EPS)
+    return intersection / denominator.clamp(min=EPS)
 
 
