@@ -9,6 +9,7 @@
 FusionLab is an open-source frameworks built for Deep Learning research written in PyTorch and Tensorflow. The code is easy to read and modify 
 especially for newbie. Feel free to send pull requests :D
 
+* [What's New] (#News)
 * [Installation](#Installation)
 * [How to use](#How-to-use)
 * [Encoders](#Encoders)
@@ -127,6 +128,12 @@ unet.compile(loss=fl.losses.TFDiceLoss("multiclass"))
 * UNet, TFUNet
 * ResUNet, TFResUNet
 * UNet2plus, TFUNet2plus
+
+## News
+
+0.0.52
+
+* Tversky Loss for Torch and TF
 
 ## Acknowledgements
 
