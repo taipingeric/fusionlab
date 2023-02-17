@@ -81,8 +81,10 @@ encoder = fl.encoders.TFVGG16()
 ## Losses
 
 [Loss func list](fusionlab/losses/README.md)
-* DiceLoss, TFDiceLoss
-* IoULoss, TFIoULoss
+* Dice Loss
+* Tversky Loss
+* IoU Loss
+
 
 ```python
 # Dice Loss (Multiclass)
