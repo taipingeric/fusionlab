@@ -35,7 +35,7 @@ class TFDiceCE(tf.keras.losses.Loss):
 class TFDiceLoss(tf.keras.losses.Loss):
     def __init__(
         self,
-        mode="binary",  # binary, multiclass
+        mode="multiclass",  # binary, multiclass
         log_loss=False,
         from_logits=False,
     ):
