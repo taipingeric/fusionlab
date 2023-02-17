@@ -55,46 +55,35 @@ encoder = fl.encoders.TFVGG16()
 ```python
 # Dice Loss (Multiclass)
 import fusionlab as fl
+import torch
+import tensorflow as tf
 
 # PyTorch
-import torch
-loss_fn = fl.losses.DiceLoss("multiclass", from_logits=True)
-pred = torch.tensor([[
-   [1., 2., 3., 4.],
-   [2., 6., 4., 4.],
-   [9., 6., 3., 4.]
-]]).view(1, 3, 4) # (BS, *, C)
-true = torch.tensor([[2, 1, 0, 2]]).view(1, 4) # (BS, *)
-loss = loss_fn(pred, true)
+pred = torch.normal(0., 1., (1, 3, 4, 4)) # (N, C, *)
+target = torch.randint(0, 3, (1, 4, 4)) # (N, *)
+loss_fn = fl.losses.DiceLoss()
+loss = loss_fn(pred, target)
 
 # Tensorflow
-import tensorflow as tf
-loss_fn = fl.losses.TFDiceLoss("multiclass", from_logits=True)
-pred = tf.convert_to_tensor([[
-   [1., 2., 3.],
-   [2., 6., 4.],
-   [9., 6., 3.],
-   [4., 4., 4.],
-]]) # (BS, *, C)
-true = tf.convert_to_tensor([[2, 1, 0, 2]]) # (BS, *)
-loss = loss_fn(true, pred)
+pred = tf.random.normal((1, 4, 4, 3), 0., 1.) # (N, *, C)
+target = tf.random.uniform((1, 4, 4), 0, 3) # (N, *)
+loss_fn = fl.losses.TFDiceLoss("multiclass")
+loss = loss_fn(target, pred)
+
 
 # Dice Loss (Binary)
-# PyTorch
-import torch
 
-pred = torch.tensor([0.4, 0.2, 0.3, 0.5]).reshape(1, 1, 2, 2) # (BS, 1, *)
-true = torch.tensor([0, 1, 0, 1]).reshape(1, 2, 2) # (BS, *)
-loss_fn = fl.losses.IoULoss("binary", from_logits=True)
-loss = loss_fn(pred, true)
+# PyTorch
+pred = torch.normal(0, 1, (1, 1, 4, 4)) # (N, 1, *)
+target = torch.randint(0, 3, (1, 4, 4)) # (N, *)
+loss_fn = fl.losses.DiceLoss("binary")
+loss = loss_fn(pred, target)
 
 # Tensorflow
-pred = tf.convert_to_tensor([0.4, 0.2, 0.3, 0.5])
-pred = tf.reshape(pred, [1, 2, 2, 1]) # (BS, *, 1)
-true = tf.convert_to_tensor([0, 1, 0, 1])
-true = tf.reshape(true, [1, 2, 2]) # (BS, *)
-loss_fn = fl.losses.TFIoULoss("binary", from_logits=True)
-loss = loss_fn(true, pred)
+pred = tf.random.normal((1, 4, 4, 1), 0., 1.) # (N, *, 1)
+target = tf.random.uniform((1, 4, 4), 0, 3) # (N, *)
+loss_fn = fl.losses.TFDiceLoss("binary")
+loss = loss_fn(target, pred)
 
 
 ```
@@ -108,12 +97,6 @@ unet = fl.segmentation.UNet(cin=3, num_cls=10, base_dim=64)
 
 # Tensorflow UNet
 import tensorflow as tf
-# Binary Segmentation
-unet = tf.keras.Sequential([
-   fl.segmentation.TFUNet(num_cls=1, base_dim=64),
-   tf.keras.layers.Activation(tf.nn.sigmoid),
-])
-unet.compile(loss=fl.losses.TFDiceLoss("binary"))
 
 # Multiclass Segmentation
 unet = tf.keras.Sequential([
@@ -121,13 +104,22 @@ unet = tf.keras.Sequential([
    tf.keras.layers.Activation(tf.nn.softmax),
 ])
 unet.compile(loss=fl.losses.TFDiceLoss("multiclass"))
+
+# Binary Segmentation
+unet = tf.keras.Sequential([
+   fl.segmentation.TFUNet(num_cls=1, base_dim=64),
+   tf.keras.layers.Activation(tf.nn.sigmoid),
+])
+unet.compile(loss=fl.losses.TFDiceLoss("binary"))
+
+
 ```
 
 [Segmentation model list](fusionlab/segmentation/README.md)
 
-* UNet, TFUNet
-* ResUNet, TFResUNet
-* UNet2plus, TFUNet2plus
+* UNet
+* ResUNet
+* UNet2plus
 
 ## News
 
