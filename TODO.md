@@ -20,7 +20,5 @@
 
 ### Losses
 
-* Dice
-* IoU
 * HD95
 * Normalized Surface Distance(NSD)
