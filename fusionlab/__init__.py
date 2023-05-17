@@ -5,5 +5,6 @@ from . import (
     layers,
     segmentation,
     losses,
+    trainers
 )
 from .__version__ import __version__
