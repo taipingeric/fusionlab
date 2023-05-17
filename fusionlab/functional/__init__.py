@@ -6,8 +6,8 @@ if BACKEND == 'torch':
         jaccard_score,
     )
 elif BACKEND == 'tf':
-    from .dice import tf_dice_score
-    from .iou import (
+    from .tfdice import tf_dice_score
+    from .tfiou import (
         tf_iou_score,
         tf_jaccard_score,
     )
