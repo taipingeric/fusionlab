@@ -1,3 +1,6 @@
-torchvision>=0.5.0
-tensorflow>=2.6
+# torchvision>=0.5.0
+# tensorflow>=2.6
 einops
+
+xmltodict
+xlwt

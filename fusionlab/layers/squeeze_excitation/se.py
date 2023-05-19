@@ -1,20 +1,20 @@
 import torch
 import torch.nn as nn
-
+from fusionlab.layers.factories import Conv
 
 class SEModule(nn.Module):
-    def __init__(self, cin, ratio=16):
+    def __init__(self, cin, ratio=16, spatial_dims=2):
         super().__init__()
         cout = int(cin / ratio)
         self.gate = nn.Sequential(
-            nn.Conv2d(cin, cout, kernel_size=1),
+            Conv[spatial_dims](cin, cout, kernel_size=1),
             nn.ReLU(inplace=True),
-            nn.Conv2d(cout, cin, kernel_size=1),
+            Conv[spatial_dims](cout, cin, kernel_size=1),
             nn.Sigmoid(),
         )
 
     def forward(self, inputs):
-        x = inputs.mean((2, 3), keepdim=True)
+        x = inputs.mean((-2, -1), keepdim=True)
         x = self.gate(x)
         return inputs * x
 

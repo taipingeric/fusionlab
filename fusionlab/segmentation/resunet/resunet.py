@@ -2,25 +2,27 @@ import torch
 import torch.nn as nn
 from fusionlab.segmentation.base import SegmentationModel
 from fusionlab.utils import autopad
+from fusionlab.layers.factories import Conv, ConvT, BatchNorm
+
 
 
 class ResUNet(SegmentationModel):
-    def __init__(self, cin, num_cls, base_dim):
+    def __init__(self, cin, num_cls, base_dim, spatial_dims=2):
         super().__init__()
-        self.encoder = Encoder(cin, base_dim)
+        self.encoder = Encoder(cin, base_dim, spatial_dims)
         self.bridger = Bridger()
-        self.decoder = Decoder(base_dim)
-        self.head = Head(base_dim, num_cls)
+        self.decoder = Decoder(base_dim, spatial_dims)
+        self.head = Head(base_dim, num_cls, spatial_dims)
 
 
 class Encoder(nn.Module):
-    def __init__(self, cin, base_dim):
+    def __init__(self, cin, base_dim, spatial_dims=2):
         super().__init__()
         dims = [base_dim * (2 ** i) for i in range(4)]
-        self.stem = Stem(cin, dims[0])
-        self.stage1 = ResConv(dims[0], dims[1], stride=2)
-        self.stage2 = ResConv(dims[1], dims[2], stride=2)
-        self.stage3 = ResConv(dims[2], dims[3], stride=2)
+        self.stem = Stem(cin, dims[0], spatial_dims)
+        self.stage1 = ResConv(dims[0], dims[1], spatial_dims, stride=2)
+        self.stage2 = ResConv(dims[1], dims[2], spatial_dims, stride=2)
+        self.stage3 = ResConv(dims[2], dims[3], spatial_dims, stride=2)
 
     def forward(self, x):
         s0 = self.stem(x)
@@ -31,7 +33,7 @@ class Encoder(nn.Module):
 
 
 class Decoder(nn.Module):
-    def __init__(self, base_dim):
+    def __init__(self, base_dim, spatial_dims=2):
         """
         Base UNet decoder
         Args:
@@ -39,9 +41,9 @@ class Decoder(nn.Module):
         """
         super().__init__()
         dims = [base_dim*(2**i) for i in range(4)]
-        self.d3 = DecoderBlock(dims[3], dims[2])
-        self.d2 = DecoderBlock(dims[2], dims[1])
-        self.d1 = DecoderBlock(dims[1], dims[0])
+        self.d3 = DecoderBlock(dims[3], dims[2], spatial_dims)
+        self.d2 = DecoderBlock(dims[2], dims[1], spatial_dims)
+        self.d1 = DecoderBlock(dims[1], dims[0], spatial_dims)
 
     def forward(self, x):
         s0, s1, s2, s3 = x
@@ -53,10 +55,10 @@ class Decoder(nn.Module):
 
 
 class DecoderBlock(nn.Module):
-    def __init__(self, cin, cout):
+    def __init__(self, cin, cout, spatial_dims=2):
         super().__init__()
-        self.upsample = nn.ConvTranspose2d(cin, cout, 2, stride=2)
-        self.conv = ResConv(cout*2, cout, 1)
+        self.upsample = ConvT[spatial_dims](cin, cout, 2, stride=2)
+        self.conv = ResConv(cout*2, cout, spatial_dims, 1)
 
     def forward(self, x1, x2):
         x1 = self.upsample(x1)
@@ -74,16 +76,16 @@ class Bridger(nn.Module):
 
 
 class Stem(nn.Module):
-    def __init__(self, cin, cout):
+    def __init__(self, cin, cout, spatial_dims=2):
         super().__init__()
         self.conv = nn.Sequential(
-            nn.Conv2d(cin, cout, 3, padding=autopad(3)),
-            nn.BatchNorm2d(cout),
+            Conv[spatial_dims](cin, cout, 3, padding=autopad(3)),
+            BatchNorm[spatial_dims](cout),
             nn.ReLU(),
-            nn.Conv2d(cout, cout, 3, padding=autopad(3)),
+            Conv[spatial_dims](cout, cout, 3, padding=autopad(3)),
         )
         self.skip = nn.Sequential(
-            nn.Conv2d(cin, cout, 3, padding=autopad(3)),
+            Conv[spatial_dims](cin, cout, 3, padding=autopad(3)),
         )
 
     def forward(self, x):
@@ -91,20 +93,20 @@ class Stem(nn.Module):
 
 
 class ResConv(nn.Module):
-    def __init__(self, cin, cout, stride=1):
+    def __init__(self, cin, cout, spatial_dims=2, stride=1):
         super().__init__()
 
         self.conv = nn.Sequential(
-            nn.BatchNorm2d(cin),
+            BatchNorm[spatial_dims](cin),
             nn.ReLU(),
-            nn.Conv2d(cin, cout, 3, stride, padding=autopad(3)),
-            nn.BatchNorm2d(cout),
+            Conv[spatial_dims](cin, cout, 3, stride, padding=autopad(3)),
+            BatchNorm[spatial_dims](cout),
             nn.ReLU(),
-            nn.Conv2d(cout, cout, 3, padding=autopad(3)),
+            Conv[spatial_dims](cout, cout, 3, padding=autopad(3)),
         )
         self.skip = nn.Sequential(
-            nn.Conv2d(cin, cout, 3, stride=stride, padding=autopad(3)),
-            nn.BatchNorm2d(cout),
+            Conv[spatial_dims](cin, cout, 3, stride=stride, padding=autopad(3)),
+            BatchNorm[spatial_dims](cout),
         )
 
     def forward(self, x):
@@ -112,13 +114,13 @@ class ResConv(nn.Module):
 
 
 class Head(nn.Sequential):
-    def __init__(self, cin, cout):
+    def __init__(self, cin, cout, spatial_dims):
         """
         Basic conv head
         :param int cin: input channel
         :param int cout: output channel
         """
-        conv = nn.Conv2d(cin, cout, 1)
+        conv = Conv[spatial_dims](cin, cout, 1)
         super().__init__(conv)
 
 if __name__ == '__main__':
@@ -150,7 +152,7 @@ if __name__ == '__main__':
     print(outputs.shape)
     assert list(outputs.shape) == [1, cout, H, W]
 
-    resconv = ResConv(3, cout, 1)
+    resconv = ResConv(3, cout, stride=1)
     outputs = resconv(inputs)
     print(outputs.shape)
     assert list(outputs.shape) == [1, cout, H, W]

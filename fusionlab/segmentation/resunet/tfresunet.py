@@ -1,6 +1,6 @@
 import tensorflow as tf
 from tensorflow.keras import layers, Model, Sequential
-from fusionlab.segmentation.base import TFSegmentationModel
+from fusionlab.segmentation.tfbase import TFSegmentationModel
 
 
 class TFResUNet(TFSegmentationModel):
