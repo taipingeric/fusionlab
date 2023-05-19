@@ -122,7 +122,7 @@ if __name__ == "__main__":
         def compute():
             raise NotImplementedError("compute method is not implemented!")
     
-    class Accuracy(Metric):
+    # class Accuracy(Metric):
         
 
     
