@@ -141,8 +141,6 @@ if __name__ == "__main__":
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
     loss_fn = torch.nn.CrossEntropyLoss()
 
-
-
     trainer = Trainer(device)
     trainer.fit(model, 
                 train_dataloader, 
