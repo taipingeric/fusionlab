@@ -27,6 +27,7 @@ class Trainer:
         return loss.item()
 
     def train_epoch(self):
+        model.train()
         epoch_loss = []
         for _, data in enumerate(tqdm(self.train_dataloader, leave=False)):
             batch_loss = self.train_step(data)
@@ -34,6 +35,7 @@ class Trainer:
         return np.mean(epoch_loss)
     
     def val_epoch(self):
+        model.eval()
         epoch_loss = []
         for _, data in enumerate(tqdm(self.val_dataloader, leave=False)):
             batch_loss = self.val_step(data)
@@ -102,6 +104,27 @@ if __name__ == "__main__":
             x = self.pool(x)
             x = self.cls(x)
             return x
+    
+    from abc import ABC, abstractmethod
+    class Metric(ABC):
+        def __init__(self):
+            pass
+
+        @abstractmethod
+        def reset():
+            raise NotImplementedError("reset method is not implemented!")
+
+        @abstractmethod
+        def update():
+            raise NotImplementedError("update method is not implemented!")
+        
+        @abstractmethod
+        def compute():
+            raise NotImplementedError("compute method is not implemented!")
+    
+    class Accuracy(Metric):
+        
+
     
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(device)
