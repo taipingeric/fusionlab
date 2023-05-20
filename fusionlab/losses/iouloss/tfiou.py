@@ -2,7 +2,7 @@ import tensorflow as tf
 from einops import rearrange
 from fusionlab.functional import tf_iou_score
 
-__all__ = ["TFDiceLoss", "TFDiceCE"]
+__all__ = ["TFIoULoss"]
 
 BINARY_MODE = "binary"
 MULTICLASS_MODE = "multiclass"

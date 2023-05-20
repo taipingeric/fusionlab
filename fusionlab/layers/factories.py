@@ -132,7 +132,7 @@ class BatchNorm:
             affine=affine,
             track_running_stats=track_running_stats,
         )
-
+# TODO: refactor the following code
 MaxPool = {
     1:nn.MaxPool1d,
     2:nn.MaxPool2d,
