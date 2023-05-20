@@ -7,9 +7,9 @@ class SEModule(nn.Module):
         super().__init__()
         cout = int(cin / ratio)
         self.gate = nn.Sequential(
-            Conv[spatial_dims](cin, cout, kernel_size=1),
+            Conv(spatial_dims,cin, cout, kernel_size=1),
             nn.ReLU(inplace=True),
-            Conv[spatial_dims](cout, cin, kernel_size=1),
+            Conv(spatial_dims,cout, cin, kernel_size=1),
             nn.Sigmoid(),
         )
 
