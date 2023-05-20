@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from fusionlab.layers.factories import Conv, MaxPool, BatchNorm
+from fusionlab.layers.factories import ConvND, MaxPool, BatchNorm
 
 from fusionlab.utils import autopad
 
@@ -11,7 +11,7 @@ from fusionlab.utils import autopad
 class ConvBlock(nn.Module):
     def __init__(self, cin, cout, kernel_size=3, spatial_dims=2, stride=1, activation=True, padding=True):
         super().__init__()
-        self.conv = Conv[spatial_dims](cin, cout, kernel_size, stride, autopad(kernel_size))
+        self.conv = ConvND(spatial_dims, cin, cout, kernel_size, stride, autopad(kernel_size))
         self.bn = BatchNorm[spatial_dims](cout)
         self.act = nn.ReLU(inplace=True) if activation else nn.Identity()
 
