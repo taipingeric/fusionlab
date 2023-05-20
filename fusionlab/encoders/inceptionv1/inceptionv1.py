@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-from fusionlab.layers.factories import Conv, MaxPool, BatchNorm
+from fusionlab.layers.factories import ConvND, MaxPool, BatchNorm
 from fusionlab.utils import autopad
 
 # ref: https://arxiv.org/abs/1409.4842
@@ -9,7 +9,7 @@ from fusionlab.utils import autopad
 class ConvBlock(nn.Module):
     def __init__(self, cin, cout, kernel_size=3, spatial_dims=2, stride=1):
         super().__init__()
-        self.conv = Conv[spatial_dims](cin, cout, kernel_size, stride, padding=autopad(kernel_size))
+        self.conv = ConvND(spatial_dims, cin, cout, kernel_size, stride, padding=autopad(kernel_size))
         self.act = nn.ReLU(inplace=True)
 
     def forward(self, x):
