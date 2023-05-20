@@ -45,6 +45,31 @@ class ConvND:
             padding_mode=padding_mode,
         )
 
+class Upsample:
+    def __new__(cls,
+                spatial_dims,
+                size=None, 
+                scale_factor=None, 
+                mode=None, 
+                align_corners=None):
+        if spatial_dims not in [1, 2, 3]:
+            raise ValueError(f'`spatial_dims` must be 1, 2, or 3, got {spatial_dims}')
+        if not mode:
+            mode_map = {
+                1: 'linear',
+                2: 'bilinear',
+                3: 'trilinear'
+            }
+            mode = mode_map[spatial_dims]
+            align_corners=False
+        return nn.Upsample(
+            size=size,
+            scale_factor=scale_factor,
+            mode=mode,
+            align_corners=align_corners,
+        )
+
+
 Conv = {
     1:nn.Conv1d,
     2:nn.Conv2d,
