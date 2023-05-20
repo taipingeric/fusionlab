@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 from fusionlab.segmentation.base import SegmentationModel
 from fusionlab.utils import autopad
-from fusionlab.layers.factories import Conv, ConvT, BatchNorm
+from fusionlab.layers.factories import ConvND, ConvT, BatchNorm
 
 
 
@@ -79,13 +79,13 @@ class Stem(nn.Module):
     def __init__(self, cin, cout, spatial_dims=2):
         super().__init__()
         self.conv = nn.Sequential(
-            Conv[spatial_dims](cin, cout, 3, padding=autopad(3)),
+            ConvND(spatial_dims, cin, cout, 3, padding=autopad(3)),
             BatchNorm[spatial_dims](cout),
             nn.ReLU(),
-            Conv[spatial_dims](cout, cout, 3, padding=autopad(3)),
+            ConvND(spatial_dims, cout, cout, 3, padding=autopad(3)),
         )
         self.skip = nn.Sequential(
-            Conv[spatial_dims](cin, cout, 3, padding=autopad(3)),
+            ConvND(spatial_dims, cin, cout, 3, padding=autopad(3)),
         )
 
     def forward(self, x):
@@ -99,13 +99,13 @@ class ResConv(nn.Module):
         self.conv = nn.Sequential(
             BatchNorm[spatial_dims](cin),
             nn.ReLU(),
-            Conv[spatial_dims](cin, cout, 3, stride, padding=autopad(3)),
+            ConvND(spatial_dims, cin, cout, 3, stride, padding=autopad(3)),
             BatchNorm[spatial_dims](cout),
             nn.ReLU(),
-            Conv[spatial_dims](cout, cout, 3, padding=autopad(3)),
+            ConvND(spatial_dims, cout, cout, 3, padding=autopad(3)),
         )
         self.skip = nn.Sequential(
-            Conv[spatial_dims](cin, cout, 3, stride=stride, padding=autopad(3)),
+            ConvND(spatial_dims, cin, cout, 3, stride=stride, padding=autopad(3)),
             BatchNorm[spatial_dims](cout),
         )
 
@@ -120,7 +120,7 @@ class Head(nn.Sequential):
         :param int cin: input channel
         :param int cout: output channel
         """
-        conv = Conv[spatial_dims](cin, cout, 1)
+        conv = ConvND(spatial_dims, cin, cout, 1)
         super().__init__(conv)
 
 if __name__ == '__main__':
