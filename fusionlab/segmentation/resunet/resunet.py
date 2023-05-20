@@ -57,7 +57,7 @@ class Decoder(nn.Module):
 class DecoderBlock(nn.Module):
     def __init__(self, cin, cout, spatial_dims=2):
         super().__init__()
-        self.upsample = ConvT[spatial_dims](cin, cout, 2, stride=2)
+        self.upsample = ConvT(spatial_dims, cin, cout, 2, stride=2)
         self.conv = ResConv(cout*2, cout, spatial_dims, 1)
 
     def forward(self, x1, x2):

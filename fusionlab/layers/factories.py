@@ -69,18 +69,51 @@ class Upsample:
             align_corners=align_corners,
         )
 
+class ConvT:
+    """
+    Factory class for creating transposed convolutional layers.
 
-Conv = {
-    1:nn.Conv1d,
-    2:nn.Conv2d,
-    3:nn.Conv3d
-}
+    Args:
+        spatial_dims (int): number of spatial dimensions of the input data.
+        in_channels (int): number of channels in the input data.
+        out_channels (int): number of channels produced by the convolution.
+        kernel_size (int or tuple): size of the convolving kernel.
+        stride (int or tuple, optional): stride of the convolution. Default: 1
+        padding (int or tuple, optional): zero-padding added to both sides of the input. Default: 0
+        output_padding (int or tuple, optional): additional size added to one side of each dimension in the output shape. Default: 0
+        groups (int, optional): number of blocked connections from input channels to output channels. Default: 1
+        bias (bool, optional): whether to add a bias to the convolution. Default: True
+        dilation (int or tuple, optional): spacing between kernel elements. Default: 1
+        padding_mode (str, optional): type of padding. Default: 'zeros'
 
-ConvT = {
-    1:nn.ConvTranspose1d,
-    2:nn.ConvTranspose2d,
-    3:nn.ConvTranspose3d
-}
+    """
+    def __new__(cls, 
+                spatial_dims, 
+                in_channels: int,
+                out_channels: int,
+                kernel_size: Union[Sequence[int], int],
+                stride: Union[Sequence[int], int] = 1,
+                padding: Union[Sequence[int], str] = 0,
+                output_padding: Union[Sequence[int], str] = 0,
+                groups: int = 1,
+                bias: bool = True,
+                dilation: Union[Sequence[int], int] = 1,
+                padding_mode: str = 'zeros'):
+        if spatial_dims not in [1, 2, 3]:
+            raise ValueError(f'`spatial_dims` must be 1, 2, or 3, got {spatial_dims}')
+        conv_type = getattr(nn, f'ConvTranspose{spatial_dims}d')
+        return conv_type(
+            in_channels=in_channels,
+            out_channels=out_channels,
+            kernel_size=kernel_size,
+            stride=stride,
+            padding=padding,
+            output_padding=output_padding,
+            dilation=dilation,
+            groups=groups,
+            bias=bias,
+            padding_mode=padding_mode,
+        )
 
 BatchNorm = {
     1:nn.BatchNorm1d,
