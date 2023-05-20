@@ -115,11 +115,23 @@ class ConvT:
             padding_mode=padding_mode,
         )
 
-BatchNorm = {
-    1:nn.BatchNorm1d,
-    2:nn.BatchNorm2d,
-    3:nn.BatchNorm3d
-}
+class BatchNorm:
+    def __new__(cls, spatial_dims, 
+                num_features: int,
+                eps: float = 1e-5,
+                momentum: float = 0.1,
+                affine: bool = True,
+                track_running_stats: bool = True):
+        if spatial_dims not in [1, 2, 3]:
+            raise ValueError(f'`spatial_dims` must be 1, 2, or 3, got {spatial_dims}')
+        bn_type = getattr(nn, f'BatchNorm{spatial_dims}d')
+        return bn_type(
+            num_features=num_features,
+            eps=eps,
+            momentum=momentum,
+            affine=affine,
+            track_running_stats=track_running_stats,
+        )
 
 MaxPool = {
     1:nn.MaxPool1d,

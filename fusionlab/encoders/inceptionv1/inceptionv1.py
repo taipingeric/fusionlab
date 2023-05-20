@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-from fusionlab.layers.factories import ConvND, MaxPool, BatchNorm
+from fusionlab.layers.factories import ConvND, MaxPool
 from fusionlab.utils import autopad
 
 # ref: https://arxiv.org/abs/1409.4842

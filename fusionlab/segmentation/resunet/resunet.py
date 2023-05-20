@@ -80,7 +80,7 @@ class Stem(nn.Module):
         super().__init__()
         self.conv = nn.Sequential(
             ConvND(spatial_dims, cin, cout, 3, padding=autopad(3)),
-            BatchNorm[spatial_dims](cout),
+            BatchNorm(spatial_dims, cout),
             nn.ReLU(),
             ConvND(spatial_dims, cout, cout, 3, padding=autopad(3)),
         )
@@ -97,16 +97,16 @@ class ResConv(nn.Module):
         super().__init__()
 
         self.conv = nn.Sequential(
-            BatchNorm[spatial_dims](cin),
+            BatchNorm(spatial_dims, cin),
             nn.ReLU(),
             ConvND(spatial_dims, cin, cout, 3, stride, padding=autopad(3)),
-            BatchNorm[spatial_dims](cout),
+            BatchNorm(spatial_dims, cout),
             nn.ReLU(),
             ConvND(spatial_dims, cout, cout, 3, padding=autopad(3)),
         )
         self.skip = nn.Sequential(
             ConvND(spatial_dims, cin, cout, 3, stride=stride, padding=autopad(3)),
-            BatchNorm[spatial_dims](cout),
+            BatchNorm(spatial_dims, cout),
         )
 
     def forward(self, x):

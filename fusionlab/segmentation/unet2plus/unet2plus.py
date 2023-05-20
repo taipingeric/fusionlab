@@ -20,12 +20,12 @@ class BasicBlock(nn.Sequential):
     def __init__(self, cin, cout, spatial_dims=2):
         conv1 = nn.Sequential(
             ConvND(spatial_dims, cin, cout, 3, 1, autopad(3)),
-            BatchNorm[spatial_dims](cout),
+            BatchNorm(spatial_dims, cout),
             nn.ReLU(),
         )
         conv2 = nn.Sequential(
             ConvND(spatial_dims, cout, cout, 3, 1, autopad(3)),
-            BatchNorm[spatial_dims](cout),
+            BatchNorm(spatial_dims, cout),
             nn.ReLU(),
         )
         super().__init__(conv1, conv2)
