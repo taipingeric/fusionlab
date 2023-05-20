@@ -161,3 +161,22 @@ if __name__ == '__main__':
     outputs = resconv(inputs)
     print(outputs.shape)
     assert list(outputs.shape) == [1, cout, H//2, W//2]
+
+
+    print("3D ResUNet")
+    D = H = W = 64
+    cout = 32
+    inputs = torch.rand(1, 3, D, H, W)
+
+    model = ResUNet(3, 100, cout, spatial_dims=3)
+    output = model(inputs)
+    print(output.shape)
+
+    print("1D ResUNet")
+    L = 64
+    cout = 32
+    inputs = torch.rand(1, 3, L)
+
+    model = ResUNet(3, 100, cout, spatial_dims=1)
+    output = model(inputs)
+    print(output.shape)
