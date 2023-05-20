@@ -1,23 +1,23 @@
 import torch
 import torch.nn as nn
-from fusionlab.layers.factories import Conv, MaxPool
+from fusionlab.layers.factories import ConvND, MaxPool
 
 # Official pytorch ref: https://github.com/pytorch/vision/blob/main/torchvision/models/alexnet.py
 class AlexNet(nn.Module):
     def __init__(self, c_in=3, spatial_dims=2):
         super().__init__()
         self.features = nn.Sequential(
-            Conv[spatial_dims](c_in, 64, kernel_size=11, stride=4, padding=2),
+            ConvND(spatial_dims, c_in, 64, kernel_size=11, stride=4, padding=2),
             nn.ReLU(inplace=True),
             MaxPool[spatial_dims](kernel_size=3, stride=2),
-            Conv[spatial_dims](64, 192, kernel_size=5, padding=2),
+            ConvND(spatial_dims, 64, 192, kernel_size=5, padding=2),
             nn.ReLU(inplace=True),
             MaxPool[spatial_dims](kernel_size=3, stride=2),
-            Conv[spatial_dims](192, 384, kernel_size=3, padding=1),
+            ConvND(spatial_dims, 192, 384, kernel_size=3, padding=1),
             nn.ReLU(inplace=True),
-            Conv[spatial_dims](384, 256, kernel_size=3, padding=1),
+            ConvND(spatial_dims, 384, 256, kernel_size=3, padding=1),
             nn.ReLU(inplace=True),
-            Conv[spatial_dims](256, 256, kernel_size=3, padding=1),
+            ConvND(spatial_dims, 256, 256, kernel_size=3, padding=1),
             nn.ReLU(inplace=True),
             MaxPool[spatial_dims](kernel_size=3, stride=2),
         )
