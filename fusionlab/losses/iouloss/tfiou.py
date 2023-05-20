@@ -1,6 +1,6 @@
 import tensorflow as tf
 from einops import rearrange
-from fusionlab.functional import tf_iou_score
+from fusionlab.functional.tfiou import tf_iou_score
 
 __all__ = ["TFIoULoss"]
 
