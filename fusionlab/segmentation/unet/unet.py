@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 from fusionlab.segmentation.base import SegmentationModel
 from fusionlab.utils import autopad
-
+from fusionlab.layers import MaxPool
 
 class UNet(SegmentationModel):
     def __init__(self, cin, num_cls, base_dim=64):
@@ -31,7 +31,7 @@ class Encoder(nn.Module):
             base_dim (int): 1st stage dim of conv output
         """
         super().__init__()
-        self.pool = nn.MaxPool2d(2, 2)
+        self.pool = MaxPool(spatial_dims,2, 2)
         self.stage1 = BasicBlock(cin, base_dim)
         self.stage2 = BasicBlock(base_dim, base_dim * 2)
         self.stage3 = BasicBlock(base_dim * 2, base_dim * 4)
@@ -91,18 +91,18 @@ class Head(nn.Sequential):
         :param int cin: input channel
         :param int cout: output channel
         """
-        conv = nn.Conv2d(cin, cout, 1)
+        conv = Conv(spatial_dims,cin, cout, 1)
         super().__init__(conv)
 
 
 class BasicBlock(nn.Sequential):
     def __init__(self, cin, cout):
         conv1 = nn.Sequential(
-            nn.Conv2d(cin, cout, 3, 1, autopad(3)),
+            Conv(spatial_dims,cin, cout, 3, 1, autopad(3)),
             nn.ReLU(),
         )
         conv2 = nn.Sequential(
-            nn.Conv2d(cout, cout, 3, 1, autopad(3)),
+            Conv(spatial_dims,cout, cout, 3, 1, autopad(3)),
             nn.ReLU(),
         )
         super().__init__(conv1, conv2)

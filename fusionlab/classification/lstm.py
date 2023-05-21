@@ -1,6 +1,6 @@
 import torch
 from torch import nn
-from ai4ecg.classification.base import RNNClassification
+from fusionlab.classification.base import RNNClassification
 
 
 class LSTMClassifier(RNNClassification):

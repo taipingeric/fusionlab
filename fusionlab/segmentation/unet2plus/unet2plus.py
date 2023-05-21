@@ -18,12 +18,12 @@ class UNet2plus(SegmentationModel):
 class BasicBlock(nn.Sequential):
     def __init__(self, cin, cout):
         conv1 = nn.Sequential(
-            nn.Conv2d(cin, cout, 3, 1, autopad(3)),
+            Conv(spatial_dims,cin, cout, 3, 1, autopad(3)),
             nn.BatchNorm2d(cout),
             nn.ReLU(),
         )
         conv2 = nn.Sequential(
-            nn.Conv2d(cout, cout, 3, 1, autopad(3)),
+            Conv(spatial_dims,cout, cout, 3, 1, autopad(3)),
             nn.BatchNorm2d(cout),
             nn.ReLU(),
         )
@@ -39,7 +39,7 @@ class Encoder(nn.Module):
             base_dim (int): 1st stage dim of conv output
         """
         super().__init__()
-        self.pool = nn.MaxPool2d(2, 2)
+        self.pool = MaxPool(spatial_dims,2, 2)
         self.conv0_0 = BasicBlock(cin, base_dim)
         self.conv1_0 = BasicBlock(base_dim, base_dim * 2)
         self.conv2_0 = BasicBlock(base_dim * 2, base_dim * 4)
@@ -108,7 +108,7 @@ class Head(nn.Sequential):
         :param int cin: input channel
         :param int cout: output channel
         """
-        conv = nn.Conv2d(cin, cout, 1)
+        conv = Conv(spatial_dims,cin, cout, 1)
         super().__init__(conv)
 
 
