@@ -6,30 +6,30 @@ import torchvision
 import torchvision.transforms as transforms
 from tqdm.auto import tqdm
 import numpy as np
-from fusionlab.layers.factories import Conv, BatchNorm, ConvT
+from fusionlab.layers.factories import ConvND, BatchNorm, ConvT
 
 class Generator(nn.Module):
     def __init__(self, c_in, c_out, dim_g, spatial_dims=2):
         super().__init__()
         self.main = nn.Sequential(
             # input is Z, going into a convolution
-            ConvT(spatial_dims,c_in, dim_g * 8, 4, 1, 0, bias=False),
+            ConvT(spatial_dims, c_in, dim_g * 8, 4, 1, 0, bias=False),
             BatchNorm(spatial_dims,dim_g * 8),
             nn.ReLU(True),
             # state size. (dim_g*8) x 4 x 4
-            ConvT(spatial_dims,dim_g * 8, dim_g * 4, 4, 2, 1, bias=False),
+            ConvT(spatial_dims, dim_g * 8, dim_g * 4, 4, 2, 1, bias=False),
             BatchNorm(spatial_dims,dim_g * 4),
             nn.ReLU(True),
             # state size. (dim_g*4) x 8 x 8
-            ConvT(spatial_dims,dim_g * 4, dim_g * 2, 4, 2, 1, bias=False),
-            BatchNorm(spatial_dims,dim_g * 2),
+            ConvT(spatial_dims, dim_g * 4, dim_g * 2, 4, 2, 1, bias=False),
+            BatchNorm(spatial_dims, dim_g * 2),
             nn.ReLU(True),
             # state size. (dim_g*2) x 16 x 16
-            ConvT(spatial_dims,dim_g * 2, dim_g, 4, 2, 1, bias=False),
-            BatchNorm(spatial_dims,dim_g),
+            ConvT(spatial_dims, dim_g * 2, dim_g, 4, 2, 1, bias=False),
+            BatchNorm(spatial_dims, dim_g),
             nn.ReLU(True),
             # state size. (dim_g) x 32 x 32
-            ConvT(spatial_dims,dim_g, c_out, 4, 2, 1, bias=False),
+            ConvT(spatial_dims, dim_g, c_out, 4, 2, 1, bias=False),
             nn.Tanh()
             # state size. (nc) x 64 x 64
         )
@@ -43,22 +43,22 @@ class Discriminator(nn.Module):
         super().__init__()
         self.main = nn.Sequential(
             # input is (nc) x 64 x 64
-            Conv(spatial_dims,c_in, dim_d, 4, 2, 1, bias=False),
+            ConvND(spatial_dims, c_in, dim_d, 4, 2, 1, bias=False),
             nn.LeakyReLU(0.2, inplace=True),
             # state size. (ndf) x 32 x 32
-            Conv(spatial_dims,dim_d, dim_d * 2, 4, 2, 1, bias=False),
-            BatchNorm(spatial_dims,dim_d * 2),
+            ConvND(spatial_dims, dim_d, dim_d * 2, 4, 2, 1, bias=False),
+            BatchNorm(spatial_dims, dim_d * 2),
             nn.LeakyReLU(0.2, inplace=True),
             # state size. (ndf*2) x 16 x 16
-            Conv(spatial_dims,dim_d * 2, dim_d * 4, 4, 2, 1, bias=False),
-            BatchNorm(spatial_dims,dim_d * 4),
+            ConvND(spatial_dims, dim_d * 2, dim_d * 4, 4, 2, 1, bias=False),
+            BatchNorm(spatial_dims, dim_d * 4),
             nn.LeakyReLU(0.2, inplace=True),
             # state size. (ndf*4) x 8 x 8
-            Conv(spatial_dims,dim_d * 4, dim_d * 8, 4, 2, 1, bias=False),
-            BatchNorm(spatial_dims,dim_d * 8),
+            ConvND(spatial_dims, dim_d * 4, dim_d * 8, 4, 2, 1, bias=False),
+            BatchNorm(spatial_dims, dim_d * 8),
             nn.LeakyReLU(0.2, inplace=True),
             # state size. (ndf*8) x 4 x 4
-            Conv(spatial_dims,dim_d * 8, 1, 4, 1, 0, bias=False),
+            ConvND(spatial_dims, dim_d * 8, 1, 4, 1, 0, bias=False),
             nn.Sigmoid()
         )
 
