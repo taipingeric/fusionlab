@@ -1,6 +1,6 @@
 import tensorflow as tf
 from einops import rearrange
-from fusionlab.functional import tf_dice_score
+from fusionlab.functional.tfdice import tf_dice_score
 
 __all__ = ["TFDiceLoss", "TFDiceCE"]
 

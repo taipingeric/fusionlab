@@ -25,6 +25,7 @@ class BinaryData:
 
 class TestSegLoss:
     def test_dice_loss(self):
+        from fusionlab.losses.diceloss.tfdice import TFDiceLoss
         # Multi class
         data = Data()
         true_loss = 0.5519775748252869
@@ -74,6 +75,7 @@ class TestSegLoss:
         assert float(loss) == approx(true_loss, EPS)
 
     def test_iou_loss(self):
+        from fusionlab.losses.iouloss.tfiou import TFIoULoss
         # multi class
         true_loss = 0.6969285607337952
         data = Data()
