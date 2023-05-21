@@ -53,7 +53,7 @@ class Stem(nn.Sequential):
     def __init__(self, cin, spatial_dims=2):
         super().__init__(
             ConvBlock(cin, 64, 7, spatial_dims, stride=2),
-            MaxPool(spatial_dims,3, 2, padding=autopad(3))
+            MaxPool(spatial_dims, 3, 2, padding=autopad(3))
         )
 
 

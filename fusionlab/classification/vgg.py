@@ -9,14 +9,14 @@ class VGG16Classifier(CNNClassification):
     def __init__(self, spatial_dims, cin, cout):
         super().__init__()
         self.encoder = VGG16(spatial_dims, cin) # Create VGG16 instance
-        self.globalpooling = AdaptiveAvgPool(spatial_dims,1)
+        self.globalpooling = AdaptiveAvgPool(spatial_dims, 1)
         self.head = nn.Linear(512, cout)
 
 class VGG19Classifier(CNNClassification):
     def __init__(self, spatial_dims, cin, cout):
         super().__init__()
         self.encoder = VGG19(spatial_dims, cin) # Create VGG16 instance
-        self.globalpooling = AdaptiveAvgPool(spatial_dims,1)
+        self.globalpooling = AdaptiveAvgPool(spatial_dims, 1)
         self.head = nn.Linear(512, cout)
 
 

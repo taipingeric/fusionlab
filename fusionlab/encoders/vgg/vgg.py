@@ -12,13 +12,13 @@ class VGG16(nn.Module):
             nn.ReLU(inplace=True),
             ConvND(spatial_dims, 64, 64, ksize, padding=1),
             nn.ReLU(inplace=True),
-            MaxPool(spatial_dims,kernel_size=2, stride=2),
+            MaxPool(spatial_dims, kernel_size=2, stride=2),
 
             ConvND(spatial_dims, 64, 128, ksize, padding=1),
             nn.ReLU(inplace=True),
             ConvND(spatial_dims, 128, 128, ksize, padding=1),
             nn.ReLU(inplace=True),
-            MaxPool(spatial_dims,kernel_size=2, stride=2),
+            MaxPool(spatial_dims, kernel_size=2, stride=2),
 
             ConvND(spatial_dims, 128, 256, ksize, padding=1),
             nn.ReLU(inplace=True),
@@ -26,7 +26,7 @@ class VGG16(nn.Module):
             nn.ReLU(inplace=True),
             ConvND(spatial_dims, 256, 256, ksize, padding=1),
             nn.ReLU(inplace=True),
-            MaxPool(spatial_dims,kernel_size=2, stride=2),
+            MaxPool(spatial_dims, kernel_size=2, stride=2),
 
             ConvND(spatial_dims, 256, 512, ksize, padding=1),
             nn.ReLU(inplace=True),
@@ -34,7 +34,7 @@ class VGG16(nn.Module):
             nn.ReLU(inplace=True),
             ConvND(spatial_dims, 512, 512, ksize, padding=1),
             nn.ReLU(inplace=True),
-            MaxPool(spatial_dims,kernel_size=2, stride=2),
+            MaxPool(spatial_dims, kernel_size=2, stride=2),
 
             ConvND(spatial_dims, 512, 512, ksize, padding=1),
             nn.ReLU(inplace=True),
@@ -42,7 +42,7 @@ class VGG16(nn.Module):
             nn.ReLU(inplace=True),
             ConvND(spatial_dims, 512, 512, ksize, padding=1),
             nn.ReLU(inplace=True),
-            MaxPool(spatial_dims,kernel_size=2, stride=2),
+            MaxPool(spatial_dims, kernel_size=2, stride=2),
         )
 
     def forward(self, x):
@@ -58,13 +58,13 @@ class VGG19(nn.Module):
             nn.ReLU(inplace=True),
             ConvND(spatial_dims, 64, 64, ksize, padding=1),
             nn.ReLU(inplace=True),
-            MaxPool(spatial_dims,kernel_size=2, stride=2),
+            MaxPool(spatial_dims, kernel_size=2, stride=2),
 
             ConvND(spatial_dims, 64, 128, ksize, padding=1),
             nn.ReLU(inplace=True),
             ConvND(spatial_dims, 128, 128, ksize, padding=1),
             nn.ReLU(inplace=True),
-            MaxPool(spatial_dims,kernel_size=2, stride=2),
+            MaxPool(spatial_dims, kernel_size=2, stride=2),
 
             ConvND(spatial_dims, 128, 256, ksize, padding=1),
             nn.ReLU(inplace=True),
@@ -74,7 +74,7 @@ class VGG19(nn.Module):
             nn.ReLU(inplace=True),
             ConvND(spatial_dims, 256, 256, ksize, padding=1),
             nn.ReLU(inplace=True),
-            MaxPool(spatial_dims,kernel_size=2, stride=2),
+            MaxPool(spatial_dims, kernel_size=2, stride=2),
 
             ConvND(spatial_dims, 256, 512, ksize, padding=1),
             nn.ReLU(inplace=True),
@@ -84,7 +84,7 @@ class VGG19(nn.Module):
             nn.ReLU(inplace=True),
             ConvND(spatial_dims, 512, 512, ksize, padding=1),
             nn.ReLU(inplace=True),
-            MaxPool(spatial_dims,kernel_size=2, stride=2),
+            MaxPool(spatial_dims, kernel_size=2, stride=2),
 
             ConvND(spatial_dims, 512, 512, ksize, padding=1),
             nn.ReLU(inplace=True),
@@ -94,7 +94,7 @@ class VGG19(nn.Module):
             nn.ReLU(inplace=True),
             ConvND(spatial_dims, 512, 512, ksize, padding=1),
             nn.ReLU(inplace=True),
-            MaxPool(spatial_dims,kernel_size=2, stride=2),
+            MaxPool(spatial_dims, kernel_size=2, stride=2),
         )
 
     def forward(self, x):
