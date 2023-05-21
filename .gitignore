@@ -109,6 +109,10 @@ venv.bak/
 dataset/
 data/
 
+# VSCode
+.vscode
+
 # Training Files
 *mlruns/
 *resutls/
+tryout_notebooks

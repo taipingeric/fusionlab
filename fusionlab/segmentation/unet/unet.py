@@ -33,7 +33,7 @@ class Encoder(nn.Module):
             base_dim (int): 1st stage dim of conv output
         """
         super().__init__()
-        self.pool = MaxPool[spatial_dims](2, 2)
+        self.pool = MaxPool(spatial_dims, 2, 2)
         self.stage1 = BasicBlock(cin, base_dim, spatial_dims)
         self.stage2 = BasicBlock(base_dim, base_dim * 2, spatial_dims)
         self.stage3 = BasicBlock(base_dim * 2, base_dim * 4, spatial_dims)

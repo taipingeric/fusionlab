@@ -19,7 +19,7 @@ class AlexNet(nn.Module):
             nn.ReLU(inplace=True),
             ConvND(spatial_dims, 256, 256, kernel_size=3, padding=1),
             nn.ReLU(inplace=True),
-            MaxPool[spatial_dims](kernel_size=3, stride=2),
+            MaxPool(spatial_dims,kernel_size=3, stride=2),
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
