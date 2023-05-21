@@ -11,8 +11,8 @@ from fusionlab.utils import autopad
 class ConvBlock(nn.Module):
     def __init__(self, cin, cout, kernel_size=3, spatial_dims=2, stride=1, activation=True, padding=True):
         super().__init__()
-        self.conv = Conv[spatial_dims](cin, cout, kernel_size, stride, autopad(kernel_size))
-        self.bn = BatchNorm[spatial_dims](cout)
+        self.conv = Conv(spatial_dims,cin, cout, kernel_size, stride, autopad(kernel_size))
+        self.bn = BatchNorm(spatial_dims,cout)
         self.act = nn.ReLU(inplace=True) if activation else nn.Identity()
 
     def forward(self, x):
@@ -53,7 +53,7 @@ class Stem(nn.Sequential):
     def __init__(self, cin, spatial_dims=2):
         super().__init__(
             ConvBlock(cin, 64, 7, spatial_dims, stride=2),
-            MaxPool[spatial_dims](3, 2, padding=autopad(3))
+            MaxPool(spatial_dims,3, 2, padding=autopad(3))
         )
 
 
