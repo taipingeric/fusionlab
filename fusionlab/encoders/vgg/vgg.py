@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from fusionlab.layers import Conv, MaxPool
+from fusionlab.layers import ConvND, MaxPool
 
 # Official pytorch ref: https://github.com/pytorch/vision/blob/main/torchvision/models/vgg.py
 class VGG16(nn.Module):
@@ -8,39 +8,39 @@ class VGG16(nn.Module):
         super().__init__()
         ksize = 3
         self.features = nn.Sequential(
-            Conv(spatial_dims, c_in, 64, ksize, padding=1),
+            ConvND(spatial_dims, c_in, 64, ksize, padding=1),
             nn.ReLU(inplace=True),
-            Conv(spatial_dims,64, 64, ksize, padding=1),
-            nn.ReLU(inplace=True),
-            MaxPool(spatial_dims,kernel_size=2, stride=2),
-
-            Conv(spatial_dims,64, 128, ksize, padding=1),
-            nn.ReLU(inplace=True),
-            Conv(spatial_dims,128, 128, ksize, padding=1),
+            ConvND(spatial_dims, 64, 64, ksize, padding=1),
             nn.ReLU(inplace=True),
             MaxPool(spatial_dims,kernel_size=2, stride=2),
 
-            Conv(spatial_dims,128, 256, ksize, padding=1),
+            ConvND(spatial_dims, 64, 128, ksize, padding=1),
             nn.ReLU(inplace=True),
-            Conv(spatial_dims,256, 256, ksize, padding=1),
-            nn.ReLU(inplace=True),
-            Conv(spatial_dims,256, 256, ksize, padding=1),
+            ConvND(spatial_dims, 128, 128, ksize, padding=1),
             nn.ReLU(inplace=True),
             MaxPool(spatial_dims,kernel_size=2, stride=2),
 
-            Conv(spatial_dims,256, 512, ksize, padding=1),
+            ConvND(spatial_dims, 128, 256, ksize, padding=1),
             nn.ReLU(inplace=True),
-            Conv(spatial_dims,512, 512, ksize, padding=1),
+            ConvND(spatial_dims, 256, 256, ksize, padding=1),
             nn.ReLU(inplace=True),
-            Conv(spatial_dims,512, 512, ksize, padding=1),
+            ConvND(spatial_dims, 256, 256, ksize, padding=1),
             nn.ReLU(inplace=True),
             MaxPool(spatial_dims,kernel_size=2, stride=2),
 
-            Conv(spatial_dims,512, 512, ksize, padding=1),
+            ConvND(spatial_dims, 256, 512, ksize, padding=1),
             nn.ReLU(inplace=True),
-            Conv(spatial_dims,512, 512, ksize, padding=1),
+            ConvND(spatial_dims, 512, 512, ksize, padding=1),
             nn.ReLU(inplace=True),
-            Conv(spatial_dims,512, 512, ksize, padding=1),
+            ConvND(spatial_dims, 512, 512, ksize, padding=1),
+            nn.ReLU(inplace=True),
+            MaxPool(spatial_dims,kernel_size=2, stride=2),
+
+            ConvND(spatial_dims, 512, 512, ksize, padding=1),
+            nn.ReLU(inplace=True),
+            ConvND(spatial_dims, 512, 512, ksize, padding=1),
+            nn.ReLU(inplace=True),
+            ConvND(spatial_dims, 512, 512, ksize, padding=1),
             nn.ReLU(inplace=True),
             MaxPool(spatial_dims,kernel_size=2, stride=2),
         )
@@ -54,45 +54,45 @@ class VGG19(nn.Module):
         super().__init__()
         ksize = 3
         self.features = nn.Sequential(
-            Conv(spatial_dims,c_in, 64, ksize, padding=1),
+            ConvND(spatial_dims, c_in, 64, ksize, padding=1),
             nn.ReLU(inplace=True),
-            Conv(spatial_dims,64, 64, ksize, padding=1),
-            nn.ReLU(inplace=True),
-            MaxPool(spatial_dims,kernel_size=2, stride=2),
-
-            Conv(spatial_dims,64, 128, ksize, padding=1),
-            nn.ReLU(inplace=True),
-            Conv(spatial_dims,128, 128, ksize, padding=1),
+            ConvND(spatial_dims, 64, 64, ksize, padding=1),
             nn.ReLU(inplace=True),
             MaxPool(spatial_dims,kernel_size=2, stride=2),
 
-            Conv(spatial_dims,128, 256, ksize, padding=1),
+            ConvND(spatial_dims, 64, 128, ksize, padding=1),
             nn.ReLU(inplace=True),
-            Conv(spatial_dims,256, 256, ksize, padding=1),
-            nn.ReLU(inplace=True),
-            Conv(spatial_dims,256, 256, ksize, padding=1),
-            nn.ReLU(inplace=True),
-            Conv(spatial_dims,256, 256, ksize, padding=1),
+            ConvND(spatial_dims, 128, 128, ksize, padding=1),
             nn.ReLU(inplace=True),
             MaxPool(spatial_dims,kernel_size=2, stride=2),
 
-            Conv(spatial_dims,256, 512, ksize, padding=1),
+            ConvND(spatial_dims, 128, 256, ksize, padding=1),
             nn.ReLU(inplace=True),
-            Conv(spatial_dims,512, 512, ksize, padding=1),
+            ConvND(spatial_dims, 256, 256, ksize, padding=1),
             nn.ReLU(inplace=True),
-            Conv(spatial_dims,512, 512, ksize, padding=1),
+            ConvND(spatial_dims, 256, 256, ksize, padding=1),
             nn.ReLU(inplace=True),
-            Conv(spatial_dims,512, 512, ksize, padding=1),
+            ConvND(spatial_dims, 256, 256, ksize, padding=1),
             nn.ReLU(inplace=True),
             MaxPool(spatial_dims,kernel_size=2, stride=2),
 
-            Conv(spatial_dims,512, 512, ksize, padding=1),
+            ConvND(spatial_dims, 256, 512, ksize, padding=1),
             nn.ReLU(inplace=True),
-            Conv(spatial_dims,512, 512, ksize, padding=1),
+            ConvND(spatial_dims, 512, 512, ksize, padding=1),
             nn.ReLU(inplace=True),
-            Conv(spatial_dims,512, 512, ksize, padding=1),
+            ConvND(spatial_dims, 512, 512, ksize, padding=1),
             nn.ReLU(inplace=True),
-            Conv(spatial_dims,512, 512, ksize, padding=1),
+            ConvND(spatial_dims, 512, 512, ksize, padding=1),
+            nn.ReLU(inplace=True),
+            MaxPool(spatial_dims,kernel_size=2, stride=2),
+
+            ConvND(spatial_dims, 512, 512, ksize, padding=1),
+            nn.ReLU(inplace=True),
+            ConvND(spatial_dims, 512, 512, ksize, padding=1),
+            nn.ReLU(inplace=True),
+            ConvND(spatial_dims, 512, 512, ksize, padding=1),
+            nn.ReLU(inplace=True),
+            ConvND(spatial_dims, 512, 512, ksize, padding=1),
             nn.ReLU(inplace=True),
             MaxPool(spatial_dims,kernel_size=2, stride=2),
         )

@@ -2,10 +2,11 @@ import torch
 import torch.nn as nn
 from fusionlab.segmentation.base import SegmentationModel
 from fusionlab.utils import autopad
-from fusionlab.layers import MaxPool
+from fusionlab.layers import ConvND, MaxPool
+
 
 class UNet(SegmentationModel):
-    def __init__(self, cin, num_cls, base_dim=64):
+    def __init__(self, cin, num_cls, base_dim=64, spatial_dims=2):
         """
         Base Unet
         Args:
@@ -15,15 +16,16 @@ class UNet(SegmentationModel):
         """
         super().__init__()
         stage = 5
-        self.encoder = Encoder(cin, base_dim=base_dim)
+        self.encoder = Encoder(cin, base_dim=base_dim, spatial_dims=spatial_dims)
         self.bridger = Bridger()
         self.decoder = Decoder(cin=base_dim*(2**(stage-1)),
-                               base_dim=base_dim*(2**(stage-2)))  # 1024, 512
-        self.head = Head(base_dim, num_cls)
+                               base_dim=base_dim*(2**(stage-2)), 
+                               spatial_dims=spatial_dims)  # 1024, 512
+        self.head = Head(base_dim, num_cls, spatial_dims=spatial_dims)
 
 
 class Encoder(nn.Module):
-    def __init__(self, cin, base_dim):
+    def __init__(self, cin, base_dim, spatial_dims=2):
         """
         UNet Encoder
         Args:
@@ -31,12 +33,12 @@ class Encoder(nn.Module):
             base_dim (int): 1st stage dim of conv output
         """
         super().__init__()
-        self.pool = MaxPool(spatial_dims,2, 2)
-        self.stage1 = BasicBlock(cin, base_dim)
-        self.stage2 = BasicBlock(base_dim, base_dim * 2)
-        self.stage3 = BasicBlock(base_dim * 2, base_dim * 4)
-        self.stage4 = BasicBlock(base_dim * 4, base_dim * 8)
-        self.stage5 = BasicBlock(base_dim * 8, base_dim * 16)
+        self.pool = MaxPool(spatial_dims, 2, 2)
+        self.stage1 = BasicBlock(cin, base_dim, spatial_dims)
+        self.stage2 = BasicBlock(base_dim, base_dim * 2, spatial_dims)
+        self.stage3 = BasicBlock(base_dim * 2, base_dim * 4, spatial_dims)
+        self.stage4 = BasicBlock(base_dim * 4, base_dim * 8, spatial_dims)
+        self.stage5 = BasicBlock(base_dim * 8, base_dim * 16, spatial_dims)
 
     def forward(self, x):
         s1 = self.stage1(x)
@@ -53,7 +55,7 @@ class Encoder(nn.Module):
 
 
 class Decoder(nn.Module):
-    def __init__(self, cin, base_dim):
+    def __init__(self, cin, base_dim, spatial_dims=2):
         """
         Base UNet decoder
         Args:
@@ -61,10 +63,10 @@ class Decoder(nn.Module):
             base_dim (int): output dim of deepest stage output
         """
         super().__init__()
-        self.d4 = DecoderBlock(cin, cin//2, base_dim)
-        self.d3 = DecoderBlock(base_dim, cin//4, base_dim//2)
-        self.d2 = DecoderBlock(base_dim//2, cin//8, base_dim//4)
-        self.d1 = DecoderBlock(base_dim//4, cin//16, base_dim//8)
+        self.d4 = DecoderBlock(cin, cin//2, base_dim, spatial_dims)
+        self.d3 = DecoderBlock(base_dim, cin//4, base_dim//2, spatial_dims)
+        self.d2 = DecoderBlock(base_dim//2, cin//8, base_dim//4, spatial_dims)
+        self.d1 = DecoderBlock(base_dim//4, cin//16, base_dim//8, spatial_dims)
 
     def forward(self, x):
         f1, f2, f3, f4, f5 = x
@@ -85,31 +87,31 @@ class Bridger(nn.Module):
 
 
 class Head(nn.Sequential):
-    def __init__(self, cin, cout):
+    def __init__(self, cin, cout, spatial_dims=2):
         """
         Basic conv head
         :param int cin: input channel
         :param int cout: output channel
         """
-        conv = Conv(spatial_dims,cin, cout, 1)
+        conv = ConvND(spatial_dims, cin, cout, 1)
         super().__init__(conv)
 
 
 class BasicBlock(nn.Sequential):
-    def __init__(self, cin, cout):
+    def __init__(self, cin, cout, spatial_dims=2):
         conv1 = nn.Sequential(
-            Conv(spatial_dims,cin, cout, 3, 1, autopad(3)),
+            ConvND(spatial_dims, cin, cout, 3, 1, autopad(3)),
             nn.ReLU(),
         )
         conv2 = nn.Sequential(
-            Conv(spatial_dims,cout, cout, 3, 1, autopad(3)),
+            ConvND(spatial_dims, cout, cout, 3, 1, autopad(3)),
             nn.ReLU(),
         )
         super().__init__(conv1, conv2)
 
 
 class DecoderBlock(nn.Module):
-    def __init__(self, c1, c2, cout):
+    def __init__(self, c1, c2, cout, spatial_dims=2):
         """
         Base Unet decoder block for merging the outputs from 2 stages
         Args:
@@ -119,7 +121,7 @@ class DecoderBlock(nn.Module):
         """
         super().__init__()
         self.up = nn.Upsample(scale_factor=2)
-        self.conv = BasicBlock(c1 + c2, cout)
+        self.conv = BasicBlock(c1 + c2, cout, spatial_dims)
 
     def forward(self, x1, x2):
         x1 = self.up(x1)
@@ -129,6 +131,7 @@ class DecoderBlock(nn.Module):
 
 
 if __name__ == '__main__':
+    print("2D UNet")
     H = W = 224
     dim = 64
     inputs = torch.normal(0, 1, (1, 3, H, W))
@@ -155,3 +158,19 @@ if __name__ == '__main__':
     unet = UNet(3, 10)
     outputs = unet(inputs)
     assert list(outputs.shape) == [1, 10, H, W]
+
+    print("1D UNet")
+    L = 224
+    dim = 64
+    inputs = torch.rand(1, 3, L)
+    unet = UNet(3, 10, spatial_dims=1)
+    outputs = unet(inputs)
+    assert list(outputs.shape) == [1, 10, L]
+
+    print("3D UNet")
+    D = H = W = 64
+    dim = 32
+    inputs = torch.rand(1, 3, D, H, W)
+    unet = UNet(3, 10, spatial_dims=3)
+    outputs = unet(inputs)
+    assert list(outputs.shape) == [1, 10, D, H, W]

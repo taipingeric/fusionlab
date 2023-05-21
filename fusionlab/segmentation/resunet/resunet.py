@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 from fusionlab.segmentation.base import SegmentationModel
 from fusionlab.utils import autopad
-from fusionlab.layers.factories import Conv, ConvT, BatchNorm
+from fusionlab.layers.factories import ConvND, ConvT, BatchNorm
 
 
 
@@ -57,7 +57,7 @@ class Decoder(nn.Module):
 class DecoderBlock(nn.Module):
     def __init__(self, cin, cout, spatial_dims=2):
         super().__init__()
-        self.upsample = ConvT[spatial_dims](cin, cout, 2, stride=2)
+        self.upsample = ConvT(spatial_dims, cin, cout, 2, stride=2)
         self.conv = ResConv(cout*2, cout, spatial_dims, 1)
 
     def forward(self, x1, x2):
@@ -79,13 +79,13 @@ class Stem(nn.Module):
     def __init__(self, cin, cout, spatial_dims=2):
         super().__init__()
         self.conv = nn.Sequential(
-            Conv(spatial_dims,cin, cout, 3, padding=autopad(3)),
-            BatchNorm(spatial_dims,cout),
+            ConvND(spatial_dims, cin, cout, 3, padding=autopad(3)),
+            BatchNorm(spatial_dims, cout),
             nn.ReLU(),
-            Conv(spatial_dims,cout, cout, 3, padding=autopad(3)),
+            ConvND(spatial_dims, cout, cout, 3, padding=autopad(3)),
         )
         self.skip = nn.Sequential(
-            Conv(spatial_dims,cin, cout, 3, padding=autopad(3)),
+            ConvND(spatial_dims, cin, cout, 3, padding=autopad(3)),
         )
 
     def forward(self, x):
@@ -97,16 +97,16 @@ class ResConv(nn.Module):
         super().__init__()
 
         self.conv = nn.Sequential(
-            BatchNorm(spatial_dims,cin),
+            BatchNorm(spatial_dims, cin),
             nn.ReLU(),
-            Conv(spatial_dims,cin, cout, 3, stride, padding=autopad(3)),
-            BatchNorm(spatial_dims,cout),
+            ConvND(spatial_dims, cin, cout, 3, stride, padding=autopad(3)),
+            BatchNorm(spatial_dims, cout),
             nn.ReLU(),
-            Conv(spatial_dims,cout, cout, 3, padding=autopad(3)),
+            ConvND(spatial_dims, cout, cout, 3, padding=autopad(3)),
         )
         self.skip = nn.Sequential(
-            Conv(spatial_dims,cin, cout, 3, stride=stride, padding=autopad(3)),
-            BatchNorm(spatial_dims,cout),
+            ConvND(spatial_dims, cin, cout, 3, stride=stride, padding=autopad(3)),
+            BatchNorm(spatial_dims, cout),
         )
 
     def forward(self, x):
@@ -120,7 +120,7 @@ class Head(nn.Sequential):
         :param int cin: input channel
         :param int cout: output channel
         """
-        conv = Conv(spatial_dims,cin, cout, 1)
+        conv = ConvND(spatial_dims, cin, cout, 1)
         super().__init__(conv)
 
 if __name__ == '__main__':
@@ -161,3 +161,22 @@ if __name__ == '__main__':
     outputs = resconv(inputs)
     print(outputs.shape)
     assert list(outputs.shape) == [1, cout, H//2, W//2]
+
+
+    print("3D ResUNet")
+    D = H = W = 64
+    cout = 32
+    inputs = torch.rand(1, 3, D, H, W)
+
+    model = ResUNet(3, 100, cout, spatial_dims=3)
+    output = model(inputs)
+    print(output.shape)
+
+    print("1D ResUNet")
+    L = 64
+    cout = 32
+    inputs = torch.rand(1, 3, L)
+
+    model = ResUNet(3, 100, cout, spatial_dims=1)
+    output = model(inputs)
+    print(output.shape)
