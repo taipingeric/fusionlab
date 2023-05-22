@@ -39,7 +39,7 @@ class InceptionBlock(nn.Module):
 
 
 class InceptionNetV1(nn.Module):
-    def __init__(self, cin=3, spatial_dims=2):
+    def __init__(self, spatial_dims=2, cin=3):
         super().__init__()
         self.stem = nn.Sequential(
             ConvBlock(cin, 64, 7, spatial_dims, stride=2),

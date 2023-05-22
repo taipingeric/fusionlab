@@ -63,7 +63,7 @@ class StageBlock(nn.Sequential):
 
 
 class ResNet50V1(nn.Module):
-    def __init__(self, cin, spatial_dims=2):
+    def __init__(self, spatial_dims=2, cin=3):
         super().__init__()
         self.conv1 = Stem(cin, spatial_dims)
         self.conv2 = nn.Sequential(
