@@ -4,6 +4,8 @@
 python ../setup.py sdist bdist_wheel
 python -m twine upload dist/*
 
+# pip install -e .
+
 # build
 python setup.py sdist bdist_wheel
 # pypi

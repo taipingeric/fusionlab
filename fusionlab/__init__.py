@@ -2,7 +2,9 @@ from . import (
     functional,
     encoders,
     utils,
+    datasets,
     layers,
+    classification,
     segmentation,
     losses,
     trainers
