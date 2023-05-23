@@ -2,7 +2,7 @@
 # tensorflow>=2.6
 einops
 tqdm
-traceback
+traceback2
 
 pandas>=1.5.3
 numpy>=1.23.2
