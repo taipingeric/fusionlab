@@ -4,21 +4,21 @@ from fusionlab.layers import ConvND, MaxPool
 
 # Official pytorch ref: https://github.com/pytorch/vision/blob/main/torchvision/models/vgg.py
 class VGG16(nn.Module):
-    def __init__(self, spatial_dims=2, c_in=3):
+    def __init__(self, spatial_dims=2, cin=3):
         super().__init__()
         ksize = 3
         self.features = nn.Sequential(
-            ConvND(spatial_dims, c_in, 64, ksize, padding=1),
+            ConvND(spatial_dims, cin, 64, ksize, padding=1),
             nn.ReLU(inplace=True),
             ConvND(spatial_dims, 64, 64, ksize, padding=1),
             nn.ReLU(inplace=True),
-            MaxPool(spatial_dims,kernel_size=2, stride=2),
+            MaxPool(spatial_dims, kernel_size=2, stride=2),
 
             ConvND(spatial_dims, 64, 128, ksize, padding=1),
             nn.ReLU(inplace=True),
             ConvND(spatial_dims, 128, 128, ksize, padding=1),
             nn.ReLU(inplace=True),
-            MaxPool(spatial_dims,kernel_size=2, stride=2),
+            MaxPool(spatial_dims, kernel_size=2, stride=2),
 
             ConvND(spatial_dims, 128, 256, ksize, padding=1),
             nn.ReLU(inplace=True),
@@ -26,7 +26,7 @@ class VGG16(nn.Module):
             nn.ReLU(inplace=True),
             ConvND(spatial_dims, 256, 256, ksize, padding=1),
             nn.ReLU(inplace=True),
-            MaxPool(spatial_dims,kernel_size=2, stride=2),
+            MaxPool(spatial_dims, kernel_size=2, stride=2),
 
             ConvND(spatial_dims, 256, 512, ksize, padding=1),
             nn.ReLU(inplace=True),
@@ -34,7 +34,7 @@ class VGG16(nn.Module):
             nn.ReLU(inplace=True),
             ConvND(spatial_dims, 512, 512, ksize, padding=1),
             nn.ReLU(inplace=True),
-            MaxPool(spatial_dims,kernel_size=2, stride=2),
+            MaxPool(spatial_dims, kernel_size=2, stride=2),
 
             ConvND(spatial_dims, 512, 512, ksize, padding=1),
             nn.ReLU(inplace=True),
@@ -42,7 +42,7 @@ class VGG16(nn.Module):
             nn.ReLU(inplace=True),
             ConvND(spatial_dims, 512, 512, ksize, padding=1),
             nn.ReLU(inplace=True),
-            MaxPool(spatial_dims,kernel_size=2, stride=2),
+            MaxPool(spatial_dims, kernel_size=2, stride=2),
         )
 
     def forward(self, x):
@@ -50,21 +50,21 @@ class VGG16(nn.Module):
 
 
 class VGG19(nn.Module):
-    def __init__(self, spatial_dims=2, c_in=3):
+    def __init__(self, spatial_dims=2, cin=3):
         super().__init__()
         ksize = 3
         self.features = nn.Sequential(
-            ConvND(spatial_dims, c_in, 64, ksize, padding=1),
+            ConvND(spatial_dims, cin, 64, ksize, padding=1),
             nn.ReLU(inplace=True),
             ConvND(spatial_dims, 64, 64, ksize, padding=1),
             nn.ReLU(inplace=True),
-            MaxPool(spatial_dims,kernel_size=2, stride=2),
+            MaxPool(spatial_dims, kernel_size=2, stride=2),
 
             ConvND(spatial_dims, 64, 128, ksize, padding=1),
             nn.ReLU(inplace=True),
             ConvND(spatial_dims, 128, 128, ksize, padding=1),
             nn.ReLU(inplace=True),
-            MaxPool(spatial_dims,kernel_size=2, stride=2),
+            MaxPool(spatial_dims, kernel_size=2, stride=2),
 
             ConvND(spatial_dims, 128, 256, ksize, padding=1),
             nn.ReLU(inplace=True),
@@ -74,7 +74,7 @@ class VGG19(nn.Module):
             nn.ReLU(inplace=True),
             ConvND(spatial_dims, 256, 256, ksize, padding=1),
             nn.ReLU(inplace=True),
-            MaxPool(spatial_dims,kernel_size=2, stride=2),
+            MaxPool(spatial_dims, kernel_size=2, stride=2),
 
             ConvND(spatial_dims, 256, 512, ksize, padding=1),
             nn.ReLU(inplace=True),
@@ -84,7 +84,7 @@ class VGG19(nn.Module):
             nn.ReLU(inplace=True),
             ConvND(spatial_dims, 512, 512, ksize, padding=1),
             nn.ReLU(inplace=True),
-            MaxPool(spatial_dims,kernel_size=2, stride=2),
+            MaxPool(spatial_dims, kernel_size=2, stride=2),
 
             ConvND(spatial_dims, 512, 512, ksize, padding=1),
             nn.ReLU(inplace=True),
@@ -94,7 +94,7 @@ class VGG19(nn.Module):
             nn.ReLU(inplace=True),
             ConvND(spatial_dims, 512, 512, ksize, padding=1),
             nn.ReLU(inplace=True),
-            MaxPool(spatial_dims,kernel_size=2, stride=2),
+            MaxPool(spatial_dims, kernel_size=2, stride=2),
         )
 
     def forward(self, x):
@@ -106,24 +106,24 @@ class VGG19(nn.Module):
 if __name__ == '__main__':
     # VGG16
     inputs = torch.normal(0, 1, (1, 3, 224))
-    output = VGG16(spatial_dims=1, c_in=3)(inputs)
+    output = VGG16(spatial_dims=1, cin=3)(inputs)
     shape = list(output.shape)
     assert shape[2:] == [7]
 
     # VGG19
     inputs = torch.normal(0, 1, (1, 3, 224))
-    output = VGG19(spatial_dims=1, c_in=3)(inputs)
+    output = VGG19(spatial_dims=1, cin=3)(inputs)
     shape = list(output.shape)
     assert shape[2:] == [7]
 
     # VGG16
     inputs = torch.normal(0, 1, (1, 3, 224, 224))
-    output = VGG16(spatial_dims=2, c_in=3)(inputs)
+    output = VGG16(spatial_dims=2, cin=3)(inputs)
     shape = list(output.shape)
     assert shape[2:] == [7, 7]
 
     # VGG19
     inputs = torch.normal(0, 1, (1, 3, 224, 224))
-    output = VGG19(spatial_dims=2, c_in=3)(inputs)
+    output = VGG19(spatial_dims=2, cin=3)(inputs)
     shape = list(output.shape)
     assert shape[2:] == [7, 7]
