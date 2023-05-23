@@ -6,7 +6,7 @@ import torchvision
 import torchvision.transforms as transforms
 from tqdm.auto import tqdm
 import numpy as np
-from fusionlab.layers.factories import Conv, BatchNorm, ConvT
+from fusionlab.layers import ConvND, BatchNorm, ConvT
 
 class Generator(nn.Module):
     def __init__(self, c_in, c_out, dim_g, spatial_dims=2):
@@ -43,22 +43,22 @@ class Discriminator(nn.Module):
         super().__init__()
         self.main = nn.Sequential(
             # input is (nc) x 64 x 64
-            Conv(spatial_dims,c_in, dim_d, 4, 2, 1, bias=False),
+            ConvND(spatial_dims,c_in, dim_d, 4, 2, 1, bias=False),
             nn.LeakyReLU(0.2, inplace=True),
             # state size. (ndf) x 32 x 32
-            Conv(spatial_dims,dim_d, dim_d * 2, 4, 2, 1, bias=False),
+            ConvND(spatial_dims,dim_d, dim_d * 2, 4, 2, 1, bias=False),
             BatchNorm(spatial_dims,dim_d * 2),
             nn.LeakyReLU(0.2, inplace=True),
             # state size. (ndf*2) x 16 x 16
-            Conv(spatial_dims,dim_d * 2, dim_d * 4, 4, 2, 1, bias=False),
+            ConvND(spatial_dims,dim_d * 2, dim_d * 4, 4, 2, 1, bias=False),
             BatchNorm(spatial_dims,dim_d * 4),
             nn.LeakyReLU(0.2, inplace=True),
             # state size. (ndf*4) x 8 x 8
-            Conv(spatial_dims,dim_d * 4, dim_d * 8, 4, 2, 1, bias=False),
+            ConvND(spatial_dims,dim_d * 4, dim_d * 8, 4, 2, 1, bias=False),
             BatchNorm(spatial_dims,dim_d * 8),
             nn.LeakyReLU(0.2, inplace=True),
             # state size. (ndf*8) x 4 x 4
-            Conv(spatial_dims,dim_d * 8, 1, 4, 1, 0, bias=False),
+            ConvND(spatial_dims,dim_d * 8, 1, 4, 1, 0, bias=False),
             nn.Sigmoid()
         )
 
