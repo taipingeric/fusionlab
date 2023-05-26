@@ -6,3 +6,4 @@ tqdm
 xmltodict
 xlwt
 pandas
+scipy
