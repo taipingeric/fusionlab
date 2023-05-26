@@ -7,3 +7,4 @@ xmltodict
 xlwt
 pandas
 scipy
+wfdb
