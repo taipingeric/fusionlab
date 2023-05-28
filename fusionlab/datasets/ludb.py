@@ -18,6 +18,8 @@ last symbol in signal index: 3996 (all 200 patients)
 
 ref: https://github.com/byschii/ecg-segmentation/blob/main/unet_for_ecg.ipynb
 
+The generated annotation file follows the format of the label-studio timeserieslabels segment annotation
+
 NOTE: since the annotation is channel independent, we only use the first channel (I) annotation
 TODO: provide different annotation for different leads
 '''
@@ -26,6 +28,7 @@ from fusionlab.datasets.utils import download_file
 from glob import glob
 import numpy as np
 import wfdb
+from tqdm.auto import tqdm
 
 
 DATASET_URL = "https://physionet.org/static/published-projects/ludb/lobachevsky-university-electrocardiography-database-1.0.1.zip"
@@ -64,31 +67,43 @@ if __name__ == "__main__":
     # download_file(DATASET_URL, "./data", "./data/", "LUDB.zip", extract=True)
     # validate_files(f"./data/{DIR_NAME}")
 
+    label_list = []
     # extract symbols' index range
-    for i in range(1, 201):
+    for pat_id in tqdm(range(1, 201)):
+        # init label dict
+        label_dict = {
+            "csv": f"{pat_id}.csv",
+            "label": []
+        }
         lead_symbol = []
         lead_name = LEAD_NAMES[0] # take lead I
-        annotation = get_annotation(f"./data/{DIR_NAME}/data", i, lead_name)
+        annotation = get_annotation(f"./data/{DIR_NAME}/data", pat_id, lead_name)
         symbol_list = annotation.symbol
         sample_list = annotation.sample
-        # get all symbols '(' index in symbol list
+        # get all start symbols '(' index in symbol list
         start_symbol_idxs = [i for i, s in enumerate(symbol_list) if s == '(']
         start_segment_idxs = [sample_list[i] for i in start_symbol_idxs]
-
+        # get all start symbols ')' index in symbol list
         end_symbol_idxs = [i for i, s in enumerate(symbol_list) if s == ')']
         end_segment_idxs = [sample_list[i] for i in end_symbol_idxs]
-
+        # get all mid symbols index in symbol list
         mid_symbol_idxs = [i for i, s in enumerate(symbol_list) if s != '(' and s != ')']
         mid_segment_idxs = [sample_list[i] for i in mid_symbol_idxs]
 
         for start, end, mid_symbol_idx in zip(start_segment_idxs, end_segment_idxs, mid_symbol_idxs):
-            print(start, end, end-start, symbol_list[mid_symbol_idx])
+            symbol = symbol_list[mid_symbol_idx]
+            seg_dict = {
+                "start": int(start),
+                "end": int(end),
+                "timeserieslabels": [symbol]
+            }
+            label_dict["label"].append(seg_dict)
+        label_list.append(label_dict)
 
-        # print(start_idxs)
-
-
-        # print(set(lead_symbol))
-        break
+    # save label list to json
+    import json
+    with open("./data/annotation.json", "w") as f:
+        json.dump(label_list, f)
 
 
     # for i in range(1, 201):
