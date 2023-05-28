@@ -29,13 +29,15 @@ from glob import glob
 import numpy as np
 import wfdb
 from tqdm.auto import tqdm
+import json
 
 
 DATASET_URL = "https://physionet.org/static/published-projects/ludb/lobachevsky-university-electrocardiography-database-1.0.1.zip"
 DIR_NAME = "lobachevsky-university-electrocardiography-database-1.0.1"
 LEAD_NAMES = ['i', 'ii', 'iii', 'avr', 'avl', 'avf', 'v1', 'v2', 'v3', 'v4', 'v5', 'v6']
 CLS_NAMES = ['p', 'N', 't']
-CLS_MAP = {n: i for i, n in enumerate(CLS_NAMES)}
+CLS_MAP = {n: i+1 for i, n in enumerate(CLS_NAMES)}
+PAT_ID_LIST = list(range(1, 201))
 
 
 def validate_files(data_dir):
@@ -61,55 +63,82 @@ def get_annotation(DATA_FOLDER, index: int, lead_name: str):
     annotation = wfdb.rdann(DATA_FOLDER + "/" + str(index), extension=lead_name)
     return annotation
 
+def get_segment_annotation(pat_id):
+    # init label dict
+    label_dict = {
+        "csv": f"{pat_id}.csv",
+        "label": []
+    }
+    lead_name = LEAD_NAMES[0] # take lead I
+    annotation = get_annotation(f"./data/{DIR_NAME}/data", pat_id, lead_name)
+    symbol_list = annotation.symbol
+    sample_list = annotation.sample
+    # get all start symbols '(' index in symbol list
+    start_symbol_idxs = [i for i, s in enumerate(symbol_list) if s == '(']
+    start_segment_idxs = [sample_list[i] for i in start_symbol_idxs]
+    # get all start symbols ')' index in symbol list
+    end_symbol_idxs = [i for i, s in enumerate(symbol_list) if s == ')']
+    end_segment_idxs = [sample_list[i] for i in end_symbol_idxs]
+    # get all mid symbols index in symbol list
+    mid_symbol_idxs = [i for i, s in enumerate(symbol_list) if s != '(' and s != ')']
 
+    for start, end, mid_symbol_idx in zip(start_segment_idxs, end_segment_idxs, mid_symbol_idxs):
+        symbol = symbol_list[mid_symbol_idx]
+        segment_dict = {
+            "start": int(start),
+            "end": int(end),
+            "timeserieslabels": [symbol]
+        }
+        label_dict["label"].append(segment_dict)
+    return label_dict
+
+def process_annotation(export_path):
+    label_list = []
+    # extract symbols' index range
+    for pat_id in tqdm(PAT_ID_LIST):
+        label_dict = get_segment_annotation(pat_id)
+        label_list.append(label_dict)
+
+    # save label list to json
+    import json
+    with open(export_path, "w") as f:
+        json.dump(label_list, f)
+    
 if __name__ == "__main__":
     # # download, extract and validate files
     # download_file(DATASET_URL, "./data", "./data/", "LUDB.zip", extract=True)
     # validate_files(f"./data/{DIR_NAME}")
 
-    label_list = []
-    # extract symbols' index range
-    for pat_id in tqdm(range(1, 201)):
-        # init label dict
-        label_dict = {
-            "csv": f"{pat_id}.csv",
-            "label": []
+    process_annotation("./data/ludb_annotation.json")
+
+    # read annotation file
+    
+    with open("./data/ludb_annotation.json", "r") as f:
+        annotations = json.load(f)
+    
+
+    for i in PAT_ID_LIST:
+        signals = get_signal(f"./data/{DIR_NAME}/data", i)
+        sig_len = signals.shape[0]
+        print(sig_len)
+        annotation = annotations[i-1]
+        import matplotlib.pyplot as plt
+        plt.plot(signals[:, 0])
+        # fill range with matplotlib color
+        CLS_COLOR = {
+            1: 'red', # p
+            2: 'blue', # qrs
+            3: 'green', # t
         }
-        lead_symbol = []
-        lead_name = LEAD_NAMES[0] # take lead I
-        annotation = get_annotation(f"./data/{DIR_NAME}/data", pat_id, lead_name)
-        symbol_list = annotation.symbol
-        sample_list = annotation.sample
-        # get all start symbols '(' index in symbol list
-        start_symbol_idxs = [i for i, s in enumerate(symbol_list) if s == '(']
-        start_segment_idxs = [sample_list[i] for i in start_symbol_idxs]
-        # get all start symbols ')' index in symbol list
-        end_symbol_idxs = [i for i, s in enumerate(symbol_list) if s == ')']
-        end_segment_idxs = [sample_list[i] for i in end_symbol_idxs]
-        # get all mid symbols index in symbol list
-        mid_symbol_idxs = [i for i, s in enumerate(symbol_list) if s != '(' and s != ')']
-        mid_segment_idxs = [sample_list[i] for i in mid_symbol_idxs]
+        for segment in annotation["label"]:
+            start = segment["start"]
+            end = segment["end"]
+            segment_class = segment["timeserieslabels"][0]
+            segment_class_idx = CLS_MAP[segment_class]
+            plt.axvspan(start, end, color=CLS_COLOR[segment_class_idx], alpha=0.5)
+        plt.show()
+        break
 
-        for start, end, mid_symbol_idx in zip(start_segment_idxs, end_segment_idxs, mid_symbol_idxs):
-            symbol = symbol_list[mid_symbol_idx]
-            seg_dict = {
-                "start": int(start),
-                "end": int(end),
-                "timeserieslabels": [symbol]
-            }
-            label_dict["label"].append(seg_dict)
-        label_list.append(label_dict)
-
-    # save label list to json
-    import json
-    with open("./data/annotation.json", "w") as f:
-        json.dump(label_list, f)
-
-
-    # for i in range(1, 201):
-    #     signals = get_signal(f"./data/{DIR_NAME}/data", i)
-    #     sig_len = signals.shape[0]
-    #     print(sig_len)
 
     # record = wfdb.rdrecord(f"./data/{DIR_NAME}/data/1")
     # print(record)
