@@ -1,9 +1,32 @@
+'''
+Lobachevsky University Electrocardiography Database (LUDB)
+link: https://physionet.org/content/ludb/1.0.1/
+patient id: 1~200
+LEADS: i, ii, iii, avr, avl, avf, v1, v2, v3, v4, v5, v6
+segment annotaion symbols: p(P), N(QRS), t(T)
+file extensions: .dat, .hea, .i, .ii, .iii, .avr, .avl, .avf, .v1, .v2, .v3, .v4, .v5, .v6
+filename format: {patient_id}.{file extensions}
+
+signal shape: (5000, 12)
+
+annotation format:
+symbols: ['(', 'N', ')', '(', 't', ')', '(', 'p', ')']
+symbol tpye: ['p' 'N' 't' '(' ')']
+sample: [ 641  664  690  773  840  887]
+first symbol in signal index: 641 (all 200 patients)
+last symbol in signal index: 3996 (all 200 patients)
+
+ref: https://github.com/byschii/ecg-segmentation/blob/main/unet_for_ecg.ipynb
+
+NOTE: since the annotation is channel independent, we only use the first channel (I) annotation
+TODO: provide different annotation for different leads
+'''
 import os
-from fusionlab.datasets.utils import download_file  # Importing tqdm function from tqdm.auto module
+from fusionlab.datasets.utils import download_file
 from glob import glob
 import numpy as np
+import wfdb
 
-# ref: https://github.com/byschii/ecg-segmentation/blob/main/unet_for_ecg.ipynb
 
 DATASET_URL = "https://physionet.org/static/published-projects/ludb/lobachevsky-university-electrocardiography-database-1.0.1.zip"
 DIR_NAME = "lobachevsky-university-electrocardiography-database-1.0.1"
@@ -32,37 +55,63 @@ def get_signal(DATA_FOLDER, index: int):
 
 # get annotations given the ecg lead
 def get_annotation(DATA_FOLDER, index: int, lead_name: str):
-    annotations = wfdb.rdann(DATA_FOLDER + "/" + str(index), extension=lead_name)
-    print(annotations)
-    print(annotations.symbol)
-    print(set(annotations.symbol))
-    print(len(annotations.symbol))
-    print(np.array(annotations.sample))
-    print(len(np.array(annotations.sample)))
-    return annotations
+    annotation = wfdb.rdann(DATA_FOLDER + "/" + str(index), extension=lead_name)
+    return annotation
 
 
 if __name__ == "__main__":
+    # # download, extract and validate files
     # download_file(DATASET_URL, "./data", "./data/", "LUDB.zip", extract=True)
     # validate_files(f"./data/{DIR_NAME}")
-    import wfdb
-    record = wfdb.rdrecord(f"./data/{DIR_NAME}/data/1")
-    print(record)
-    # wfdb.plot_wfdb(record=record, title="Record 1 from LUDB", figsize=(10, 5))
-    # print(record.__dict__)
-    signals = record.p_signal  # (5000, 12)
-    sig_len = signals.shape[0]
-    print(signals.shape)
 
-    # save signal to csv
-    import os
-    import pandas as pd
-    os.makedirs('./data/csv', exist_ok=True)
-    df = pd.DataFrame()
-    for i, lead_name in enumerate(LEAD_NAMES):
-        df[lead_name] = signals[:, i]
-    df['time'] = np.arange(sig_len)
-    df.to_csv(f"./data/csv/1.csv", index=False)
+    # extract symbols' index range
+    for i in range(1, 201):
+        lead_symbol = []
+        lead_name = LEAD_NAMES[0] # take lead I
+        annotation = get_annotation(f"./data/{DIR_NAME}/data", i, lead_name)
+        symbol_list = annotation.symbol
+        sample_list = annotation.sample
+        # get all symbols '(' index in symbol list
+        start_symbol_idxs = [i for i, s in enumerate(symbol_list) if s == '(']
+        start_segment_idxs = [sample_list[i] for i in start_symbol_idxs]
+
+        end_symbol_idxs = [i for i, s in enumerate(symbol_list) if s == ')']
+        end_segment_idxs = [sample_list[i] for i in end_symbol_idxs]
+
+        mid_symbol_idxs = [i for i, s in enumerate(symbol_list) if s != '(' and s != ')']
+        mid_segment_idxs = [sample_list[i] for i in mid_symbol_idxs]
+
+        for start, end, mid_symbol_idx in zip(start_segment_idxs, end_segment_idxs, mid_symbol_idxs):
+            print(start, end, end-start, symbol_list[mid_symbol_idx])
+
+        # print(start_idxs)
+
+
+        # print(set(lead_symbol))
+        break
+
+
+    # for i in range(1, 201):
+    #     signals = get_signal(f"./data/{DIR_NAME}/data", i)
+    #     sig_len = signals.shape[0]
+    #     print(sig_len)
+
+    # record = wfdb.rdrecord(f"./data/{DIR_NAME}/data/1")
+    # print(record)
+    # # wfdb.plot_wfdb(record=record, title="Record 1 from LUDB", figsize=(10, 5))
+    # # print(record.__dict__)
+    # signals = record.p_signal  # (5000, 12)
+    # sig_len = signals.shape[0]
+    # print(signals.shape)
+
+    # # save signal to csv
+    # import pandas as pd
+    # os.makedirs('./data/csv', exist_ok=True)
+    # df = pd.DataFrame()
+    # for i, lead_name in enumerate(LEAD_NAMES):
+    #     df[lead_name] = signals[:, i]
+    # df['time'] = np.arange(sig_len)
+    # df.to_csv("./data/csv/1.csv", index=False)
 
     # # read ludb dataset annotations
     # # labels = wfdb.rdann(f"./data/{DIR_NAME}/data/1", "i")
