@@ -38,6 +38,11 @@ LEAD_NAMES = ['i', 'ii', 'iii', 'avr', 'avl', 'avf', 'v1', 'v2', 'v3', 'v4', 'v5
 CLS_NAMES = ['p', 'N', 't']
 CLS_MAP = {n: i+1 for i, n in enumerate(CLS_NAMES)}
 PAT_ID_LIST = list(range(1, 201))
+CLS_COLOR = {
+    1: 'red', # p
+    2: 'blue', # qrs
+    3: 'green', # t
+}
 
 
 def validate_files(data_dir):
@@ -125,11 +130,6 @@ if __name__ == "__main__":
         import matplotlib.pyplot as plt
         plt.plot(signals[:, 0])
         # fill range with matplotlib color
-        CLS_COLOR = {
-            1: 'red', # p
-            2: 'blue', # qrs
-            3: 'green', # t
-        }
         for segment in annotation["label"]:
             start = segment["start"]
             end = segment["end"]
