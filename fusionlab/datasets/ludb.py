@@ -46,19 +46,33 @@ CLS_COLOR = {
     3: 'green', # t
 }
 
-# plot signal with annotation
 def plot(signal, label_seq):
+    """plot signal with annotation"""
     import matplotlib.pyplot as plt
     plt.plot(signal[:, 0].numpy())
     # fill range with matplotlib axvspan
     for i in range(len(label_seq)):
         if label_seq[i] != 0:
-            plt.axvspan(i, i+1, color=CLS_COLOR[label_seq[i].item()], alpha=0.5, 
-                        linewidth=0,
-                        )
+            plt.axvspan(i, i+1, 
+                        color=CLS_COLOR[label_seq[i].item()], 
+                        alpha=0.5, 
+                        linewidth=0)
     plt.show()
 
 class LUDBDataset(torch.utils.data.Dataset):
+    """
+    Args:
+        data_dir (str): path to the dataset folder
+        annotation_path (str): path to the annotation json file
+        transform (callable, optional): Optional transform to be applied on a sample.
+        start_idx (int): start index of the signal
+        end_idx (int): end index of the signal
+
+    Returns:
+        signal: (channels, sequence lenth)
+        label_seq: (sequence lenth,)
+
+    """
     def __init__(self, data_dir, annotation_path, transform=None, start_idx=641, end_idx=3996):
         # validate raw files
         try:
@@ -106,11 +120,27 @@ class LUDBDataset(torch.utils.data.Dataset):
         return len(self.file_ids)
     
     def extract_signal_label(self, signal, label):
-        # extract signal and label with respect to start and end index
+        """
+        extract signal and label with respect to start and end index
+
+        Args:
+            signal (np.array): (signal length, 12)
+            label (np.array): (signal length,)
+        """
         return signal[self.start_idx:self.end_idx, :], label[self.start_idx:self.end_idx]
     
     # validate number of files and file types
     def validate_files(self, data_dir):
+        """
+        validate number of files and file types
+        1. check if files exist
+        2. check if file types are valid
+        3. check if number of files are valid
+
+        Args:
+            data_dir (str): path to the dataset folder
+
+        """
         assert os.path.exists(data_dir)
         paths = glob(os.path.join(data_dir, DIR_NAME, "data", "*"))
         if len(paths) == 0:
@@ -128,8 +158,14 @@ class LUDBDataset(torch.utils.data.Dataset):
         if len(set(counts)) > 1:
             raise Exception(f"Different number of files for each file type: {extension_count}")
     
-    # process annotation file and save to json
     def process_annotation(self, export_path):
+        """ 
+        process annotation file and save to json
+
+        Args:
+            export_path (str): path to save the annotation json file
+
+        """
         label_list = []
         # extract symbols' index range
         for pat_id in tqdm(PAT_ID_LIST):
@@ -140,8 +176,16 @@ class LUDBDataset(torch.utils.data.Dataset):
         with open(export_path, "w") as f:
             json.dump(label_list, f)
 
-    # map json annotation to label sequence
     def map_annotaion_to_label_seq(self, annotation, sig_len):
+        """
+        Args:
+            annotation (dict): annotation dict
+            sig_len (int): signal length
+        
+        Returns:
+            label_seq (np.array): label sequence with integer class index
+            
+        """
         label_seq = np.zeros(sig_len, dtype=int)
         for segment in annotation["label"]:
             start = segment["start"]
@@ -152,6 +196,16 @@ class LUDBDataset(torch.utils.data.Dataset):
         return label_seq
     
     def get_signal(self, DATA_FOLDER, index: int):
+        """
+        
+        Args:
+            DATA_FOLDER (str): path to the data folder
+            index (int): patient id
+
+        Returns:
+            signal (np.array): (signal length, 12)
+
+        """
         record = wfdb.rdrecord(DATA_FOLDER + "/" + str(index))
         assert type(record) is wfdb.Record
         return record.p_signal
