@@ -8,6 +8,10 @@ if BACKEND == 'torch':
         ECGCSVClassificationDataset,
         convert_mat_to_csv,
         validate_data)
+    from .ludb import (
+        LUDBDataset,
+        plot
+    )
     from .utils import download_file 
 elif BACKEND == 'tf':
     print('not built yet')
