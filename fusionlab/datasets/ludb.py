@@ -99,6 +99,7 @@ class LUDBDataset(torch.utils.data.Dataset):
 
         signal = torch.tensor(signal, dtype=torch.float)
         label_seq = torch.tensor(label_seq, dtype=torch.long)
+        signal = signal.permute(1, 0) # (C, L)
         return signal, label_seq
 
     def __len__(self):
