@@ -125,6 +125,10 @@ unet.compile(loss=fl.losses.TFDiceLoss("binary"))
 
 ## News
 
+0.1.2
+
+* Add LUDB dataset
+
 0.0.52
 
 * Tversky Loss for Torch and TF
