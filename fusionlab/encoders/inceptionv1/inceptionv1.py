@@ -26,7 +26,7 @@ class InceptionBlock(nn.Module):
                                      ConvBlock(dim1[0], dim1[1], 3, spatial_dims))
         self.branch5 = nn.Sequential(ConvBlock(cin, dim2[0], 1, spatial_dims),
                                      ConvBlock(dim2[0], dim2[1], 5, spatial_dims))
-        self.pool = nn.Sequential(MaxPool[spatial_dims](3, 1, autopad(3)),
+        self.pool = nn.Sequential(MaxPool(spatial_dims, 3, 1, autopad(3)),
                                   ConvBlock(cin, dim3, 3,spatial_dims))
 
     def forward(self, x):
@@ -39,23 +39,23 @@ class InceptionBlock(nn.Module):
 
 
 class InceptionNetV1(nn.Module):
-    def __init__(self, cin=3, spatial_dims=2):
+    def __init__(self, spatial_dims=2, cin=3):
         super().__init__()
         self.stem = nn.Sequential(
             ConvBlock(cin, 64, 7, spatial_dims, stride=2),
-            MaxPool[spatial_dims](3, 2, padding=autopad(3)),
+            MaxPool(spatial_dims, 3, 2, padding=autopad(3)),
             ConvBlock(64, 192, 3, spatial_dims),
-            MaxPool[spatial_dims](3, 2, padding=autopad(3)),
+            MaxPool(spatial_dims, 3, 2, padding=autopad(3)),
         )
         self.incept3a = InceptionBlock(192, 64, (96, 128), (16, 32), 32, spatial_dims)
         self.incept3b = InceptionBlock(256, 128, (128, 192), (32, 96), 64, spatial_dims)
-        self.pool3 = MaxPool[spatial_dims](3, 2, padding=autopad(3))
+        self.pool3 = MaxPool(spatial_dims, 3, 2, padding=autopad(3))
         self.incept4a = InceptionBlock(480, 192, (96, 208), (16, 48), 64, spatial_dims)
         self.incept4b = InceptionBlock(512, 160, (112, 224), (24, 64), 64, spatial_dims)
         self.incept4c = InceptionBlock(512, 128, (128, 256), (24, 64), 64, spatial_dims)
         self.incept4d = InceptionBlock(512, 112, (144, 288), (32, 64), 64, spatial_dims)
         self.incept4e = InceptionBlock(528, 256, (160, 320), (32, 128), 128, spatial_dims)
-        self.pool4 = MaxPool[spatial_dims](3, 2, padding=autopad(3))
+        self.pool4 = MaxPool(spatial_dims, 3, 2, padding=autopad(3))
         self.incept5a = InceptionBlock(832, 256, (160, 320), (32, 128), 128, spatial_dims)
         self.incept5b = InceptionBlock(832, 384, (192, 384), (48, 128), 128, spatial_dims)
 
