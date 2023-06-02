@@ -1,7 +1,11 @@
-# torchvision>=0.5.0
-# tensorflow>=2.6
 einops
 tqdm
+traceback2
 
+pandas>=1.5.3
+numpy>=1.23.2
 xmltodict
 xlwt
+pandas
+scipy
+wfdb

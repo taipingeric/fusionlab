@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Set the package directory
-PACKAGE_DIR="ai4ecg"
+PACKAGE_DIR="fusionlab"
 
 # Find all directories in the package
 DIRS=$(find $PACKAGE_DIR -type d)

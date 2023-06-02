@@ -27,7 +27,7 @@ class Trainer:
         return loss.item()
 
     def train_epoch(self):
-        model.train()
+        self.model.train()
         epoch_loss = []
         for _, data in enumerate(tqdm(self.train_dataloader, leave=False)):
             batch_loss = self.train_step(data)
@@ -35,7 +35,7 @@ class Trainer:
         return np.mean(epoch_loss)
     
     def val_epoch(self):
-        model.eval()
+        self.model.eval()
         epoch_loss = []
         for _, data in enumerate(tqdm(self.val_dataloader, leave=False)):
             batch_loss = self.val_step(data)

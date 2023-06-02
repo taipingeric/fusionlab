@@ -6,7 +6,7 @@ import torchvision
 import torchvision.transforms as transforms
 from tqdm.auto import tqdm
 import numpy as np
-from fusionlab.layers.factories import ConvND, BatchNorm, ConvT
+from fusionlab.layers import ConvND, BatchNorm, ConvT
 
 class Generator(nn.Module):
     def __init__(self, c_in, c_out, dim_g, spatial_dims=2):
