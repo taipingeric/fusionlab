@@ -41,3 +41,19 @@ class HFDataset(torch.utils.data.Dataset):
     def __getitem__(self, index):
         x, labels = self.dataset[index]  # Forward pass the dataset
         return {'x': x, 'labels': labels}
+
+# Testing
+def __main__():
+    NUM_DATA = 20
+    NUM_FEATURES = 16
+    ds = torch.utils.data.TensorDataset(
+        torch.zeros(NUM_DATA, NUM_FEATURES),
+        torch.zeros(NUM_DATA))
+    for x, y in ds:
+        assert list(x.shape) == [NUM_FEATURES]
+        pass
+    hf_ds = HFDataset(ds)
+    for data_dict in hf_ds:
+        assert list(data_dict.keys) == ['x', 'labels']
+        assert list(data_dict['x'].shape) == [NUM_FEATURES]
+        pass
