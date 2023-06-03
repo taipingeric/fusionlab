@@ -1,11 +1,11 @@
 # VGG Classifier
 import torch
 from torch import nn
-from fusionlab.classification.base import CNNClassification
+from fusionlab.classification.base import CNNClassificationModel
 from fusionlab.encoders import VGG16, VGG19
 from fusionlab.layers import AdaptiveAvgPool
 
-class VGG16Classifier(CNNClassification):
+class VGG16Classifier(CNNClassificationModel):
     def __init__(self, cin, cout, spatial_dims=2):
         super().__init__()
         self.cout = cout
@@ -13,7 +13,7 @@ class VGG16Classifier(CNNClassification):
         self.globalpooling = AdaptiveAvgPool(spatial_dims, 1)
         self.head = nn.Linear(512, cout)
 
-class VGG19Classifier(CNNClassification):
+class VGG19Classifier(CNNClassificationModel):
     def __init__(self, cin, cout, spatial_dims=2):
         super().__init__()
         self.cout = cout

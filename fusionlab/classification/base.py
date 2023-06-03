@@ -3,7 +3,7 @@
 
 import torch.nn as nn
 
-class CNNClassification(nn.Module):
+class CNNClassificationModel(nn.Module):
     """
     Base PyTorch class of the classification model with Encoder, Head for CNN
     """
@@ -18,7 +18,7 @@ class CNNClassification(nn.Module):
         output = self.head(features_agg.view(x.shape[0],-1)) # => [BATCH, NUM_CLS]
         return output
 
-class RNNClassification(nn.Module):
+class RNNClassificationModel(nn.Module):
     """
     Base PyTorch class of the classification model with Encoder, Head for RNN
     """
@@ -29,7 +29,7 @@ class RNNClassification(nn.Module):
         output = self.head(features[:, -1, :])
         return output
 
-class HFClassification(nn.Module):
+class HFClassificationModel(nn.Module):
     """
     Base Hugginface-pytoch model wrapper class of the classification model
     """
@@ -61,8 +61,8 @@ if __name__ == '__main__':
     cout = 5
     inputs = torch.normal(0, 1, (1, 3, W))
     # Test CNNClassification
-    model = VGG16Classifier(3, cout, spatial_dims=2)
-    hf_model = HFClassification(model, cout)
+    model = VGG16Classifier(3, cout, spatial_dims=1)
+    hf_model = HFClassificationModel(model, cout)
     output = hf_model(inputs)
     print(output['logits'].shape)
     assert list(output.keys()) == ['loss', 'logits', 'hidden_states']
@@ -70,14 +70,14 @@ if __name__ == '__main__':
     inputs = torch.normal(0, 1, (1, 3, H, W))
     # Test CNNClassification
     model = VGG16Classifier(3, cout, spatial_dims=2)
-    hf_model = HFClassification(model, cout)
+    hf_model = HFClassificationModel(model, cout)
     output = hf_model(inputs)
     print(output['logits'].shape)
     assert list(output.keys()) == ['loss', 'logits', 'hidden_states']
 
     inputs = torch.normal(0, 1, (1, 3, H))
     model = LSTMClassifier(3, cout)
-    hf_model = HFClassification(model, cout)
+    hf_model = HFClassificationModel(model, cout)
     output = hf_model(inputs)
     print(output['logits'].shape)
     assert list(output.keys()) == ['loss', 'logits', 'hidden_states']
