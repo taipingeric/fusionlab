@@ -67,13 +67,15 @@ class LUDBDataset(torch.utils.data.Dataset):
         transform (callable, optional): Optional transform to be applied on a sample.
         start_idx (int): start index of the signal
         end_idx (int): end index of the signal
+        lead_name (str): lead name to extract annotation, default: 'i'
 
     Returns:
         signal: (channels, sequence lenth)
         label_seq: (sequence lenth,)
 
     """
-    def __init__(self, data_dir, annotation_path, transform=None, start_idx=641, end_idx=3996):
+    def __init__(self, data_dir, annotation_path, 
+                 transform=None, start_idx=641, end_idx=3996, lead_name='i'):
         # validate raw files
         try:
             self.validate_files(data_dir)
@@ -85,7 +87,7 @@ class LUDBDataset(torch.utils.data.Dataset):
         # validate annotation file
         if not os.path.exists(annotation_path):
             print(f"Start processing annotation file and save to {annotation_path}")
-            self.process_annotation(annotation_path)
+            self.process_annotation(annotation_path, lead_name=lead_name)
 
         self.data_dir = data_dir
         self.signal_dir = os.path.join(data_dir, DIR_NAME, "data")
@@ -158,18 +160,18 @@ class LUDBDataset(torch.utils.data.Dataset):
         if len(set(counts)) > 1:
             raise Exception(f"Different number of files for each file type: {extension_count}")
     
-    def process_annotation(self, export_path):
+    def process_annotation(self, export_path, lead_name='i'):
         """ 
         process annotation file and save to json
 
         Args:
             export_path (str): path to save the annotation json file
-
+            lead_name (str): lead name to extract annotation
         """
         label_list = []
         # extract symbols' index range
         for pat_id in tqdm(PAT_ID_LIST):
-            label_dict = self.get_segment_annotation(pat_id)
+            label_dict = self.get_segment_annotation(pat_id, lead_name)
             label_list.append(label_dict)
 
         # save label list to json
@@ -216,13 +218,13 @@ class LUDBDataset(torch.utils.data.Dataset):
         annotation = wfdb.rdann(DATA_FOLDER + "/" + str(index), extension=lead_name)
         return annotation
 
-    def get_segment_annotation(self, pat_id):
+    def get_segment_annotation(self, pat_id, lead_name='i'):
         # init label dict
         label_dict = {
             "csv": f"{pat_id}.csv",
             "label": []
         }
-        lead_name = LEAD_NAMES[0] # take lead I
+        assert lead_name.lower() in LEAD_NAMES, f"lead name {lead_name} not in {LEAD_NAMES}"
         annotation = self.get_annotation(f"./data/{DIR_NAME}/data", pat_id, lead_name)
         symbol_list = annotation.symbol
         sample_list = annotation.sample
@@ -244,6 +246,8 @@ class LUDBDataset(torch.utils.data.Dataset):
             }
             label_dict["label"].append(segment_dict)
         return label_dict
+
+    
 
 if __name__ == "__main__":
     ds = LUDBDataset("./data", "./data/ludb_annotation.json")
