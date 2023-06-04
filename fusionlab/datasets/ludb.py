@@ -76,9 +76,12 @@ class LUDBDataset(torch.utils.data.Dataset):
     """
     def __init__(self, data_dir, annotation_path, 
                  transform=None, start_idx=641, end_idx=3996, lead_name='i'):
+        self.data_dir = data_dir
+        self.signal_dir = os.path.join(data_dir, DIR_NAME, "data")
+        self.annotation_path = annotation_path
         # validate raw files
         try:
-            self.validate_files(data_dir)
+            self.validate_files()
         except Exception as e:
             print(e)
             print(f"Start downloading the dataset from {DATASET_URL} to {os.path.join(data_dir, TARGET_FILENAME)}")
@@ -89,9 +92,7 @@ class LUDBDataset(torch.utils.data.Dataset):
             print(f"Start processing annotation file and save to {annotation_path}")
             self.process_annotation(annotation_path, lead_name=lead_name)
 
-        self.data_dir = data_dir
-        self.signal_dir = os.path.join(data_dir, DIR_NAME, "data")
-        self.annotation_path = annotation_path
+        
         with open(self.annotation_path, "r") as f:
             self.annotations = json.load(f)
         self.file_ids = [int(anno['csv'].split(os.sep)[-1].split('.')[0]) for anno in self.annotations]
@@ -132,7 +133,7 @@ class LUDBDataset(torch.utils.data.Dataset):
         return signal[self.start_idx:self.end_idx, :], label[self.start_idx:self.end_idx]
     
     # validate number of files and file types
-    def validate_files(self, data_dir):
+    def validate_files(self):
         """
         validate number of files and file types
         1. check if files exist
@@ -143,10 +144,10 @@ class LUDBDataset(torch.utils.data.Dataset):
             data_dir (str): path to the dataset folder
 
         """
-        assert os.path.exists(data_dir)
-        paths = glob(os.path.join(data_dir, DIR_NAME, "data", "*"))
+        assert os.path.exists(self.data_dir)
+        paths = glob(os.path.join(self.data_dir, DIR_NAME, "data", "*"))
         if len(paths) == 0:
-            raise Exception(f"No files found in the dataset folder: {data_dir}")
+            raise Exception(f"No files found in the dataset folder: {self.data_dir}")
         
         extension_count = {}
         for p in paths:
@@ -225,7 +226,7 @@ class LUDBDataset(torch.utils.data.Dataset):
             "label": []
         }
         assert lead_name.lower() in LEAD_NAMES, f"lead name {lead_name} not in {LEAD_NAMES}"
-        annotation = self.get_annotation(f"./data/{DIR_NAME}/data", pat_id, lead_name)
+        annotation = self.get_annotation(os.path.join(self.data_dir, DIR_NAME,'data'), pat_id, lead_name)
         symbol_list = annotation.symbol
         sample_list = annotation.sample
         # get all start symbols '(' index in symbol list
