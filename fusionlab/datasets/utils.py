@@ -38,6 +38,8 @@ class HFDataset(torch.utils.data.Dataset):
     def __init__(self, dataset):
         super().__init__()
         self.dataset = dataset
+    def __len__(self):
+        return len(self.dataset)
     def __getitem__(self, index):
         x, labels = self.dataset[index]  # Forward pass the dataset
         return {'x': x, 'labels': labels}
