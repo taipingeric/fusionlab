@@ -109,6 +109,69 @@ def plot(signal, label_seq, sr=500, channel='v1'):
     
     fig.show()
 
+def plot_leads(signal, label_seq, sr=500, channels = LEAD_NAMES):
+    from plotly.subplots import make_subplots
+    import plotly.graph_objs as go
+    """plot signal with annotation for all leads"""
+    # initialize subplots
+    fig = make_subplots(
+        rows=len(channels),
+        cols=1,
+        shared_xaxes=True,
+        vertical_spacing=0.001
+    )
+    # update plot layout and settings
+    fig.update_layout(
+        plot_bgcolor='rgba(255,255,255,0)',
+        width=1200,
+        height=90*len(channels),
+        showlegend=False
+    )
+    fig.update_xaxes(showline=True, linewidth=1.5, gridcolor='rgba(255,0,0,0.5)', minor_gridcolor='rgba(255,0,0,0.2)')
+    fig.update_yaxes(showline=True, linewidth=1.5, gridcolor='rgba(255,0,0,0.5)', minor_gridcolor='rgba(255,0,0,0.2)')
+    # add time axis
+    time = np.arange(0, signal.shape[1])/sr
+
+    # find segments
+    neq = list(label_seq[1:] != label_seq[:-1])
+
+    print("Loading channels:", end=' ')
+    for i, channel in enumerate(channels):
+        print(channel, end=' ')
+
+        # add a lead chart
+        fig.add_trace(
+            go.Scatter(
+                x=time,
+                y=signal[LEAD_NAMES.index(channel)],
+                line=dict(color="blue", width=1),
+            ),
+            row=i+1,
+            col=1,
+        )
+        fig.update_yaxes(title_text=channel, row=i+1, col=1) 
+
+        # plot by interval
+        last_i = 0
+        while True:
+            try:
+                next_i = neq.index(1,last_i+1)
+                if label_seq[last_i] != 0:
+                    fig.add_vrect(
+                        x0=last_i/sr, x1=next_i/sr,
+                        fillcolor=CLS_COLOR[label_seq[last_i].item()],
+                        line_width=0, opacity=0.2,
+                        row=i+1, col=1
+                    )
+                    
+                last_i = next_i+1
+                
+            except:
+                break
+        # pdb.set_trace()
+    
+    fig.show()
+
 class LUDBDataset(torch.utils.data.Dataset):
     """
     Args:
