@@ -10,3 +10,40 @@ class SegmentationModel(nn.Module):
         decoder_output = self.decoder(feature_fusion)
         output = self.head(decoder_output)
         return output
+    
+class HFSegmentationModel(nn.Module):
+    """
+    Base Hugginface-pytoch model wrapper class of the segmentation model
+    """
+    def __init__(self, model,
+                    num_cls=4,
+                    loss_fct=nn.CrossEntropyLoss()):
+        super().__init__()
+        self.net = model
+        self.num_cls = num_cls
+        self.loss_fct = loss_fct
+    def forward(self, x, labels=None):
+        logits = self.net(x)  # Forward pass the model
+        if labels is not None:
+            # logits => [BATCH, NUM_CLS]
+            # labels => [BATCH]
+            loss = self.loss_fct(logits, labels)  # Calculate loss
+        else:
+            loss = None
+        # return dictionary for hugginface trainer
+        return {'loss':loss, 'logits':logits, 'hidden_states':None}
+
+
+if __name__ == '__main__':
+    import torch
+    from fusionlab.segmentation import ResUNet
+    H = W = 224
+    cout = 5
+    inputs = torch.normal(0, 1, (1, 3, H, W))
+
+    model = ResUNet(3, cout, 64)
+    hf_model = HFSegmentationModel(model, cout)
+    output = hf_model(inputs)
+    assert list(output.keys()) == ['loss', 'logits', 'hidden_states']
+    print(output['logits'].shape)
+    assert list(output['logits'].shape) == [1, cout, H, W]

@@ -4,7 +4,7 @@ from fusionlab.layers.factories import ConvND, MaxPool
 
 # Official pytorch ref: https://github.com/pytorch/vision/blob/main/torchvision/models/alexnet.py
 class AlexNet(nn.Module):
-    def __init__(self, spatial_dims=2, cin=3):
+    def __init__(self, cin=3, spatial_dims=2):
         super().__init__()
         self.features = nn.Sequential(
             ConvND(spatial_dims, cin, 64, kernel_size=11, stride=4, padding=2),

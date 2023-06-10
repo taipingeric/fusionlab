@@ -12,7 +12,10 @@ if BACKEND == 'torch':
         LUDBDataset,
         plot
     )
-    from .utils import download_file 
+    from .utils import (
+        download_file,
+        HFDataset,
+    ) 
 elif BACKEND == 'tf':
     print('not built yet')
 else:
