@@ -41,23 +41,73 @@ CLS_NAMES = ['p', 'N', 't']
 CLS_MAP = {n: i+1 for i, n in enumerate(CLS_NAMES)}
 PAT_ID_LIST = list(range(1, 201))
 CLS_COLOR = {
-    1: 'red', # p
+    1: 'orange', # p
     2: 'blue', # qrs
     3: 'green', # t
 }
 
-def plot(signal, label_seq):
+def plot(signal, label_seq, sr=500, channel='v1'):
     """plot signal with annotation"""
-    import matplotlib.pyplot as plt
-    plt.plot(signal[:, 0].numpy())
-    # fill range with matplotlib axvspan
-    for i in range(len(label_seq)):
-        if label_seq[i] != 0:
-            plt.axvspan(i, i+1, 
-                        color=CLS_COLOR[label_seq[i].item()], 
-                        alpha=0.5, 
-                        linewidth=0)
-    plt.show()
+    assert channel in LEAD_NAMES, f"channel {channel} is not supported"
+    import plotly.express as px
+
+    # initialize signal
+    time = np.arange(0,signal.shape[1])/sr
+
+    # plot signal
+    fig = px.line(x=time, y=signal[LEAD_NAMES.index(channel)])
+
+    # add axislabel and reference line 
+    fig.add_hline(y=0, line_width=2, line_dash="dash", line_color="gray")
+    for name, cid in CLS_MAP.items():
+        fig.add_scatter(
+            x=[None], y=[None], mode='lines',
+            line=dict(width=0), showlegend=True,
+            name=name,
+            fillcolor=CLS_COLOR[cid]
+        )
+    fig.update_layout(
+        plot_bgcolor='rgba(255,255,255,0)',
+        width=1200, height=300
+    )
+
+    fig.update_yaxes(
+        title_text='Amplitude (normalized)',
+        showline=True, linewidth=1.5,
+        gridcolor='rgba(255,0,0,0.5)',
+        minor_gridcolor='rgba(255,0,0,0.2)'
+    )
+    fig.update_xaxes(
+        title_text='Time (s, re-centered)',
+        showline=True, linewidth=1.5,
+        gridcolor='rgba(255,0,0,0.5)',
+        minor_gridcolor='rgba(255,0,0,0.2)'
+    )
+
+    # find all label intervals
+    neq = list(label_seq[1:] != label_seq[:-1])
+
+    # plot by interval
+    last_label = 0
+    last_i = 0
+    while True:
+        try:
+            # get next interval stop point
+            next_i = neq.index(1,last_i+1)
+            if label_seq[last_i] != 0:
+                # add a rectangle to the plot that indicate the interval and class
+                fig.add_vrect(
+                    x0=last_i/sr, x1=next_i/sr,
+                    fillcolor=CLS_COLOR[label_seq[last_i].item()],
+                    line_width=0, opacity=0.2
+                )
+            # update interval start point
+            last_i = next_i+1
+        except:
+            # break when no more intervals
+            break
+    
+    fig.show()
 
 class LUDBDataset(torch.utils.data.Dataset):
     """
@@ -106,6 +156,7 @@ class LUDBDataset(torch.utils.data.Dataset):
     def __getitem__(self, index):
         file_id = self.file_ids[index]
         anno = self.annotations[index]
+        
         signal = self.get_signal(self.signal_dir, file_id) # (5000, 12)
         signal_len = signal.shape[0]
         label_seq = self.map_annotaion_to_label_seq(anno, signal_len)
@@ -114,9 +165,15 @@ class LUDBDataset(torch.utils.data.Dataset):
         if self.transform:
             signal = self.transform(signal)
 
-        signal = torch.tensor(signal, dtype=torch.float)
-        label_seq = torch.tensor(label_seq, dtype=torch.long)
-        signal = signal.permute(1, 0) # (C, L)
+        with torch.no_grad():
+            signal = torch.tensor(signal, dtype=torch.float)
+            label_seq = torch.tensor(label_seq, dtype=torch.long)
+            signal = signal.permute(1, 0) # (C, L)
+
+            # pad the signal to multiple of 8
+            pad_length = 8-signal.shape[-1]%8
+            signal = torch.nn.functional.pad(signal, pad=(0, pad_length))
+            label_seq = torch.nn.functional.pad(label_seq, pad=(0, pad_length))
         return signal, label_seq
 
     def __len__(self):
