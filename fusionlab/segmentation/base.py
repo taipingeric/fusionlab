@@ -15,12 +15,15 @@ class HFSegmentationModel(nn.Module):
     """
     Base Hugginface-pytoch model wrapper class of the segmentation model
     """
-    def __init__(self, model,
-                    num_cls=4,
+    def __init__(self, model, num_cls=None,
                     loss_fct=nn.CrossEntropyLoss()):
         super().__init__()
         self.net = model
-        self.num_cls = num_cls
+        if 'num_cls' in model.__dict__.keys():
+            self.num_cls = model.num_cls
+        else:
+            self.num_cls = num_cls
+        assert self.num_cls is not None, "num_cls is not defined"
         self.loss_fct = loss_fct
     def forward(self, x, labels=None):
         logits = self.net(x)  # Forward pass the model
