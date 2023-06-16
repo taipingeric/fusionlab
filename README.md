@@ -57,11 +57,9 @@ encoder = fl.encoders.TFVGG16()
 ```python
 # Dice Loss (Multiclass)
 import fusionlab as fl
-import torch
-import tensorflow as tf
 
 # PyTorch
-pred = torch.normal(0., 1., (1, 3, 4, 4)) # (N, C, *)
+pred = torch.randn(1, 3, 4, 4) # (N, C, *)
 target = torch.randint(0, 3, (1, 4, 4)) # (N, *)
 loss_fn = fl.losses.DiceLoss()
 loss = loss_fn(pred, target)
@@ -76,7 +74,7 @@ loss = loss_fn(target, pred)
 # Dice Loss (Binary)
 
 # PyTorch
-pred = torch.normal(0, 1, (1, 1, 4, 4)) # (N, 1, *)
+pred = torch.randn(1, 1, 4, 4) # (N, 1, *)
 target = torch.randint(0, 3, (1, 4, 4)) # (N, *)
 loss_fn = fl.losses.DiceLoss("binary")
 loss = loss_fn(pred, target)
@@ -95,26 +93,20 @@ loss = loss_fn(target, pred)
 ```python
 import fusionlab as fl
 # PyTorch UNet
-unet = fl.segmentation.UNet(cin=3, num_cls=10, base_dim=64)
+unet = fl.segmentation.UNet(cin=3, num_cls=10)
 
 # Tensorflow UNet
-import tensorflow as tf
-
 # Multiclass Segmentation
 unet = tf.keras.Sequential([
    fl.segmentation.TFUNet(num_cls=10, base_dim=64),
    tf.keras.layers.Activation(tf.nn.softmax),
 ])
-unet.compile(loss=fl.losses.TFDiceLoss("multiclass"))
 
 # Binary Segmentation
 unet = tf.keras.Sequential([
    fl.segmentation.TFUNet(num_cls=1, base_dim=64),
    tf.keras.layers.Activation(tf.nn.sigmoid),
 ])
-unet.compile(loss=fl.losses.TFDiceLoss("binary"))
-
-
 ```
 
 [Segmentation model list](fusionlab/segmentation/README.md)
