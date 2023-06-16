@@ -17,6 +17,7 @@ especially for newbie. Feel free to send pull requests :D
 * [Encoders](#Encoders)
 * [Losses](#Losses)
 * [Segmentation](#Segmentation)
+* [1D, 2D, 3D Model](#n-dimensional-model)
 * [Acknowledgements](#Acknowledgements)
 
 ## Installation
@@ -28,7 +29,7 @@ pip install fusionlab
 ```
 
 #### For Mac M1 chip users
-Go to [Install on Macbook M1 chip](./configs/Install%20on%20Macbook%20M1.md) 
+[Install on Macbook M1 chip](./configs/Install%20on%20Macbook%20M1.md) 
 
 ## How to use
 
@@ -114,6 +115,22 @@ unet = tf.keras.Sequential([
 * UNet
 * ResUNet
 * UNet2plus
+
+## N Dimensional Model
+
+some model can be used in 1D, 2D, 3D
+
+```python
+import fusionlab as fl
+
+resnet1d = fl.encoders.ResNet50V1(cin=3, spatial_dims=1)
+resnet2d = fl.encoders.ResNet50V1(cin=3, spatial_dims=2)
+resnet3d = fl.encoders.ResNet50V1(cin=3, spatial_dims=3)
+
+unet1d = fl.segmentation.UNet(cin=3, num_cls=10, spatial_dims=1)
+unet2d = fl.segmentation.UNet(cin=3, num_cls=10, spatial_dims=2)
+unet3d = fl.segmentation.UNet(cin=3, num_cls=10, spatial_dims=3)
+```
 
 ## News
 
