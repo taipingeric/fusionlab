@@ -16,6 +16,7 @@ class UNet(SegmentationModel):
         """
         super().__init__()
         stage = 5
+        self.num_cls = num_cls
         self.encoder = Encoder(cin, base_dim=base_dim, spatial_dims=spatial_dims)
         self.bridger = Bridger()
         self.decoder = Decoder(cin=base_dim*(2**(stage-1)),
