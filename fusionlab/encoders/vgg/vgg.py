@@ -4,7 +4,7 @@ from fusionlab.layers import ConvND, MaxPool
 
 # Official pytorch ref: https://github.com/pytorch/vision/blob/main/torchvision/models/vgg.py
 class VGG16(nn.Module):
-    def __init__(self, spatial_dims=2, cin=3):
+    def __init__(self, cin=3, spatial_dims=2):
         super().__init__()
         ksize = 3
         self.features = nn.Sequential(
@@ -50,7 +50,7 @@ class VGG16(nn.Module):
 
 
 class VGG19(nn.Module):
-    def __init__(self, spatial_dims=2, cin=3):
+    def __init__(self, cin=3, spatial_dims=2):
         super().__init__()
         ksize = 3
         self.features = nn.Sequential(
@@ -106,24 +106,24 @@ class VGG19(nn.Module):
 if __name__ == '__main__':
     # VGG16
     inputs = torch.normal(0, 1, (1, 3, 224))
-    output = VGG16(spatial_dims=1, cin=3)(inputs)
+    output = VGG16(cin=3, spatial_dims=1)(inputs)
     shape = list(output.shape)
     assert shape[2:] == [7]
 
     # VGG19
     inputs = torch.normal(0, 1, (1, 3, 224))
-    output = VGG19(spatial_dims=1, cin=3)(inputs)
+    output = VGG19(cin=3, spatial_dims=1)(inputs)
     shape = list(output.shape)
     assert shape[2:] == [7]
 
     # VGG16
     inputs = torch.normal(0, 1, (1, 3, 224, 224))
-    output = VGG16(spatial_dims=2, cin=3)(inputs)
+    output = VGG16(cin=3,  spatial_dims=2)(inputs)
     shape = list(output.shape)
     assert shape[2:] == [7, 7]
 
     # VGG19
     inputs = torch.normal(0, 1, (1, 3, 224, 224))
-    output = VGG19(spatial_dims=2, cin=3)(inputs)
+    output = VGG19(cin=3,  spatial_dims=2)(inputs)
     shape = list(output.shape)
     assert shape[2:] == [7, 7]

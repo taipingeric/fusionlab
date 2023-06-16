@@ -1,9 +1,9 @@
 import torch
 from torch import nn
-from fusionlab.classification.base import RNNClassification
+from fusionlab.classification.base import RNNClassificationModel
 
 
-class LSTMClassifier(RNNClassification):
+class LSTMClassifier(RNNClassificationModel):
     def __init__(self, cin, cout, hidden_size=512):
         super().__init__()
         self.encoder = nn.LSTM(input_size=cin, hidden_size=hidden_size, batch_first=True) # define LSTM layer

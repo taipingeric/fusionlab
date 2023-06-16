@@ -10,6 +10,7 @@ from fusionlab.layers import ConvND, BatchNorm, MaxPool, Upsample
 class UNet2plus(SegmentationModel):
     def __init__(self, cin, num_cls, base_dim, spatial_dims=2):
         super().__init__()
+        self.num_cls = num_cls
         self.encoder = Encoder(cin, base_dim, spatial_dims)
         self.bridger = Bridger()
         self.decoder = Decoder(base_dim, spatial_dims)
