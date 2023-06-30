@@ -2,12 +2,11 @@
 
 * SENet
 * DenseNet
-* ConNext
+* ConvNext
 
 ### Segmentation
 
 * FCN
-* ResUNet
 * AttUNet
 * UNETR
 * DeepLab
@@ -15,8 +14,6 @@
 * PSPNet
 
 ### Metrics
-
-* Dice
 
 ### Losses
 
