@@ -1,5 +1,6 @@
 from .muse import GEMuseXMLReader
 from .csvread import read_csv
+from .utils import LSTimeSegDataset
 
 from fusionlab.configs import BACKEND
 if BACKEND == 'torch':

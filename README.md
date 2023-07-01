@@ -17,6 +17,7 @@ especially for newbie. Feel free to send pull requests :D
 * [Encoders](#Encoders)
 * [Losses](#Losses)
 * [Segmentation](#Segmentation)
+* [1D, 2D, 3D Model](#n-dimensional-model)
 * [Acknowledgements](#Acknowledgements)
 
 ## Installation
@@ -28,7 +29,7 @@ pip install fusionlab
 ```
 
 #### For Mac M1 chip users
-Go to [Install on Macbook M1 chip](./configs/Install%20on%20Macbook%20M1.md) 
+[Install on Macbook M1 chip](./configs/Install%20on%20Macbook%20M1.md) 
 
 ## How to use
 
@@ -57,11 +58,9 @@ encoder = fl.encoders.TFVGG16()
 ```python
 # Dice Loss (Multiclass)
 import fusionlab as fl
-import torch
-import tensorflow as tf
 
 # PyTorch
-pred = torch.normal(0., 1., (1, 3, 4, 4)) # (N, C, *)
+pred = torch.randn(1, 3, 4, 4) # (N, C, *)
 target = torch.randint(0, 3, (1, 4, 4)) # (N, *)
 loss_fn = fl.losses.DiceLoss()
 loss = loss_fn(pred, target)
@@ -76,7 +75,7 @@ loss = loss_fn(target, pred)
 # Dice Loss (Binary)
 
 # PyTorch
-pred = torch.normal(0, 1, (1, 1, 4, 4)) # (N, 1, *)
+pred = torch.randn(1, 1, 4, 4) # (N, 1, *)
 target = torch.randint(0, 3, (1, 4, 4)) # (N, *)
 loss_fn = fl.losses.DiceLoss("binary")
 loss = loss_fn(pred, target)
@@ -95,26 +94,20 @@ loss = loss_fn(target, pred)
 ```python
 import fusionlab as fl
 # PyTorch UNet
-unet = fl.segmentation.UNet(cin=3, num_cls=10, base_dim=64)
+unet = fl.segmentation.UNet(cin=3, num_cls=10)
 
 # Tensorflow UNet
-import tensorflow as tf
-
 # Multiclass Segmentation
 unet = tf.keras.Sequential([
    fl.segmentation.TFUNet(num_cls=10, base_dim=64),
    tf.keras.layers.Activation(tf.nn.softmax),
 ])
-unet.compile(loss=fl.losses.TFDiceLoss("multiclass"))
 
 # Binary Segmentation
 unet = tf.keras.Sequential([
    fl.segmentation.TFUNet(num_cls=1, base_dim=64),
    tf.keras.layers.Activation(tf.nn.sigmoid),
 ])
-unet.compile(loss=fl.losses.TFDiceLoss("binary"))
-
-
 ```
 
 [Segmentation model list](fusionlab/segmentation/README.md)
@@ -122,6 +115,22 @@ unet.compile(loss=fl.losses.TFDiceLoss("binary"))
 * UNet
 * ResUNet
 * UNet2plus
+
+## N Dimensional Model
+
+some model can be used in 1D, 2D, 3D
+
+```python
+import fusionlab as fl
+
+resnet1d = fl.encoders.ResNet50V1(cin=3, spatial_dims=1)
+resnet2d = fl.encoders.ResNet50V1(cin=3, spatial_dims=2)
+resnet3d = fl.encoders.ResNet50V1(cin=3, spatial_dims=3)
+
+unet1d = fl.segmentation.UNet(cin=3, num_cls=10, spatial_dims=1)
+unet2d = fl.segmentation.UNet(cin=3, num_cls=10, spatial_dims=2)
+unet3d = fl.segmentation.UNet(cin=3, num_cls=10, spatial_dims=3)
+```
 
 ## News
 
