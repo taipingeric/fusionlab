@@ -102,7 +102,7 @@ class LSTimeSegDataset(torch.utils.data.Dataset):
         signals = df[self.column_names].values
         signals = self.preprocess(signals)
 
-        signals = torch.from_numpy(signals).float()
+        signals = torch.from_numpy(signals).float().permute(1, 0)
         mask = torch.from_numpy(mask).long()
         return signals, mask
     
