@@ -27,6 +27,7 @@ class TestLSTimeSegDataset:
         import os
         import pandas as pd
         import json
+        import torch
         filename = "29be6360-12lead.csv"
         annotaion_path = os.path.join(tmpdir, "12.json")
         annotation = [
@@ -72,3 +73,6 @@ class TestLSTimeSegDataset:
         signals, mask = ds[0]
         assert signals.shape == (num_samples, len(col_names))
         assert mask.shape == (num_samples, )
+        assert type(signals) == torch.Tensor
+        assert type(mask) == torch.Tensor
+        assert len(ds) == 1
