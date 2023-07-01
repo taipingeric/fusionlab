@@ -1,7 +1,7 @@
 ### Encoders
 
 * SENet
-* DenseNet
+* EfficientNet
 * ConvNext
 
 ### Segmentation
@@ -15,7 +15,7 @@
 
 ### Metrics
 
-### Losses
-
 * HD95
 * Normalized Surface Distance(NSD)
+
+### Losses
