@@ -71,7 +71,7 @@ class TestLSTimeSegDataset:
                                        class_map={"N": 1, "p": 2, "t": 3},
                                        column_names=col_names)
         signals, mask = ds[0]
-        assert signals.shape == (num_samples, len(col_names))
+        assert signals.shape == (len(col_names), num_samples)
         assert mask.shape == (num_samples, )
         assert type(signals) == torch.Tensor
         assert type(mask) == torch.Tensor
