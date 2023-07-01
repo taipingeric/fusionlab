@@ -4,6 +4,8 @@ import os
 from typing import Optional
 from glob import glob
 import json
+import pandas as pd
+import numpy as np
 
 def download_file(url: str,
                   download_root: str,
@@ -47,14 +49,17 @@ class HFDataset(torch.utils.data.Dataset):
 
 # label-studio timeseries segmentation dataset
 class LSTimeSegDataset(torch.utils.data.Dataset):
-    def __init__(self, data_dir, annotation_path):
+    def __init__(self, data_dir, annotation_path, class_map, column_names):
         super().__init__()
         self.data_dir = data_dir
-        data_paths = glob(os.path.join(data_dir, "*.csv"))
-        num_data = len(data_paths)
         self.annotation_path = annotation_path
+        self.class_map = class_map
+        self.column_names = column_names
+        data_paths = glob(os.path.join(data_dir, "*.csv"))
         with open(annotation_path, "r") as f:
             self.annotations = json.load(f)
+        
+        num_data = len(data_paths)
         num_annotation = len(self.annotations)
         assert num_data == num_annotation, "number of data != number of annotations"
 
@@ -62,4 +67,23 @@ class LSTimeSegDataset(torch.utils.data.Dataset):
         return len(self.annotation_path)
     
     def __getitem__(self, index):
-        return
+        annotation = self.annotations[index]
+        signal_filename = annotation["csv"].split(os.sep)[-1]
+        signal_path = os.path.join(self.data_dir, signal_filename)
+        df = pd.read_csv(signal_path)
+        mask = np.zeros(len(df), dtype=np.int32)
+        for segment in annotation["label"]:
+            start_time = segment["start"]
+            end_time = segment["end"]
+            class_name = segment["timeserieslabels"][0]
+            start_idx = df[df["time"] == start_time].index[0]
+            end_idx = df[df["time"] == end_time].index[0]
+            mask[start_idx: end_idx] = self.class_map[class_name]
+        signals = df[self.column_names].values
+        signals = self.preprocess(signals)
+        return signals, mask
+    
+    def preprocess(self, signals):
+        # normalization by channel
+        signals = (signals - signals.mean(axis=0)) / signals.std(axis=0)
+        return signals
