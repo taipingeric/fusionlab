@@ -253,21 +253,113 @@ class EfficientNet(nn.Module):
 
     def forward(self, x: Tensor) -> Tensor:
         return self.features(x)
-    
+
+def _build_efficient_cfg(width_mult, depth_mult):
+    mb_cfg = partial(MBConvConfig, width_mult=width_mult, depth_mult=depth_mult)
+    return [
+        mb_cfg(1, 3, 1, 32, 16, 1),
+        mb_cfg(6, 3, 2, 16, 24, 2),
+        mb_cfg(6, 5, 2, 24, 40, 2),
+        mb_cfg(6, 3, 2, 40, 80, 3),
+        mb_cfg(6, 5, 1, 80, 112, 3),
+        mb_cfg(6, 5, 2, 112, 192, 4),
+        mb_cfg(6, 3, 1, 192, 320, 1),
+    ]
+
 class EfficientNetB0(EfficientNet):
-    def __init__(self, spatial_dims=2):
-        config = [
-            MBConvConfig(1, 3, 1, 32, 16, 1),
-            MBConvConfig(6, 3, 2, 16, 24, 2),
-            MBConvConfig(6, 5, 2, 24, 40, 2),
-            MBConvConfig(6, 3, 2, 40, 80, 3),
-            MBConvConfig(6, 5, 1, 80, 112, 3),
-            MBConvConfig(6, 5, 2, 112, 192, 4),
-            MBConvConfig(6, 3, 1, 192, 320, 1),
-        ]
+    def __init__(self, spatial_dims=2, cin=3):
+        config = _build_efficient_cfg(1.0, 1.0)
         last_channel = None
         super().__init__(
-            inverted_residual_setting=config, stochastic_depth_prob=0.2, last_channel=last_channel, spatial_dims=spatial_dims
+            inverted_residual_setting=config, 
+            cin=cin,
+            stochastic_depth_prob=0.2, 
+            last_channel=last_channel, 
+            spatial_dims=spatial_dims
+        )
+
+class EfficientNetB1(EfficientNet):
+    def __init__(self, spatial_dims=2, cin=3):
+        config = _build_efficient_cfg(1.0, 1.1)
+        last_channel = None
+        super().__init__(
+            inverted_residual_setting=config, 
+            cin=cin,
+            stochastic_depth_prob=0.2, 
+            last_channel=last_channel, 
+            spatial_dims=spatial_dims
+        )
+
+class EfficientNetB2(EfficientNet):
+    def __init__(self, spatial_dims=2, cin=3):
+        config = _build_efficient_cfg(1.1, 1.2)
+        last_channel = None
+        super().__init__(
+            inverted_residual_setting=config, 
+            cin=cin,
+            stochastic_depth_prob=0.3, 
+            last_channel=last_channel, 
+            spatial_dims=spatial_dims
+        )
+
+class EfficientNetB3(EfficientNet):
+    def __init__(self, spatial_dims=2, cin=3):
+        config = _build_efficient_cfg(1.2, 1.4)
+        last_channel = None
+        super().__init__(
+            inverted_residual_setting=config, 
+            cin=cin,
+            stochastic_depth_prob=0.3, 
+            last_channel=last_channel, 
+            spatial_dims=spatial_dims
+        )
+
+class EfficientNetB4(EfficientNet):
+    def __init__(self, spatial_dims=2, cin=3):
+        config = _build_efficient_cfg(1.4, 1.8)
+        last_channel = None
+        super().__init__(
+            inverted_residual_setting=config, 
+            cin=cin,
+            stochastic_depth_prob=0.4, 
+            last_channel=last_channel, 
+            spatial_dims=spatial_dims
+        )
+
+class EfficientNetB5(EfficientNet):
+    def __init__(self, spatial_dims=2, cin=3):
+        config = _build_efficient_cfg(1.6, 2.2)
+        last_channel = None
+        super().__init__(
+            inverted_residual_setting=config, 
+            cin=cin,
+            stochastic_depth_prob=0.4, 
+            last_channel=last_channel, 
+            spatial_dims=spatial_dims
+        )
+
+class EfficientNetB6(EfficientNet):
+    def __init__(self, spatial_dims=2, cin=3):
+        config = _build_efficient_cfg(1.8, 2.6)
+        last_channel = None
+        super().__init__(
+            inverted_residual_setting=config, 
+            cin=cin,
+            stochastic_depth_prob=0.5, 
+            last_channel=last_channel, 
+            spatial_dims=spatial_dims
+        )
+
+class EfficientNetB7(EfficientNet):
+    def __init__(self, spatial_dims=2, cin=3):
+        config = _build_efficient_cfg(2.0, 3.1)
+        last_channel = None
+        super().__init__(
+            inverted_residual_setting=config, 
+            cin=cin,
+            stochastic_depth_prob=0.5, 
+            last_channel=last_channel, 
+            spatial_dims=spatial_dims
         )
 
 
