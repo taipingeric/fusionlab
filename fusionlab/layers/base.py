@@ -34,6 +34,8 @@ class ConvNormAct(nn.Module):
         )
         self.norm = norm_layer(spatial_dims, out_channels)
         params = {} if inplace is None else {"inplace": inplace}
+        if act_layer is None:
+            act_layer = nn.Identity
         self.act = act_layer(**params)
         
     def forward(self, x):
