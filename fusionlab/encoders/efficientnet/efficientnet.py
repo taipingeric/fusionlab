@@ -41,7 +41,6 @@ class _MBConvConfig:
     out_channels: int
     num_layers: int
     block: Callable[..., nn.Module]
-    spatial_dims: int
 
     @staticmethod
     def adjust_channels(channels: int, width_mult: float, min_value: Optional[int] = None) -> int:
@@ -68,7 +67,7 @@ class MBConvConfig(_MBConvConfig):
         num_layers = self.adjust_depth(num_layers, depth_mult)
         if block is None:
             block = MBConv
-        super().__init__(expand_ratio, kernel, stride, input_channels, out_channels, num_layers, block, spatial_dims)
+        super().__init__(expand_ratio, kernel, stride, input_channels, out_channels, num_layers, block)
 
     @staticmethod
     def adjust_depth(num_layers: int, depth_mult: float):
@@ -156,6 +155,7 @@ class EfficientNet(nn.Module):
     def __init__(
         self,
         inverted_residual_setting: Sequence[MBConvConfig],
+        cin: int = 3,
         stochastic_depth_prob: float = 0.2,
         last_channel: Optional[int] = None,
         norm_layer: Optional[Callable[..., nn.Module]] = None,
@@ -192,7 +192,7 @@ class EfficientNet(nn.Module):
         layers.append(
             ConvNormAct(
                 spatial_dims,
-                3,
+                cin,
                 firstconv_output_channels,
                 kernel_size=3,
                 stride=2,
