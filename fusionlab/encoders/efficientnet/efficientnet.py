@@ -365,37 +365,9 @@ class EfficientNetB7(EfficientNet):
 
 if __name__ == '__main__':
     print('efficientnet.')
-    '''
-    width_mult, depth_mult
-    efficientnet-b0: 1.0, 1.0
-    efficientnet-b1: 1.0, 1.1
-    efficientnet-b2: 1.1, 1.2
-    efficientnet-b3: 1.2, 1.4
-    efficientnet-b4: 1.4, 1.8
-    efficientnet-b5: 1.6, 2.2
-    efficientnet-b6: 1.8, 2.6
-    efficientnet-b7: 2.0, 3.1
-
-    '''
-    config = [
-        MBConvConfig(1, 3, 1, 32, 16, 1),
-        MBConvConfig(6, 3, 2, 16, 24, 2),
-        MBConvConfig(6, 5, 2, 24, 40, 2),
-        MBConvConfig(6, 3, 2, 40, 80, 3),
-        MBConvConfig(6, 5, 1, 80, 112, 3),
-        MBConvConfig(6, 5, 2, 112, 192, 4),
-        MBConvConfig(6, 3, 1, 192, 320, 1),
-    ]
-    last_channel = None
-
     model = EfficientNetB0()
     inputs = torch.randn(1, 3, 224, 224)
     outputs = model(inputs)
     print(outputs.shape)
-
-    import torchsummary
-    torchsummary.summary(model, (3, 224, 224), device='cpu')
-
-    # print(model)
 
 
