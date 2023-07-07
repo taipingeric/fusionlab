@@ -22,12 +22,12 @@ class TestSqueezeExcitation:
     def test_se(self):
         import torch
         from fusionlab.layers import SEModule
-        inputs = torch.normal(0, 1, (1, 256, 16, 16))
-        layer = SEModule(256)
-        outputs = layer(inputs)
-        assert list(outputs.shape) == [1, 256, 16, 16]
+        cin = 64
+        squeeze_channels = 16
 
-        inputs = torch.normal(0, 1, (1, 256, 16, 16, 16))
-        layer = SEModule(256, spatial_dims=3)
-        outputs = layer(inputs)
-        assert list(outputs.shape) == [1, 256, 16, 16, 16]
+        for i in range(1, 4):
+            size = tuple([1, cin] + [16] * i)
+            inputs = torch.randn(size)
+            layer = SEModule(cin, squeeze_channels, spatial_dims=i)
+            outputs = layer(inputs)
+            assert outputs.shape == size
