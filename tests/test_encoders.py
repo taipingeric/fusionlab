@@ -124,6 +124,7 @@ class TestEncoders:
             EfficientNetB6,
             EfficientNetB7,
         )
+        import torchinfo
 
         cin = 3
         for dim in [1, 2, 3]:
@@ -137,3 +138,8 @@ class TestEncoders:
                 target_ch = [1280, 1280, 1408, 1536, 1792, 2048, 2304, 2560]
                 target_size = [img_size // 32]*dim
                 assert outputs.shape == (1, target_ch[i], *target_size)
+
+                if dim == 2:
+                    target_params = [4007548, 6513184, 7700994, 10696232, 17548616, 28340784, 40735704, 63786960]
+                    log = torchinfo.summary(model, (1, cin, img_size, img_size))
+                    assert log.total_params == target_params[i]
