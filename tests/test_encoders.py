@@ -114,14 +114,26 @@ class TestEncoders:
         assert shape[2:] == [2, 2, 2]
 
     def test_efficientnet(self):
-        from fusionlab.encoders import EfficientNetB0
+        from fusionlab.encoders import (
+            EfficientNetB0,
+            EfficientNetB1,
+            EfficientNetB2,
+            EfficientNetB3,
+            EfficientNetB4,
+            EfficientNetB5,
+            EfficientNetB6,
+            EfficientNetB7,
+        )
 
         cin = 3
-        for i in range(1, 4):
-            print(f"Test EfficientNetB0 with {i}D")
-            size = tuple([1, cin] + [64] * i)
-            inputs = torch.randn(size)
-            target_size = tuple([1, 1280] + [2] * i)
-            model = EfficientNetB0(spatial_dims=i, cin=cin)
-            outputs = model(inputs)
-            assert outputs.shape == target_size
+        for dim in [1, 2, 3]:
+            for i in range(0, 8):
+                eff = eval(f'EfficientNetB{i}')
+                model = eff(dim, cin=cin)
+                img_size = 64
+                size = tuple([1, cin] + [img_size] * dim)
+                inputs = torch.randn(size)
+                outputs = model(inputs)
+                target_ch = [1280, 1280, 1408, 1536, 1792, 2048, 2304, 2560]
+                target_size = [img_size // 32]*dim
+                assert outputs.shape == (1, target_ch[i], *target_size)
