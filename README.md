@@ -118,7 +118,7 @@ unet = tf.keras.Sequential([
 
 ## N Dimensional Model
 
-some model can be used in 1D, 2D, 3D
+some models can be used in 1D, 2D, 3D
 
 ```python
 import fusionlab as fl
@@ -134,13 +134,7 @@ unet3d = fl.segmentation.UNet(cin=3, num_cls=10, spatial_dims=3)
 
 ## News
 
-0.1.2
-
-* Add LUDB dataset
-
-0.0.52
-
-* Tversky Loss for Torch and TF
+[Release logs](./release_logs.md)
 
 ## Acknowledgements
 

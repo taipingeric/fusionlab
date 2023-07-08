@@ -163,7 +163,8 @@ class BatchNorm:
             When these buffers are ``None``, this module always uses batch statistics.
             in both training and eval modes. Default: ``True``
     """
-    def __new__(cls, spatial_dims, 
+    def __new__(cls, 
+                spatial_dims: int, 
                 num_features: int,
                 eps: float = 1e-5,
                 momentum: float = 0.1,

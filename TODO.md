@@ -1,8 +1,7 @@
 ### Encoders
 
 * SENet
-* EfficientNet
-* ConvNext
+* DenseNet
 
 ### Segmentation
 
@@ -18,4 +17,6 @@
 * HD95
 * Normalized Surface Distance(NSD)
 
-### Losses
+### Modified
+
+* Replace StochasticPath in torchvision with timm DropPath
