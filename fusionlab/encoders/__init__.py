@@ -13,7 +13,14 @@ if BACKEND == 'torch':
         EfficientNetB5,
         EfficientNetB6,
         EfficientNetB7
-    )    
+    )
+    from .convnext.convnext import (
+        ConvNeXtTiny,
+        ConvNeXtSmall,
+        ConvNeXtBase,
+        ConvNeXtLarge,
+        ConvNeXtXLarge
+    )
 elif BACKEND == 'tf':
     from .alexnet.tfalexnet import TFAlexNet
     from .vgg.tfvgg import TFVGG16, TFVGG19
