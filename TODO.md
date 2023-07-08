@@ -2,7 +2,6 @@
 
 * SENet
 * DenseNet
-* ConvNext
 
 ### Segmentation
 
