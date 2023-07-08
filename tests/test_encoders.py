@@ -143,3 +143,27 @@ class TestEncoders:
                     target_params = [4007548, 6513184, 7700994, 10696232, 17548616, 28340784, 40735704, 63786960]
                     log = torchinfo.summary(model, (1, cin, img_size, img_size))
                     assert log.total_params == target_params[i]
+    
+    def test_convnext(self):
+        from fusionlab.encoders import (
+            ConvNeXtTiny,
+            ConvNeXtSmall,
+            ConvNeXtBase,
+            ConvNeXtLarge,
+            ConvNeXtXLarge
+        )
+        import torchinfo
+        for spatial_dims in [1, 2, 3]:
+            for i, convnext_type in enumerate(['Tiny', 'Small', 'Base', 'Large', 'XLarge']):
+                model = eval(f'ConvNeXt{convnext_type}')(spatial_dims=spatial_dims)
+                input_size = tuple([1, 3] + [64] * spatial_dims)
+                inputs = torch.randn(input_size)
+                outputs = model(inputs)
+                target_ch = [768, 768, 1024, 1536, 2048]
+                assert outputs.shape == torch.Size([1, target_ch[i]] + [2] * spatial_dims)
+
+                target_params = [27818592, 49453152, 87564416, 196227264, 348143872]
+                if spatial_dims == 2:
+                    import torchinfo
+                    log = torchinfo.summary(model, input_size=input_size, verbose=0)
+                    assert log.total_params == target_params[i]
