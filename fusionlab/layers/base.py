@@ -1,8 +1,8 @@
 import torch.nn as nn
-from torchvision.utils import _make_ntuple
 from typing import Union, Sequence, Optional, Callable
 
 from fusionlab.layers import ConvND, BatchNorm
+from fusionlab.utils import make_ntuple
 
 class ConvNormAct(nn.Module):
     '''
@@ -52,8 +52,8 @@ class ConvNormAct(nn.Module):
                 padding = (kernel_size - 1) // 2 * dilation
             else:
                 _conv_dim = spatial_dims
-                kernel_size = _make_ntuple(kernel_size, _conv_dim)
-                dilation = _make_ntuple(dilation, _conv_dim)
+                kernel_size = make_ntuple(kernel_size, _conv_dim)
+                dilation = make_ntuple(dilation, _conv_dim)
                 padding = tuple((kernel_size[i] - 1) // 2 * dilation[i] for i in range(_conv_dim))
         # bias
         if bias is None:
