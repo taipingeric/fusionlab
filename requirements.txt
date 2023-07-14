@@ -3,7 +3,7 @@ tqdm
 traceback2
 
 pandas>=1.5.3
-numpy>=1.23.2
+numpy>=1.22.2
 xmltodict
 xlwt
 pandas
