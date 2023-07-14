@@ -1,3 +1,8 @@
+0.1.5
+
+* Remove numpy from requirements.txt
+* extract make_ntuple from torchvision to fusionlab.utils
+
 0.1.4
 
 * Add EfficientNetB0 ~ B7
@@ -6,10 +11,10 @@
 0.1.3
 
 * Add 
-    * ECGCSVClassificationDataset(cinc2017)
-    * LUDBDataset
-    * LSTimeSegDataset
-    * HFDataset
+* ECGCSVClassificationDataset(cinc2017)
+* LUDBDataset
+* LSTimeSegDataset
+* HFDataset
 
 0.1.2
 
