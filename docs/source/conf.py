@@ -50,6 +50,7 @@ exclude_patterns = [
     "inferers",
     "optimizers",
     "auto3dseg",
+    "tf*",
 ]
 
 
