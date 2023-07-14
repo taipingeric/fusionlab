@@ -10,4 +10,4 @@ scipy
 wfdb
 # 
 torch>=1.9
-
+torchvision
