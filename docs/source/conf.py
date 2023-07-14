@@ -21,9 +21,9 @@ print(sys.path)
 import fusionlab  # noqa: E402
 
 # -- Project information -----------------------------------------------------
-project = "MONAI"
-copyright = "MONAI Consortium"
-author = "MONAI Contributors"
+project = "FusionLab"
+copyright = "taipingeric"
+author = "fusionlab Contributors"
 
 # The full version, including alpha/beta/rc tags
 short_version = fusionlab.__version__ #.split("+")[0]
