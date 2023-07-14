@@ -90,6 +90,7 @@ extensions = [
     "sphinx.ext.autosummary",
     "sphinx_autodoc_typehints",
 ]
+autosummary_generate = True
 
 autoclass_content = "class"
 add_module_names = True
