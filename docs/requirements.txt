@@ -11,6 +11,7 @@ wfdb
 # 
 torch>=1.9
 torchvision
+tensorflow
 # Doc
 Sphinx
 pydata-sphinx-theme
