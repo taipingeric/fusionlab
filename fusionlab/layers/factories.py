@@ -21,7 +21,7 @@ class ConvND:
 
     """
     def __new__(cls, 
-                spatial_dims, 
+                spatial_dims: int, 
                 in_channels: int,
                 out_channels: int,
                 kernel_size: Union[Sequence[int], int],

@@ -167,12 +167,13 @@ class Bottleneck(nn.Module):
 class Stem(nn.Module):
     def __init__(
         self, 
-        inplanes, 
+        cin: int,
+        inplanes: int, 
         norm_layer: Optional[Callable[..., nn.Module]] = None,
         spatial_dims=2
     ):
         super().__init__()
-        self.conv1 = ConvND(spatial_dims, 3, inplanes, kernel_size=7, stride=2, padding=3, bias=False)
+        self.conv1 = ConvND(spatial_dims, cin, inplanes, kernel_size=7, stride=2, padding=3, bias=False)
         self.bn1 = norm_layer(spatial_dims, inplanes)
         self.relu = nn.ReLU(inplace=True)
         self.maxpool = MaxPool(spatial_dims, kernel_size=3, stride=2, padding=1)
@@ -194,6 +195,7 @@ class ResNet(nn.Module):
         width_per_group: int = 64,
         replace_stride_with_dilation: Optional[List[bool]] = None,
         norm_layer: Optional[Callable[..., nn.Module]] = None,
+        cin=3,
         spatial_dims=2,
     ):
         super().__init__()
@@ -215,7 +217,7 @@ class ResNet(nn.Module):
             )
         self.groups = groups
         self.base_width = width_per_group
-        self.conv1 = Stem(self.inplanes, norm_layer, spatial_dims)
+        self.conv1 = Stem(cin, self.inplanes, norm_layer, spatial_dims=spatial_dims)
         self.conv2 = self._make_layer(block, 64, layers[0])
         self.conv3 = self._make_layer(block, 128, layers[1], stride=2, dilate=replace_stride_with_dilation[0])
         self.conv4 = self._make_layer(block, 256, layers[2], stride=2, dilate=replace_stride_with_dilation[1])
@@ -250,7 +252,8 @@ class ResNet(nn.Module):
         layers = []
         layers.append(
             block(
-                self.inplanes, planes, stride, downsample, self.groups, self.base_width, previous_dilation, norm_layer
+                self.inplanes, planes, stride, downsample, self.groups, self.base_width, previous_dilation, norm_layer,
+                spatial_dims=self.spatial_dims
             )
         )
         self.inplanes = planes * block.expansion
@@ -263,6 +266,7 @@ class ResNet(nn.Module):
                     base_width=self.base_width,
                     dilation=self.dilation,
                     norm_layer=norm_layer,
+                    spatial_dims=self.spatial_dims,
                 )
             )
 
@@ -287,6 +291,7 @@ class ResNet(nn.Module):
     def forward_features(self, x: Tensor) -> Tensor:
         # See note [TorchScript super()]
         x = self.conv1(x)
+        print(x.shape)
         x = self.conv2(x)
         x = self.conv3(x)
         x = self.conv4(x)
@@ -299,24 +304,24 @@ class ResNet(nn.Module):
 
 
 class ResNet18(ResNet):
-    def __init__(self, spatial_dims=2):
-        super().__init__(BasicBlock, [2, 2, 2, 2], spatial_dims=spatial_dims)
+    def __init__(self, cin=3, spatial_dims=2):
+        super().__init__(BasicBlock, [2, 2, 2, 2], cin=cin, spatial_dims=spatial_dims)
 
 class ResNet34(ResNet):
-    def __init__(self, spatial_dims=2):
-        super().__init__(BasicBlock, [3, 4, 6, 3], spatial_dims=spatial_dims)
+    def __init__(self, cin=3, spatial_dims=2):
+        super().__init__(BasicBlock, [3, 4, 6, 3], cin=cin, spatial_dims=spatial_dims)
 
 class ResNet50(ResNet):
-    def __init__(self, spatial_dims=2):
-        super().__init__(Bottleneck, [3, 4, 6, 3], spatial_dims=spatial_dims)
+    def __init__(self, cin=3, spatial_dims=2):
+        super().__init__(Bottleneck, [3, 4, 6, 3], cin=cin, spatial_dims=spatial_dims)
 
 class ResNet101(ResNet):
-    def __init__(self, spatial_dims=2):
-        super().__init__(Bottleneck, [3, 4, 23, 3], spatial_dims=spatial_dims)
+    def __init__(self, cin=3, spatial_dims=2):
+        super().__init__(Bottleneck, [3, 4, 23, 3], cin=cin, spatial_dims=spatial_dims)
 
 class ResNet152(ResNet):
-    def __init__(self, spatial_dims=2):
-        super().__init__(Bottleneck, [3, 8, 36, 3], spatial_dims=spatial_dims)
+    def __init__(self, cin=3, spatial_dims=2):
+        super().__init__(Bottleneck, [3, 8, 36, 3], cin=cin, spatial_dims=spatial_dims)
 
 ResNetV1 = ResNet
 
