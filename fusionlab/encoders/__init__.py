@@ -5,6 +5,7 @@ if BACKEND == 'torch':
     from .inceptionv1.inceptionv1 import InceptionNetV1
     from .resnetv1.resnetv1 import ResNet50V1
     from .efficientnet.efficientnet import (
+        EfficientNet,
         EfficientNetB0, 
         EfficientNetB1,
         EfficientNetB2,
@@ -15,6 +16,7 @@ if BACKEND == 'torch':
         EfficientNetB7
     )
     from .convnext.convnext import (
+        ConvNeXt,
         ConvNeXtTiny,
         ConvNeXtSmall,
         ConvNeXtBase,
