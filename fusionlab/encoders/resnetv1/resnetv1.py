@@ -8,7 +8,7 @@ from fusionlab.layers import ConvND, BatchNorm, MaxPool
 # ref: https://github.com/keras-team/keras-applications/blob/master/keras_applications/resnet50.py
 
 __all__ = [
-    "ResNet"
+    "ResNet",
     "ResNet18",
     "ResNet34",
     "ResNet50",
@@ -36,7 +36,6 @@ class BasicBlock(nn.Module):
         super().__init__()
         if norm_layer is None:
             norm_layer = BatchNorm
-            # norm_layer = nn.BatchNorm2d
         if groups != 1 or base_width != 64:
             raise ValueError("BasicBlock only supports groups=1 and base_width=64")
         if dilation > 1:

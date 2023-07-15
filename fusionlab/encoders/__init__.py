@@ -3,7 +3,7 @@ if BACKEND == 'torch':
     from .alexnet.alexnet import AlexNet
     from .vgg.vgg import VGG16, VGG19
     from .inceptionv1.inceptionv1 import InceptionNetV1
-    from .resnetv1.resnetv1 import ResNet50V1
+    from .resnetv1.resnetv1 import *
     from .efficientnet.efficientnet import (
         EfficientNet,
         EfficientNetB0, 
