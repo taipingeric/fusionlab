@@ -56,12 +56,6 @@ class Stem(nn.Sequential):
             MaxPool(spatial_dims, 3, 2, padding=autopad(3))
         )
 
-
-class StageBlock(nn.Sequential):
-    def __init__(self, cin, dims, stride, repeats):
-        super().__init__()
-
-
 class ResNet50V1(nn.Module):
     def __init__(self, cin=3, spatial_dims=2):
         super().__init__()
