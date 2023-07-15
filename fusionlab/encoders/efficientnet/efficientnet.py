@@ -265,7 +265,7 @@ def _build_efficient_cfg(width_mult, depth_mult):
     ]
 
 class EfficientNetB0(EfficientNet):
-    def __init__(self, spatial_dims=2, cin=3):
+    def __init__(self, cin=3, spatial_dims=2):
         config = _build_efficient_cfg(1.0, 1.0)
         last_channel = None
         super().__init__(
@@ -277,7 +277,7 @@ class EfficientNetB0(EfficientNet):
         )
 
 class EfficientNetB1(EfficientNet):
-    def __init__(self, spatial_dims=2, cin=3):
+    def __init__(self, cin=3, spatial_dims=2):
         config = _build_efficient_cfg(1.0, 1.1)
         last_channel = None
         super().__init__(
@@ -289,7 +289,7 @@ class EfficientNetB1(EfficientNet):
         )
 
 class EfficientNetB2(EfficientNet):
-    def __init__(self, spatial_dims=2, cin=3):
+    def __init__(self, cin=3, spatial_dims=2):
         config = _build_efficient_cfg(1.1, 1.2)
         last_channel = None
         super().__init__(
@@ -301,7 +301,7 @@ class EfficientNetB2(EfficientNet):
         )
 
 class EfficientNetB3(EfficientNet):
-    def __init__(self, spatial_dims=2, cin=3):
+    def __init__(self, cin=3, spatial_dims=2):
         config = _build_efficient_cfg(1.2, 1.4)
         last_channel = None
         super().__init__(
@@ -313,7 +313,7 @@ class EfficientNetB3(EfficientNet):
         )
 
 class EfficientNetB4(EfficientNet):
-    def __init__(self, spatial_dims=2, cin=3):
+    def __init__(self, cin=3, spatial_dims=2):
         config = _build_efficient_cfg(1.4, 1.8)
         last_channel = None
         super().__init__(
@@ -325,7 +325,7 @@ class EfficientNetB4(EfficientNet):
         )
 
 class EfficientNetB5(EfficientNet):
-    def __init__(self, spatial_dims=2, cin=3):
+    def __init__(self, cin=3, spatial_dims=2):
         config = _build_efficient_cfg(1.6, 2.2)
         last_channel = None
         super().__init__(
@@ -337,7 +337,7 @@ class EfficientNetB5(EfficientNet):
         )
 
 class EfficientNetB6(EfficientNet):
-    def __init__(self, spatial_dims=2, cin=3):
+    def __init__(self, cin=3, spatial_dims=2):
         config = _build_efficient_cfg(1.8, 2.6)
         last_channel = None
         super().__init__(
@@ -349,7 +349,7 @@ class EfficientNetB6(EfficientNet):
         )
 
 class EfficientNetB7(EfficientNet):
-    def __init__(self, spatial_dims=2, cin=3):
+    def __init__(self, cin=3, spatial_dims=2):
         config = _build_efficient_cfg(2.0, 3.1)
         last_channel = None
         super().__init__(
