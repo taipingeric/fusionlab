@@ -30,7 +30,17 @@ PyTorch Encoders
 
 `ResNet`
 ~~~~~~~~~~
+.. autoclass:: ResNet
+    :members:
+.. autoclass:: ResNet18
+    :members:
+.. autoclass:: ResNet34
+    :members:
 .. autoclass:: ResNet50
+    :members:
+.. autoclass:: ResNet101
+    :members:
+.. autoclass:: ResNet152
     :members:
 
 `EfficientNet`
