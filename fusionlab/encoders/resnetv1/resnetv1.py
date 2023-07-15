@@ -200,6 +200,7 @@ class ResNet(nn.Module):
         super().__init__()
         if norm_layer is None:
             norm_layer = BatchNorm
+        self.zero_init_residual = zero_init_residual
         self._norm_layer = norm_layer
         self.spatial_dims = spatial_dims
         self.inplanes = 64
@@ -221,23 +222,7 @@ class ResNet(nn.Module):
         self.conv4 = self._make_layer(block, 256, layers[2], stride=2, dilate=replace_stride_with_dilation[1])
         self.conv5 = self._make_layer(block, 512, layers[3], stride=2, dilate=replace_stride_with_dilation[2])
 
-        for m in self.modules():
-            if isinstance(m, (nn.Conv1d, nn.Conv2d, nn.Conv3d)):
-                nn.init.kaiming_normal_(m.weight, mode="fan_out", nonlinearity="relu")
-            elif isinstance(m, (nn.BatchNorm1d, nn.BatchNorm2d, nn.BatchNorm3d, nn.GroupNorm)):
-                nn.init.constant_(m.weight, 1)
-                nn.init.constant_(m.bias, 0)
-
-        # Zero-initialize the last BN in each residual branch,
-        # so that the residual branch starts with zeros, and each residual block behaves like an identity.
-        # This improves the model by 0.2~0.3% according to https://arxiv.org/abs/1706.02677
-        if zero_init_residual:
-            for m in self.modules():
-                if isinstance(m, Bottleneck) and m.bn3.weight is not None:
-                    nn.init.constant_(m.bn3.weight, 0)  # type: ignore[arg-type]
-                elif isinstance(m, BasicBlock) and m.bn2.weight is not None:
-                    nn.init.constant_(m.bn2.weight, 0)  # type: ignore[arg-type]
-
+        self.apply(self._init_weights)
     def _make_layer(
         self,
         block: Type[Union[BasicBlock, Bottleneck]],
@@ -283,6 +268,22 @@ class ResNet(nn.Module):
             )
 
         return nn.Sequential(*layers)
+
+    def _init_weights(self, m):
+        if isinstance(m, (nn.Conv1d, nn.Conv2d, nn.Conv3d)):
+            nn.init.kaiming_normal_(m.weight, mode="fan_out", nonlinearity="relu")
+        elif isinstance(m, (nn.BatchNorm1d, nn.BatchNorm2d, nn.BatchNorm3d, nn.GroupNorm)):
+            nn.init.constant_(m.weight, 1)
+            nn.init.constant_(m.bias, 0)
+
+        # Zero-initialize the last BN in each residual branch,
+        # so that the residual branch starts with zeros, and each residual block behaves like an identity.
+        # This improves the model by 0.2~0.3% according to https://arxiv.org/abs/1706.02677
+        if self.zero_init_residual:
+            if isinstance(m, Bottleneck) and m.bn3.weight is not None:
+                nn.init.constant_(m.bn3.weight, 0)  # type: ignore[arg-type]
+            elif isinstance(m, BasicBlock) and m.bn2.weight is not None:
+                nn.init.constant_(m.bn2.weight, 0)  # type: ignore[arg-type]
 
     def forward_features(self, x: Tensor) -> Tensor:
         # See note [TorchScript super()]
