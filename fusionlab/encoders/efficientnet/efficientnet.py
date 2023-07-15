@@ -59,7 +59,6 @@ class MBConvConfig(_MBConvConfig):
         width_mult: float = 1.0,
         depth_mult: float = 1.0,
         block: Optional[Callable[..., nn.Module]] = None,
-        spatial_dims: int = 2,
     ) -> None:
         input_channels = self.adjust_channels(input_channels, width_mult)
         out_channels = self.adjust_channels(out_channels, width_mult)
