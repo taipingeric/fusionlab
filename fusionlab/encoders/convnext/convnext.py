@@ -139,35 +139,35 @@ class LayerNorm(nn.Module):
             return F.layer_norm(x, self.normalized_shape, self.weight, self.bias, self.eps)
 
 class ConvNeXtTiny(ConvNeXt):
-    def __init__(self, spatial_dims=2, cin=3):
+    def __init__(self, cin=3, spatial_dims=2):
         super().__init__(depths=[3, 3, 9, 3], 
                          dims=[96, 192, 384, 768],
                          in_chans=cin,
                          spatial_dims=spatial_dims)
 
 class ConvNeXtSmall(ConvNeXt):
-    def __init__(self, spatial_dims=2, cin=3):
+    def __init__(self, cin=3, spatial_dims=2):
         super().__init__(depths=[3, 3, 27, 3], 
                          dims=[96, 192, 384, 768],
                          in_chans=cin,
                          spatial_dims=spatial_dims)
 
 class ConvNeXtBase(ConvNeXt):
-    def __init__(self, spatial_dims=2, cin=3):
+    def __init__(self, cin=3, spatial_dims=2):
         super().__init__(depths=[3, 3, 27, 3], 
                          dims=[128, 256, 512, 1024],
                          in_chans=cin,
                          spatial_dims=spatial_dims)
         
 class ConvNeXtLarge(ConvNeXt):
-    def __init__(self, spatial_dims=2, cin=3):
+    def __init__(self, cin=3, spatial_dims=2):
         super().__init__(depths=[3, 3, 27, 3], 
                          dims=[192, 384, 768, 1536],
                          in_chans=cin,
                          spatial_dims=spatial_dims)
         
 class ConvNeXtXLarge(ConvNeXt):
-    def __init__(self, spatial_dims=2, cin=3):
+    def __init__(self, cin=3, spatial_dims=2):
         super().__init__(depths=[3, 3, 27, 3], 
                          dims=[256, 512, 1024, 2048],
                          in_chans=cin,
