@@ -1,8 +1,7 @@
 FusionLab API Document
-=====================
+=============
 
-.. autosummary::
-   :toctree: _autosummary
-   :recursive:
+.. toctree::
+   :maxdepth: 1
 
-   fusionlab
+   encoders
