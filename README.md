@@ -14,6 +14,7 @@ especially for newbie. Feel free to send pull requests :D
 * [What's New](#News)
 * [Installation](#Installation)
 * [How to use](#How-to-use)
+* [Documentation](#Documentation)
 * [Encoders](#Encoders)
 * [Losses](#Losses)
 * [Segmentation](#Segmentation)
@@ -42,6 +43,10 @@ encoder = fl.encoders.VGG16()
 encoder = fl.encoders.TFVGG16()
 
 ```
+
+## Documentation
+
+[Doc](https://fusionlab.readthedocs.io/en/latest/encoders.html)
 
 ## Encoders
 
