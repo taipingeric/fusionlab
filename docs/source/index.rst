@@ -8,4 +8,5 @@ FusionLab API Document
    losses
    segmentation
    layers
+   datasets
    utils
