@@ -12,22 +12,27 @@ from . import (
 )
 from .__version__ import __version__
 
+# Check if PyTorch or TensorFlow is installed
+try:
+    import torch
+    torch_installed = True
+except ImportError:
+    torch_installed = False
 
-def set_backend(backend):
-    assert backend in ('torch', 'tf'), 'Error: the backend should be either torch or tf'
-    import importlib.util
-    if backend == 'torch':
-        assert importlib.util.find_spec("torch") is not None, 'Error: pytorch is not installed'
-    elif backend == 'tf':
-        assert importlib.util.find_spec("tensorflow") is not None, 'Error: tensorflow is not installed'
+try:
+    import tensorflow as tf
+    tf_installed = True
+except ImportError:
+    tf_installed = False
 
-    cfg_dict = {c: configs.__getattribute__(c) for c in configs.__dir__() if '__' not in c}
-    cfg_dict['BACKEND'] = backend
-    with open(".configs.py", "w") as f:
-        for k, v in cfg_dict.items():
-            if type(v) == str:
-                f.write(f"{k} = \'{v}\' \n")
-            else:
-                f.write(f"{k} = {v} \n")
+print(f"PyTorch installed: {torch_installed}")
+print(f"TensorFlow installed: {tf_installed}")
 
-    print(f"Setting backend to {backend}, please reaload")
+BACKEND = {
+    "torch": torch_installed,
+    "tf": tf_installed
+}
+
+# check if no backend installed
+if not any(BACKEND.values()):
+    print("None of supported backend installed")
