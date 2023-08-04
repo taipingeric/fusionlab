@@ -1,5 +1,5 @@
-from fusionlab.configs import BACKEND
 from fusionlab import BACKEND
+
 if BACKEND['torch']:
     from .base import CNNClassificationModel, RNNClassificationModel, HFClassificationModel
     from .lstm import LSTMClassifier
