@@ -7,3 +7,4 @@ API Reference
    :maxdepth: 1
 
    encoders
+   losses
