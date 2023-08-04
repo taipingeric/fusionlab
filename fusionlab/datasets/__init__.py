@@ -2,8 +2,8 @@ from .muse import GEMuseXMLReader
 from .csvread import read_csv
 from .utils import LSTimeSegDataset
 
-from fusionlab.configs import BACKEND
-if BACKEND == 'torch':
+from fusionlab import BACKEND
+if BACKEND['torch']:
     from .a12lead import ECGClassificationDataset
     from .cinc2017 import (
         ECGCSVClassificationDataset,
@@ -17,7 +17,3 @@ if BACKEND == 'torch':
         download_file,
         HFDataset,
     ) 
-elif BACKEND == 'tf':
-    print('not built yet')
-else:
-    print('backend not supported!!!')

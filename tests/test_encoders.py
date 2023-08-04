@@ -1,5 +1,4 @@
 import fusionlab
-fusionlab.configs.BACKEND = 'torch'
 import torch
 from fusionlab.encoders import AlexNet, VGG16, VGG19, InceptionNetV1
 import torchinfo

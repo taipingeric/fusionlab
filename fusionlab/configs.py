@@ -1,2 +1,1 @@
-EPS = 1e-07 
-BACKEND = 'torch' 
+EPS = 1e-07 # epsilon
