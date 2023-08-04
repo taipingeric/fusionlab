@@ -8,6 +8,8 @@
 
 [![PyPI version](https://badge.fury.io/py/fusionlab.svg)](https://badge.fury.io/py/fusionlab) ![Test](https://github.com/taipingeric/fusionlab/actions/workflows/python-app.yml/badge.svg)  [![Downloads](https://static.pepy.tech/badge/fusionlab)](https://pepy.tech/project/fusionlab)
 
+[![Documentation](https://img.shields.io/badge/view-Documentation-blue?style=for-the-badge)](https://fusionlab.readthedocs.io/)
+
 FusionLab is an open-source frameworks built for Deep Learning research written in PyTorch and Tensorflow. The code is easy to read and modify 
 especially for newbie. Feel free to send pull requests :D
 
@@ -19,7 +21,7 @@ especially for newbie. Feel free to send pull requests :D
 * [Segmentation](#segmentation)
 * [1D, 2D, 3D Model](#n-dimensional-model)
 * [Acknowledgements](#acknowledgements)
-
+      
 ## Installation
 
 ### With pip
