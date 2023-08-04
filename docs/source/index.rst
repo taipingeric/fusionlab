@@ -5,3 +5,5 @@ FusionLab API Document
    :maxdepth: 1
 
    encoders
+   losses
+   segmentation
