@@ -1,7 +1,7 @@
 import fusionlab
-fusionlab.configs.BACKEND = 'torch'
 import torch
-from fusionlab.encoders import AlexNet, VGG16, VGG19, InceptionNetV1, ResNet50V1
+from fusionlab.encoders import AlexNet, VGG16, VGG19, InceptionNetV1
+import torchinfo
 
 class TestEncoders:
     def test_AlexNet(self):
@@ -90,28 +90,39 @@ class TestEncoders:
         output = InceptionNetV1(spatial_dims=3, cin=3)(inputs)
         shape = list(output.shape)
         assert shape[2:] == [2, 2, 2]
-    
+
     def test_ResNet50V1(self):
-        print("Test ResNet50V1")
-        size = 224
-        # 1D
-        inputs = torch.rand(1, 3, size)
-        output = ResNet50V1(spatial_dims=1, cin=3)(inputs)
-        shape = list(output.shape)
-        assert shape[2:] == [7]
+        from fusionlab.encoders.resnetv1.resnetv1 import (
+            ResNet18,
+            ResNet34,
+            ResNet50,
+            ResNet101,
+            ResNet152,
+        )
+        print('ResNetV2')
+        cin = 3
+        for spatial_dims in [1, 2, 3]:
+            target_ch = [512, 512, 2048, 2048, 2048]
+            for i, name in enumerate(['18', '34', '50', '101', '152']):
+                res = eval(f'ResNet{name}')
+                model = res(cin=cin, spatial_dims=spatial_dims)
+                img_size = 64
+                size = tuple([1, cin] + [img_size] * spatial_dims)
+                inputs = torch.randn(size)
+                outputs = model(inputs)
+                target_size = [img_size // 32]*spatial_dims
+                assert outputs.shape == (1, target_ch[i], *target_size)
 
-        # 2D
-        inputs = torch.rand(1, 3, size, size)
-        output = ResNet50V1(spatial_dims=2, cin=3)(inputs)
-        shape = list(output.shape)
-        assert shape[2:] == [7, 7]
-
-        # 3D
-        size = 64
-        inputs = torch.rand(1, 3, size, size, size)
-        output = ResNet50V1(spatial_dims=3, cin=3)(inputs)
-        shape = list(output.shape)
-        assert shape[2:] == [2, 2, 2]
+                if spatial_dims == 2:
+                    target_params = [
+                        11176512,
+                        21284672,
+                        23508032,
+                        42500160,
+                        58143808,
+                    ]
+                    log = torchinfo.summary(model, (1, cin, img_size, img_size), verbose=0)
+                    assert log.total_params == target_params[i]
 
     def test_efficientnet(self):
         from fusionlab.encoders import (
@@ -130,7 +141,7 @@ class TestEncoders:
         for dim in [1, 2, 3]:
             for i in range(0, 8):
                 eff = eval(f'EfficientNetB{i}')
-                model = eff(dim, cin=cin)
+                model = eff(cin, dim)
                 img_size = 64
                 size = tuple([1, cin] + [img_size] * dim)
                 inputs = torch.randn(size)

@@ -1,0 +1,24 @@
+einops
+tqdm
+traceback2
+
+pandas>=1.5.3
+xmltodict
+xlwt
+pandas
+scipy
+wfdb
+# 
+torch>=1.9
+torchvision
+tensorflow
+# Doc
+Sphinx
+pydata-sphinx-theme
+sphinxcontrib-applehelp
+sphinxcontrib-devhelp
+sphinxcontrib-htmlhelp
+sphinxcontrib-jsmath
+sphinxcontrib-qthelp
+sphinxcontrib-serializinghtml
+sphinx-autodoc-typehints==1.11.1

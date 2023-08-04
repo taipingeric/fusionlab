@@ -110,3 +110,35 @@ class LSTimeSegDataset(torch.utils.data.Dataset):
         # normalization by channel
         signals = (signals - signals.mean(axis=0)) / signals.std(axis=0)
         return signals
+
+# TODO: add test
+def count_parameters(
+        model: torch.nn.Module, 
+        trainable_only: bool = False
+    ) -> int:
+    """
+    Returns the number of parameters in a model
+
+    Args:
+        model: a pytorch model
+        trainable_only: if True, only count trainable parameters
+
+    Returns:
+        num_parameters: number of parameters in the model
+
+    Reference: https://discuss.pytorch.org/t/how-do-i-check-the-number-of-parameters-of-a-model/4325/9
+    """
+    if trainable_only:
+        return sum(p.numel() for p in model.parameters() if p.requires_grad)
+    else:
+        return sum(p.numel() for p in model.parameters())
+
+
+if __name__ == '__main__':
+    import torch.nn as nn
+    layer = nn.Linear(10, 10)
+    
+    for p in layer.parameters():
+        p.requires_grad = False
+    print(count_parameters(layer, trainable_only=False))
+    print(count_parameters(layer, trainable_only=True))

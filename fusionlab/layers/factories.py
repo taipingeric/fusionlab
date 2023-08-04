@@ -2,6 +2,19 @@ from typing import Union, Sequence
 import torch
 from torch import nn
 
+__all__ = [
+    'ConvND',
+    'ConvT',
+    'Upsample',
+    'BatchNorm',
+    'MaxPool',
+    'AvgPool',
+    'AdaptiveMaxPool',
+    'AdaptiveAvgPool',
+    'ReplicationPad',
+    'ConstantPad'
+]
+
 class ConvND:
     """
     Factory class for creating convolutional layers. 
@@ -21,7 +34,7 @@ class ConvND:
 
     """
     def __new__(cls, 
-                spatial_dims, 
+                spatial_dims: int, 
                 in_channels: int,
                 out_channels: int,
                 kernel_size: Union[Sequence[int], int],
