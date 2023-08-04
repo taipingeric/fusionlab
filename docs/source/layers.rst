@@ -62,7 +62,7 @@ N-dimensional layer
 .. autoclass:: ConstantPad
     :members:
 
-`Conv Norm Act`
+`Conv|Norm|Act`
 ~~~~~~~~~~
 .. autoclass:: ConvNormAct
     :members:
