@@ -1,12 +1,10 @@
 :github_url: https://github.com/taipingeric/fusionlab
 
-.. _encoders:
+.. _losses:
 
-Encoders
+Loss Function
 ==============
-
-PyTorch Encoders
--------------------
+This module contains the implementation of loss functions for semantic segmentation.
 
 .. automodule:: fusionlab.losses
 .. currentmodule:: fusionlab.losses
