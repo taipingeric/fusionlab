@@ -20,3 +20,7 @@
 ### Modified
 
 * Replace StochasticPath in torchvision with timm DropPath
+
+### Dataset
+
+* LSTimeSegDataset for classification

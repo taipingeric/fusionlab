@@ -1,3 +1,7 @@
+0.1.6
+
+* Add utils.count_parameters
+
 0.1.5
 
 * Remove numpy from requirements.txt
