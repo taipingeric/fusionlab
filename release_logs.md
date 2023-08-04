@@ -2,6 +2,7 @@
 
 * Add API Documentation
 * Add utils.count_parameters
+* Update backend support
 
 0.1.5
 

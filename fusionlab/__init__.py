@@ -1,15 +1,3 @@
-from . import (
-    functional,
-    encoders,
-    utils,
-    datasets,
-    layers,
-    classification,
-    segmentation,
-    losses,
-    trainers,
-    configs
-)
 from .__version__ import __version__
 
 # Check if PyTorch or TensorFlow is installed
@@ -36,3 +24,16 @@ BACKEND = {
 # check if no backend installed
 if not any(BACKEND.values()):
     print("None of supported backend installed")
+
+from . import (
+    functional,
+    encoders,
+    utils,
+    datasets,
+    layers,
+    classification,
+    segmentation,
+    losses,
+    trainers,
+    configs
+)
