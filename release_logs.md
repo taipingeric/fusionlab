@@ -1,5 +1,6 @@
 0.1.6
 
+* Add API Documentation
 * Add utils.count_parameters
 
 0.1.5
