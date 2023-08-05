@@ -45,6 +45,10 @@ encoder = fl.encoders.TFVGG16()
 
 ```
 
+## Documentation
+
+[Doc](https://fusionlab.readthedocs.io/en/latest/encoders.html)
+
 ## Encoders
 
 [encoder list](fusionlab/encoders/README.md)

@@ -14,6 +14,7 @@
 
 ### Metrics
 
+* Dice, IoU score module
 * HD95
 * Normalized Surface Distance(NSD)
 
@@ -24,3 +25,4 @@
 ### Dataset
 
 * LSTimeSegDataset for classification
+
