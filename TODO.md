@@ -18,6 +18,10 @@
 * HD95
 * Normalized Surface Distance(NSD)
 
+### Loss
+
+* Focal loss
+
 ### Modified
 
 * Replace StochasticPath in torchvision with timm DropPath
