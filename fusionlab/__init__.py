@@ -35,5 +35,6 @@ from . import (
     segmentation,
     losses,
     trainers,
-    configs
+    configs,
+    metrics,
 )
