@@ -7,4 +7,7 @@ FusionLab API Document
    encoders
    losses
    segmentation
+   layers
+   metrics
+   datasets
    utils

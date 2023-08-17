@@ -1,13 +1,19 @@
+from typing import Tuple
 import torch
 from fusionlab.configs import EPS
 
 
-def dice_score(pred, target, dims=None):
+def dice_score(pred: torch.Tensor, 
+               target: torch.Tensor, 
+               dims: Tuple[int, ...]=None) -> torch.Tensor:
     """
-    Shape:
-        - pred: :math:`(N, C, *)`
-        - target: :math:`(N, C, *)`
-        - Output: scalar.
+    Computes the dice score
+
+    Args:
+        pred: (N, C, *)
+        target: (N, C, *)
+        dims: dimensions to sum over
+
     """
     assert pred.size() == target.size()
     intersection = torch.sum(pred * target, dim=dims)

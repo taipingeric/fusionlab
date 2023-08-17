@@ -54,7 +54,7 @@ class DiceLoss(nn.Module):
         self.from_logits = from_logits
         self.log_loss = log_loss
 
-    def forward(self, y_pred, y_true):
+    def forward(self, y_pred, y_true) -> torch.Tensor:
         """
         :param y_pred: (N, C, *)
         :param y_true: (N, *)
