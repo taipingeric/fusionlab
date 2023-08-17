@@ -1,3 +1,7 @@
+0.1.7
+
+* Add Dice, IoU score
+
 0.1.6
 
 * Add API Documentation
