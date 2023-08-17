@@ -59,3 +59,5 @@ class DiceScore(nn.Module):
             return scores
         else:
             return scores.mean()
+
+JaccardScore = DiceScore
