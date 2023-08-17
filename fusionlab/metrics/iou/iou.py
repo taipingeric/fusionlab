@@ -14,6 +14,7 @@ class IoUScore(nn.Module):
         self,
         mode="multiclass",  # binary, multiclass
         from_logits=True,
+        reduction="none", # mean, none
     ):
         """
         Implementation of Iou score for segmentation task.
@@ -21,10 +22,12 @@ class IoUScore(nn.Module):
         Args:
             mode: Metric mode {'binary', 'multiclass'}
             from_logits: If True assumes input is raw logits
+            reduction: "mean" or "none", if "none" returns dice score for each channels, else returns mean
         """
         super().__init__()
         self.mode = mode
         self.from_logits = from_logits
+        self.reduction = reduction
 
     def forward(self, y_pred, y_true):
         """
@@ -54,4 +57,7 @@ class IoUScore(nn.Module):
             AssertionError("Not implemented")
 
         scores = iou_score(y_pred, y_true.type_as(y_pred), dims=dims)
-        return scores
+        if self.reduction == "none":
+            return scores
+        else:
+            return scores.mean()

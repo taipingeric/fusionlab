@@ -12,7 +12,7 @@ class DiceScore(nn.Module):
         self,
         mode="multiclass",  # binary, multiclass
         from_logits=True,
-        reduction="mean", # mean, none
+        reduction="none", # mean, none
     ):
         """
         Computer dice score for binary or multiclass input
@@ -20,7 +20,7 @@ class DiceScore(nn.Module):
         Args:
             mode: "binary" or "multiclass"
             from_logits: if True, assumes input is raw logits
-            reduction: "mean" or "none", if "none" returns dice score for each sample, else returns mean
+            reduction: "mean" or "none", if "none" returns dice score for each channels, else returns mean
         """
         super().__init__()
         self.mode = mode
@@ -35,7 +35,7 @@ class DiceScore(nn.Module):
         """
         assert y_true.size(0) == y_pred.size(0)
         num_classes = y_pred.size(1)
-        dims = (0, 2)  # dimensions to sum over (N, C, HW)
+        dims = (0, 2)  # dimensions to sum over (N, C, *)
 
         if self.from_logits:
             # get [0..1] class probabilities
