@@ -47,7 +47,7 @@ class HFDataset(torch.utils.data.Dataset):
         x, labels = self.dataset[index]  # Forward pass the dataset
         return {'x': x, 'labels': labels}
 
-# label-studio timeseries segmentation dataset
+
 class LSTimeSegDataset(torch.utils.data.Dataset):
     """
     Dataset for label-studio timeseries segmentation task
@@ -61,7 +61,7 @@ class LSTimeSegDataset(torch.utils.data.Dataset):
             data_dir (str): directory of csv files
             annotation_path (str): path to annotation json file
             class_map (dict): a dictionary mapping class names to class indices
-            column_names (List[str]): a list of column names
+            column_names (List[str]): A list of column names for the signal data in the CSV files.
         
         Examples::
             >>> ds = LSTimeSegDataset(data_dir="./12",
@@ -75,13 +75,8 @@ class LSTimeSegDataset(torch.utils.data.Dataset):
         self.annotation_path = annotation_path
         self.class_map = class_map
         self.column_names = column_names
-        data_paths = glob(os.path.join(data_dir, "*.csv"))
         with open(annotation_path, "r") as f:
             self.annotations = json.load(f)
-        
-        num_data = len(data_paths)
-        num_annotation = len(self.annotations)
-        assert num_data == num_annotation, "number of data != number of annotations"
 
     def __len__(self):
         return len(self.annotations)
@@ -91,7 +86,7 @@ class LSTimeSegDataset(torch.utils.data.Dataset):
         Returns:
             signals (torch.Tensor): shape: (num_samples, Channels)
             mask (torch.Tensor): shape: (num_samples, )
-            
+
         """
         annotation = self.annotations[index]
         signal_filename = annotation["csv"].split(os.sep)[-1]
@@ -106,13 +101,15 @@ class LSTimeSegDataset(torch.utils.data.Dataset):
             end_idx = df[df["time"] == end_time].index[0]
             mask[start_idx: end_idx] = self.class_map[class_name]
         signals = df[self.column_names].values
-        signals = self.preprocess(signals)
 
         signals = torch.from_numpy(signals).float().permute(1, 0)
+        signals = self.preprocess(signals)
         mask = torch.from_numpy(mask).long()
         return signals, mask
     
     def preprocess(self, signals):
+        return standardize_tensor(signals, dim=1)
+
 class LSTimeClassificationDataset(torch.utils.data.Dataset):
     """
     Dataset for label-studio timeseries classification task
