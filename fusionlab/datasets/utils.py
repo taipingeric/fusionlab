@@ -113,9 +113,81 @@ class LSTimeSegDataset(torch.utils.data.Dataset):
         return signals, mask
     
     def preprocess(self, signals):
-        # normalization by channel
-        signals = (signals - signals.mean(axis=0)) / signals.std(axis=0)
-        return signals
+class LSTimeClassificationDataset(torch.utils.data.Dataset):
+    """
+    Dataset for label-studio timeseries classification task
+    """
+    
+    def __init__(self, data_dir, annotation_path, class_map, column_names):
+        """
+        Dataset for label-studio timeseries segmentation task
+        
+        Args:
+            data_dir (str): directory of csv files
+            annotation_path (str): path to annotation json file
+            class_map (dict): a dictionary mapping class names to class indices
+            column_names (List[str]): A list of column names for the signal data in the CSV files.
+        
+        Examples::
+            >>> ds = LSTimeClassificationDataset(
+            >>>     data_dir=DATA_DIR,
+            >>>     annotation_path=ANNOTATION_PATH,
+            >>>     class_map={"Normal": 1, "AF": 2, "AV Block": 3, "Noise": 4},
+            >>>     column_names=['i', 'ii', 'iii'])
+            >>> signals, label = ds[0]
+        """
+        super().__init__()
+        self.data_dir = data_dir
+        self.annotation_path = annotation_path
+        self.class_map = class_map
+        self.column_names = column_names
+        with open(annotation_path, "r") as f:
+            self.annotations = json.load(f)
+
+    def __len__(self):
+        return len(self.annotations)
+    
+    def __getitem__(self, index):
+        """
+        Returns:
+            signals (torch.Tensor): shape: (num_samples, Channels)
+            mask (torch.Tensor): shape: (num_samples, )
+            
+        """
+        annotation = self.annotations[index]
+        signal_filename = annotation["csv"].split(os.sep)[-1]
+        signal_path = os.path.join(self.data_dir, signal_filename)
+        df = pd.read_csv(signal_path)
+        signals = df[self.column_names].values
+        # signals = self.preprocess(signals)
+        label_name = annotation['pattern']
+        label = self.class_map[label_name]
+
+        signals = torch.from_numpy(signals).float().permute(1, 0) # (L, C) -> (C, L)
+        signals = self.preprocess(signals)
+        label = torch.tensor(label).long()
+        return signals, label
+    
+
+    def preprocess(self, signals):
+        return standardize_tensor(signals, dim=1)
+
+
+def standardize_tensor(tensor, dim=0):
+    """
+    Standardize a tensor by channel
+
+    Args:
+        tensor (torch.Tensor): shape: (Channels, num_samples)
+        dim (int): dimension to standardize
+    Returns:
+        tensor (torch.Tensor): shape: (Channels, num_samples,)
+    """
+    mean = tensor.mean(dim=dim, keepdim=True)
+    std = tensor.std(dim=dim, keepdim=True)
+    tensor = (tensor - mean) / std
+    return tensor
+
 
 # TODO: add test
 def count_parameters(
