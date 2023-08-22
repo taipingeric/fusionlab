@@ -1,3 +1,7 @@
+0.1.9
+
+* Add LSTimeClassificationDataset for time series classification
+
 0.1.7
 
 * Add Dice, IoU score

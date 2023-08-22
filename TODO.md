@@ -28,5 +28,4 @@
 
 ### Dataset
 
-* LSTimeSegDataset for classification
 
