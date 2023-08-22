@@ -5,6 +5,5 @@ traceback2
 pandas>=1.5.3
 xmltodict
 xlwt
-pandas
 scipy
 wfdb

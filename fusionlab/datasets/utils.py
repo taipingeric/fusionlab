@@ -52,21 +52,21 @@ class LSTimeSegDataset(torch.utils.data.Dataset):
     """
     Dataset for label-studio timeseries segmentation task
     Args:
-        data_dir: directory of csv files
-        annotation_path: path to annotation json file
-        class_map: a dictionary mapping class names to class indices
-        column_names: a list of column names
+        data_dir (str): directory of csv files
+        annotation_path (str): path to annotation json file
+        class_map (dict): a dictionary mapping class names to class indices
+        column_names (List[str]): a list of column names
     
     Returns:
-        signals: torch tensor, shape (num_samples, num_channels)
-        mask: torch tensor, shape (num_samples, )
+        signals (torch.Tensor): shape: (num_samples, num_channels)
+        mask (torch.Tensor): shape: (num_samples, )
     
-    Example:
-        ds = LSTimeSegDataset(data_dir="./12",
-            annotation_path="./12.json",
-            class_map={"N": 1, "p": 2, "t": 3},
-            column_names=['i', 'ii', 'iii', 'avr', 'avl', 'avf', 'v1', 'v2', 'v3', 'v4', 'v5', 'v6'])
-        signals, mask = ds[0]
+    Examples::
+        >>> ds = LSTimeSegDataset(data_dir="./12",
+        >>>                       annotation_path="./12.json",
+        >>>                       class_map={"N": 1, "p": 2, "t": 3},
+        >>>                       column_names=['i', 'ii', 'iii', 'avr', 'avl', 'avf', 'v1', 'v2', 'v3', 'v4', 'v5', 'v6'])
+        >>> signals, mask = ds[0]
     """
     
     def __init__(self, data_dir, annotation_path, class_map, column_names):
