@@ -51,25 +51,25 @@ class HFDataset(torch.utils.data.Dataset):
 class LSTimeSegDataset(torch.utils.data.Dataset):
     """
     Dataset for label-studio timeseries segmentation task
-    Args:
-        data_dir (str): directory of csv files
-        annotation_path (str): path to annotation json file
-        class_map (dict): a dictionary mapping class names to class indices
-        column_names (List[str]): a list of column names
-    
-    Returns:
-        signals (torch.Tensor): shape: (num_samples, num_channels)
-        mask (torch.Tensor): shape: (num_samples, )
-    
-    Examples::
-        >>> ds = LSTimeSegDataset(data_dir="./12",
-        >>>                       annotation_path="./12.json",
-        >>>                       class_map={"N": 1, "p": 2, "t": 3},
-        >>>                       column_names=['i', 'ii', 'iii', 'avr', 'avl', 'avf', 'v1', 'v2', 'v3', 'v4', 'v5', 'v6'])
-        >>> signals, mask = ds[0]
     """
     
     def __init__(self, data_dir, annotation_path, class_map, column_names):
+        """
+        Dataset for label-studio timeseries segmentation task
+        
+        Args:
+            data_dir (str): directory of csv files
+            annotation_path (str): path to annotation json file
+            class_map (dict): a dictionary mapping class names to class indices
+            column_names (List[str]): a list of column names
+        
+        Examples::
+            >>> ds = LSTimeSegDataset(data_dir="./12",
+            >>>                       annotation_path="./12.json",
+            >>>                       class_map={"N": 1, "p": 2, "t": 3},
+            >>>                       column_names=['i', 'ii', 'iii', 'avr', 'avl', 'avf', 'v1', 'v2', 'v3', 'v4', 'v5', 'v6'])
+            >>> signals, mask = ds[0]
+        """
         super().__init__()
         self.data_dir = data_dir
         self.annotation_path = annotation_path
@@ -87,6 +87,12 @@ class LSTimeSegDataset(torch.utils.data.Dataset):
         return len(self.annotations)
     
     def __getitem__(self, index):
+        """
+        Returns:
+            signals (torch.Tensor): shape: (num_samples, Channels)
+            mask (torch.Tensor): shape: (num_samples, )
+            
+        """
         annotation = self.annotations[index]
         signal_filename = annotation["csv"].split(os.sep)[-1]
         signal_path = os.path.join(self.data_dir, signal_filename)
