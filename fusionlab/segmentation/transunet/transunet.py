@@ -1,28 +1,3 @@
-'''
-def get_b16_config():
-    """Returns the ViT-B/16 configuration."""
-    config = ml_collections.ConfigDict()
-    config.patches = ml_collections.ConfigDict({'size': (16, 16)})
-    config.hidden_size = 768
-    config.transformer = ml_collections.ConfigDict()
-    config.transformer.mlp_dim = 3072
-    config.transformer.num_heads = 12
-    config.transformer.num_layers = 12
-    config.transformer.attention_dropout_rate = 0.0
-    config.transformer.dropout_rate = 0.1
-
-    config.classifier = 'seg'
-    config.representation_size = None
-    config.resnet_pretrained_path = None
-    config.pretrained_path = '../model/vit_checkpoint/imagenet21k/ViT-B_16.npz'
-    config.patch_size = 16
-
-    config.decoder_channels = (256, 128, 64, 16)
-    config.n_classes = 2
-    config.activation = 'softmax'
-    return config
-'''
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -30,15 +5,16 @@ from torch.nn.modules.utils import _pair
 from collections import OrderedDict
 import math
 
-class StdConv2d(nn.Conv2d):
+# source code: https://github.com/Beckschen/TransUNet
 
+# TODO: extract layer to utils
+class StdConv2d(nn.Conv2d):
     def forward(self, x):
         w = self.weight
         v, m = torch.var_mean(w, dim=[1, 2, 3], keepdim=True, unbiased=False)
         w = (w - m) / torch.sqrt(v + 1e-5)
         return F.conv2d(x, w, self.bias, self.stride, self.padding,
                         self.dilation, self.groups)
-
 
 def conv3x3(cin, cout, stride=1, groups=1, bias=False):
     return StdConv2d(cin, cout, kernel_size=3, stride=stride,
@@ -51,9 +27,7 @@ def conv1x1(cin, cout, stride=1, bias=False):
 
 
 class PreActBottleneck(nn.Module):
-    """Pre-activation (v2) bottleneck block.
-    """
-
+    """Pre-activation (v2) bottleneck block."""
     def __init__(self, cin, cout=None, cmid=None, stride=1):
         super().__init__()
         cout = cout or cin
@@ -66,27 +40,24 @@ class PreActBottleneck(nn.Module):
         self.gn3 = nn.GroupNorm(32, cout, eps=1e-6)
         self.conv3 = conv1x1(cmid, cout, bias=False)
         self.relu = nn.ReLU(inplace=True)
-
-        if (stride != 1 or cin != cout):
+        self.downsample = stride != 1 or cin != cout # downsample on skip connection
+        if self.downsample:
             # Projection also with pre-activation according to paper.
             self.downsample = conv1x1(cin, cout, stride, bias=False)
             self.gn_proj = nn.GroupNorm(cout, cout)
 
     def forward(self, x):
-
         # Residual branch
         residual = x
-        if hasattr(self, 'downsample'):
+        if self.downsample:
             residual = self.downsample(x)
             residual = self.gn_proj(residual)
 
-        # Unit's branch
-        y = self.relu(self.gn1(self.conv1(x)))
-        y = self.relu(self.gn2(self.conv2(y)))
-        y = self.gn3(self.conv3(y))
-
-        y = self.relu(residual + y)
-        return y
+        x = self.relu(self.gn1(self.conv1(x)))
+        x = self.relu(self.gn2(self.conv2(x)))
+        x = self.gn3(self.conv3(x))
+        x = self.relu(residual + x)
+        return x
 
 
 class ResNetV2(nn.Module):
@@ -101,9 +72,8 @@ class ResNetV2(nn.Module):
             ('conv', StdConv2d(3, width, kernel_size=7, stride=2, bias=False, padding=3)),
             ('gn', nn.GroupNorm(32, width, eps=1e-6)),
             ('relu', nn.ReLU(inplace=True)),
-            # ('pool', nn.MaxPool2d(kernel_size=3, stride=2, padding=0))
         ]))
-
+        self.pool = nn.MaxPool2d(kernel_size=3, stride=2, padding=0)
         self.body = nn.Sequential(OrderedDict([
             ('block1', nn.Sequential(OrderedDict(
                 [('unit1', PreActBottleneck(cin=width, cout=width*4, cmid=width))] +
@@ -119,27 +89,29 @@ class ResNetV2(nn.Module):
                 ))),
         ]))
 
-    def forward(self, x):
+    def forward(self, x, return_features=True):
         features = []
-        b, c, in_size, _ = x.size()
+        b, _, in_size, _ = x.size()
         x = self.root(x)
         features.append(x)
-        x = nn.MaxPool2d(kernel_size=3, stride=2, padding=0)(x)
+        x = self.pool(x)
         for i in range(len(self.body)-1):
             x = self.body[i](x)
             right_size = int(in_size / 4 / (i+1))
             if x.size()[2] != right_size:
                 pad = right_size - x.size()[2]
-                assert pad < 3 and pad > 0, "x {} should {}".format(x.size(), right_size)
+                assert pad < 3 and pad > 0, f"x {x.size()} should {right_size}"
                 feat = torch.zeros((b, x.size()[1], right_size, right_size), device=x.device)
                 feat[:, :, 0:x.size()[2], 0:x.size()[3]] = x[:]
             else:
                 feat = x
             features.append(feat)
         x = self.body[-1](x)
-        return x, features[::-1]
+        if return_features:
+            return x, features[::-1]
+        else:
+            return x
 
-# TransUNet
 class Attention(nn.Module):
     def __init__(self, 
                 #  config, 
@@ -149,9 +121,7 @@ class Attention(nn.Module):
                 ):
         super().__init__()
         self.num_attention_heads = num_attention_heads
-        # self.num_attention_heads = config.transformer["num_heads"]
         self.attention_head_size = int(hidden_size / self.num_attention_heads)
-        # self.attention_head_size = int(config.hidden_size / self.num_attention_heads)
         self.all_head_size = self.num_attention_heads * self.attention_head_size
 
         self.query = nn.Linear(hidden_size, self.all_head_size)
@@ -161,10 +131,6 @@ class Attention(nn.Module):
         self.out = nn.Linear(hidden_size, hidden_size)
         self.attn_dropout = nn.Dropout(attention_dropout_rate)
         self.proj_dropout = nn.Dropout(attention_dropout_rate)
-        # self.out = nn.Linear(config.hidden_size, config.hidden_size)
-        # self.attn_dropout = nn.Dropout(config.transformer["attention_dropout_rate"])
-        # self.proj_dropout = nn.Dropout(config.transformer["attention_dropout_rate"])
-
         self.softmax = nn.Softmax(dim=-1)
 
     def transpose_for_scores(self, x):
@@ -184,8 +150,6 @@ class Attention(nn.Module):
         attention_scores = torch.matmul(query_layer, key_layer.transpose(-1, -2))
         attention_scores = attention_scores / math.sqrt(self.attention_head_size)
         attention_probs = self.softmax(attention_scores)
-        # weights = attewntion_probs if self.vis else None
-        weights = None
         attention_probs = self.attn_dropout(attention_probs)
 
         context_layer = torch.matmul(attention_probs, value_layer)
@@ -194,26 +158,23 @@ class Attention(nn.Module):
         context_layer = context_layer.view(*new_context_layer_shape)
         attention_output = self.out(context_layer)
         attention_output = self.proj_dropout(attention_output)
+
+        weights = None
         return attention_output, weights
 
 
-class Mlp(nn.Module):
+class MLP(nn.Module):
     def __init__(self, 
                 #  config
                 hidden_size=768,
                 mlp_dim=3072,
                 dropout_rate=0.1,
                  ):
-        super(Mlp, self).__init__()
+        super().__init__()
         self.fc1 = nn.Linear(hidden_size, mlp_dim)
         self.fc2 = nn.Linear(mlp_dim, hidden_size)
-        # self.fc1 = nn.Linear(config.hidden_size, config.transformer["mlp_dim"])
-        # self.fc2 = nn.Linear(config.transformer["mlp_dim"], config.hidden_size)
         self.act_fn = nn.GELU()
-        # self.act_fn = ACT2FN["gelu"]
         self.dropout = nn.Dropout(dropout_rate)
-        # self.dropout = nn.Dropout(config.transformer["dropout_rate"])
-
         self._init_weights()
 
     def _init_weights(self):
@@ -232,53 +193,35 @@ class Mlp(nn.Module):
 
 
 class Embeddings(nn.Module):
-    """Construct the embeddings from patch, position embeddings.
-    """
-    def __init__(self, 
-                #  config,
-                #  grid_size, 
-                 patch_size,
-                 img_size, 
-                 num_layers, # resnet num layers: (3, 4, 9)
-                 width_factor=1, # resnet width factor: 1
-                 in_channels=3,
-                 hidden_size=768, # for embedding output dim
-                 dropout_rate=0.1, # for embedding dropout
-                 ):
+    """Construct the embeddings from patch, position embeddings."""
+    def __init__(
+            self, 
+            patch_size,
+            img_size, 
+            num_layers, # resnet num layers: (3, 4, 9)
+            width_factor=1, # resnet width factor: 1
+            in_channels=3,
+            hidden_size=768, # embedding output dim
+            dropout_rate=0.1, # embedding dropout rate
+        ):
         super().__init__()
-        self.hybrid = None
-        # self.config = config
+        self.hybrid = True
         img_size = _pair(img_size)
-        ##
         grid_size = (int(img_size[0] / patch_size[0]), int(img_size[1] / patch_size[1]))
 
-        # if config.patches.get("grid") is not None:   # ResNet
-            # grid_size = config.patches["grid"]
         patch_size = (img_size[0] // 16 // grid_size[0], img_size[1] // 16 // grid_size[1])
         patch_size_real = (patch_size[0] * 16, patch_size[1] * 16)
         n_patches = (img_size[0] // patch_size_real[0]) * (img_size[1] // patch_size_real[1])  
-        print(patch_size, patch_size_real, n_patches)
-        self.hybrid = True
-        # else:
-        #     patch_size = _pair(config.patches["size"])
-        #     n_patches = (img_size[0] // patch_size[0]) * (img_size[1] // patch_size[1])
-        #     self.hybrid = False
 
         if self.hybrid:
             self.hybrid_model = ResNetV2(block_units=num_layers, width_factor=width_factor)
-            # self.hybrid_model = ResNetV2(block_units=num_layers, width_factor=config.resnet.width_factor)
             in_channels = self.hybrid_model.width * 16
         self.patch_embeddings = nn.Conv2d(in_channels=in_channels,
                                           out_channels=hidden_size,
-                                        #   out_channels=config.hidden_size,
                                           kernel_size=patch_size,
                                           stride=patch_size)
         self.position_embeddings = nn.Parameter(torch.zeros(1, n_patches, hidden_size))
-        # self.position_embeddings = nn.Parameter(torch.zeros(1, n_patches, config.hidden_size))
-
         self.dropout = nn.Dropout(dropout_rate)
-        # self.dropout = nn.Dropout(config.transformer["dropout_rate"])
-
 
     def forward(self, x):
         if self.hybrid:
@@ -286,7 +229,7 @@ class Embeddings(nn.Module):
         else:
             features = None
         x = self.patch_embeddings(x)  # (B, hidden. n_patches^(1/2), n_patches^(1/2))
-        x = x.flatten(2)
+        x = x.flatten(2) # (B, hidden. n_patches)
         x = x.transpose(-1, -2)  # (B, n_patches, hidden)
 
         embeddings = x + self.position_embeddings
@@ -295,58 +238,48 @@ class Embeddings(nn.Module):
 
 
 class Block(nn.Module):
-    def __init__(self, 
-                #  config, 
-                hidden_size=768,
-                mlp_dim=3072,
-                dropout_rate=0.1,
-                 ):
+    def __init__(
+            self, 
+            hidden_size=768,
+            mlp_dim=3072,
+            dropout_rate=0.1
+        ):
         super().__init__()
         self.hidden_size = hidden_size
-        # self.hidden_size = config.hidden_size
         self.attention_norm = nn.LayerNorm(hidden_size, eps=1e-6)
-        # self.attention_norm = nn.LayerNorm(config.hidden_size, eps=1e-6)
         self.ffn_norm = nn.LayerNorm(hidden_size, eps=1e-6)
-        # self.ffn_norm = nn.LayerNorm(config.hidden_size, eps=1e-6)
-        self.ffn = Mlp(
+        self.ffn = MLP(
             hidden_size,
             mlp_dim,
             dropout_rate,
-            # config,
         )
         self.attn = Attention()
-        # self.attn = Attention(config, vis)
 
     def forward(self, x):
-        h = x
+        skip = x
         x = self.attention_norm(x)
         x, weights = self.attn(x)
-        x = x + h
+        x = x + skip
 
-        h = x
+        skip = x
         x = self.ffn_norm(x)
         x = self.ffn(x)
-        x = x + h
+        x = x + skip
         return x, weights
 
-
 class Encoder(nn.Module):
-    def __init__(self, 
-                #  config, 
-                num_layers=12,
-                hidden_size=768,
-                mlp_dim=3072, 
-                dropout_rate=0.1,
-                ):
+    def __init__(
+            self, 
+            num_layers=12,
+            hidden_size=768,
+            mlp_dim=3072, 
+            dropout_rate=0.1,
+        ):
         super().__init__()
         self.layer = nn.ModuleList()
         self.encoder_norm = nn.LayerNorm(hidden_size, eps=1e-6)
-        # self.encoder_norm = nn.LayerNorm(config.hidden_size, eps=1e-6)
-        # for _ in range(config.transformer["num_layers"]):
         for _ in range(num_layers):
             layer = Block(hidden_size, mlp_dim, dropout_rate)
-            # layer = Block(config, vis)
-            # self.layer.append(copy.deepcopy(layer))
             self.layer.append(layer)
 
     def forward(self, hidden_states):
@@ -358,20 +291,18 @@ class Encoder(nn.Module):
 
 
 class Transformer(nn.Module):
-    def __init__(self, 
-                #  config, 
-                img_size,
-                 patch_size=(16, 16),
-                 ):
+    def __init__(
+            self, 
+            img_size,
+            patch_size=(16, 16),
+        ):
         super(Transformer, self).__init__()
         self.embeddings = Embeddings(
             patch_size=patch_size, 
             img_size=img_size,
             num_layers=(3, 4, 9),
         )
-        # self.embeddings = Embeddings(config, img_size=img_size)
         self.encoder = Encoder(
-            # config, 
             num_layers=12,
             hidden_size=768,
         )
@@ -391,7 +322,7 @@ class Conv2dReLU(nn.Sequential):
             padding=0,
             stride=1,
             use_batchnorm=True,
-    ):
+        ):
         conv = nn.Conv2d(
             in_channels,
             out_channels,
@@ -401,9 +332,7 @@ class Conv2dReLU(nn.Sequential):
             bias=not (use_batchnorm),
         )
         relu = nn.ReLU(inplace=True)
-
         bn = nn.BatchNorm2d(out_channels)
-
         super(Conv2dReLU, self).__init__(conv, bn, relu)
 
 
@@ -414,7 +343,7 @@ class DecoderBlock(nn.Module):
             out_channels,
             skip_channels=0,
             use_batchnorm=True,
-    ):
+        ):
         super().__init__()
         self.conv1 = Conv2dReLU(
             in_channels + skip_channels,
@@ -435,7 +364,6 @@ class DecoderBlock(nn.Module):
     def forward(self, x, skip=None):
         x = self.up(x)
         if skip is not None:
-            print("DecoderBlock: ", x.shape, skip.shape)
             x = torch.cat([x, skip], dim=1)
         x = self.conv1(x)
         x = self.conv2(x)
@@ -443,7 +371,6 @@ class DecoderBlock(nn.Module):
 
 
 class SegmentationHead(nn.Sequential):
-
     def __init__(self, in_channels, out_channels, kernel_size=3, upsampling=1):
         conv2d = nn.Conv2d(in_channels, out_channels, kernel_size=kernel_size, padding=kernel_size // 2)
         upsampling = nn.UpsamplingBilinear2d(scale_factor=upsampling) if upsampling > 1 else nn.Identity()
@@ -451,34 +378,28 @@ class SegmentationHead(nn.Sequential):
 
 
 class DecoderCup(nn.Module):
-    def __init__(self, 
-                #  config
-                decoder_channels,
-                hidden_size,
-                n_skip,
-                skip_channels,
-                 ):
+    def __init__(
+            self, 
+            decoder_channels,
+            hidden_size,
+            n_skip,
+            skip_channels,
+            head_channels=512,
+        ):
         super().__init__()
-        # self.config = config
-        head_channels = 512
         self.conv_more = Conv2dReLU(
-            # config.hidden_size,
             hidden_size,
             head_channels,
             kernel_size=3,
             padding=1,
             use_batchnorm=True,
         )
-        # decoder_channels = config.decoder_channels
         in_channels = [head_channels] + list(decoder_channels[:-1])
         out_channels = decoder_channels
 
         if n_skip != 0:
-        # if self.config.n_skip != 0:
-            # skip_channels = self.config.skip_channels
             for i in range(4-n_skip):  # re-select the skip channels according to n_skip
                 skip_channels[3-i]=0
-
         else:
             skip_channels=[0, 0, 0, 0]
 
@@ -489,8 +410,7 @@ class DecoderCup(nn.Module):
         self.n_skip = n_skip
 
     def forward(self, hidden_states, features=None):
-        B, n_patch, hidden = hidden_states.size()  # reshape from (B, n_patch, hidden) to (B, h, w, hidden)
-        # h, w = int(np.sqrt(n_patch)), int(np.sqrt(n_patch))
+        B, n_patch, hidden = hidden_states.size()  # (B, n_patch, hidden) -> (B, h, w, hidden)
         h, w = int(math.sqrt(n_patch)), int(math.sqrt(n_patch))
         x = hidden_states.permute(0, 2, 1)
         x = x.contiguous().view(B, hidden, h, w)
@@ -504,9 +424,9 @@ class DecoderCup(nn.Module):
         return x
 
 
-class VisionTransformer(nn.Module):
-    def __init__(self, 
-            #  config, 
+class TransUNet(nn.Module):
+    def __init__(
+            self, 
             img_size=224, 
             num_classes=21843, 
             zero_head=False, 
@@ -519,12 +439,9 @@ class VisionTransformer(nn.Module):
         super().__init__()
         self.num_classes = num_classes
         self.zero_head = zero_head
-        # self.classifier = config.classifier
         self.transformer = Transformer(
-            # config, 
             img_size,
             patch_size=patch_size)
-        # self.decoder = DecoderCup(config)
         self.decoder = DecoderCup(
             decoder_channels,
             hidden_size,
@@ -536,36 +453,11 @@ class VisionTransformer(nn.Module):
             out_channels=num_classes,
             kernel_size=3,
         )
-        # self.config = config
 
     def forward(self, x):
         if x.size()[1] == 1:
-            x = x.repeat(1,3,1,1)
+            x = x.repeat(1, 3, 1, 1)
         x, _, features = self.transformer(x)  # (B, n_patch, hidden)
-        print('transformer output shape: ', x.shape)
-        for f in features:
-            print('feature shape: ', f.shape)
         x = self.decoder(x, features)
         logits = self.segmentation_head(x)
         return logits
-
-
-# IMG_SIZE = 1024
-# VIT_PATCHES_SIZE = 16
-# config_vit = CONFIGS_ViT_seg[args.vit_name]
-# config_vit.n_classes = 10
-# config_vit.n_skip = 3
-# if args.vit_name.find('R50') != -1:
-# config_vit.patches.grid = (int(IMG_SIZE / VIT_PATCHES_SIZE), int(IMG_SIZE / VIT_PATCHES_SIZE))
-
-
-
-# if __name__ == '__main__':
-#     net = VisionTransformer(
-#         # config_vit, 
-#         img_size=1024, num_classes=3)
-    
-#     inputs = torch.randn(1, 3, IMG_SIZE, IMG_SIZE)
-#     outputs = net(inputs)
-
-#     print(outputs.shape)
