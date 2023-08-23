@@ -59,7 +59,7 @@ class PreActBottleneck(nn.Module):
         x = self.relu(residual + x)
         return x
 
-
+# TODO: Extract to encoder
 class ResNetV2(nn.Module):
     """Implementation of Pre-activation (v2) ResNet mode."""
 
@@ -112,13 +112,14 @@ class ResNetV2(nn.Module):
         else:
             return x
 
+# TODO: extract to layers
 class Attention(nn.Module):
-    def __init__(self, 
-                #  config, 
-                num_attention_heads=12,
-                hidden_size=768,
-                attention_dropout_rate=0.1,
-                ):
+    def __init__(
+            self, 
+            num_attention_heads=12,
+            hidden_size=768,
+            attention_dropout_rate=0.1,
+        ):
         super().__init__()
         self.num_attention_heads = num_attention_heads
         self.attention_head_size = int(hidden_size / self.num_attention_heads)
@@ -237,7 +238,7 @@ class Embeddings(nn.Module):
         return embeddings, features
 
 
-class Block(nn.Module):
+class TransformerEncoderBlock(nn.Module):
     def __init__(
             self, 
             hidden_size=768,
@@ -245,7 +246,6 @@ class Block(nn.Module):
             dropout_rate=0.1
         ):
         super().__init__()
-        self.hidden_size = hidden_size
         self.attention_norm = nn.LayerNorm(hidden_size, eps=1e-6)
         self.ffn_norm = nn.LayerNorm(hidden_size, eps=1e-6)
         self.ffn = MLP(
@@ -267,7 +267,7 @@ class Block(nn.Module):
         x = x + skip
         return x, weights
 
-class Encoder(nn.Module):
+class TransformerEncoder(nn.Module):
     def __init__(
             self, 
             num_layers=12,
@@ -279,7 +279,7 @@ class Encoder(nn.Module):
         self.layer = nn.ModuleList()
         self.encoder_norm = nn.LayerNorm(hidden_size, eps=1e-6)
         for _ in range(num_layers):
-            layer = Block(hidden_size, mlp_dim, dropout_rate)
+            layer = TransformerEncoderBlock(hidden_size, mlp_dim, dropout_rate)
             self.layer.append(layer)
 
     def forward(self, hidden_states):
@@ -296,13 +296,13 @@ class Transformer(nn.Module):
             img_size,
             patch_size=(16, 16),
         ):
-        super(Transformer, self).__init__()
+        super().__init__()
         self.embeddings = Embeddings(
             patch_size=patch_size, 
             img_size=img_size,
             num_layers=(3, 4, 9),
         )
-        self.encoder = Encoder(
+        self.encoder = TransformerEncoder(
             num_layers=12,
             hidden_size=768,
         )
@@ -377,7 +377,7 @@ class SegmentationHead(nn.Sequential):
         super().__init__(conv2d, upsampling)
 
 
-class DecoderCup(nn.Module):
+class TransUNetDecoder(nn.Module):
     def __init__(
             self, 
             decoder_channels,
@@ -442,7 +442,7 @@ class TransUNet(nn.Module):
         self.transformer = Transformer(
             img_size,
             patch_size=patch_size)
-        self.decoder = DecoderCup(
+        self.decoder = TransUNetDecoder(
             decoder_channels,
             hidden_size,
             n_skip,
