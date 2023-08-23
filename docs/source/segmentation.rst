@@ -33,6 +33,12 @@ Segmentation Model
 .. autoclass:: TFUNet2plus
     :members:
 
+`TransUNet`
+~~~~~~~~~~
+
+.. autoclass:: TransUNet
+    :members:
+
 `HuggingFace Segmentation Model`
 ~~~~~~~~~~
 

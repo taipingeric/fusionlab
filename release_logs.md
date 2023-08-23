@@ -1,3 +1,7 @@
+0.1.10
+
+* Add TransUNet
+
 0.1.9
 
 * Add LSTimeClassificationDataset for time series classification
