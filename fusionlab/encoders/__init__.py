@@ -23,6 +23,10 @@ if BACKEND['torch']:
         ConvNeXtLarge,
         ConvNeXtXLarge
     )
+    from .vit.vit import (
+        ViT, 
+        VisionTransformer
+    )
 if BACKEND['tf']:
     from .alexnet.tfalexnet import TFAlexNet
     from .vgg.tfvgg import TFVGG16, TFVGG19
