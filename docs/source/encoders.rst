@@ -78,3 +78,10 @@ PyTorch Encoders
     :members:
 .. autoclass:: ConvNeXtXLarge
     :members:
+
+`Vision Transformer`
+~~~~~~~~~~
+.. autoclass:: ViT
+    :members:
+.. autoclass:: VisionTransformer
+    :members:
