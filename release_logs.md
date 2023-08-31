@@ -1,6 +1,8 @@
 0.1.10
 
-* Add TransUNet
+* Add: TransUNet
+* Add layer: Rearrange, PatchEmbedding
+* Add utils: trunc_normal_
 
 0.1.9
 

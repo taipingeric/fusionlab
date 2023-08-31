@@ -17,5 +17,6 @@ if BACKEND['torch']:
         ConvNormAct,
         Rearrange,
     )
+    from .patch_embed.patch_embedding import PatchEmbedding
 if BACKEND['tf']:
     from .squeeze_excitation.tfse import TFSEModule
