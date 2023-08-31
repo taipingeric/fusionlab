@@ -67,6 +67,11 @@ N-dimensional layer
 .. autoclass:: ConvNormAct
     :members:
 
+`Rearrange`
+~~~~~~~~~~
+.. autoclass:: Rearrange
+    :members:
+
 `Squeeze-Excitation`
 ~~~~~~~~~~
 .. autoclass:: SEModule

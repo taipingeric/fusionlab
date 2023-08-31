@@ -13,6 +13,9 @@ if BACKEND['torch']:
         ConstantPad
     )
     from .squeeze_excitation.se import SEModule
-    from .base import ConvNormAct
+    from .base import (
+        ConvNormAct,
+        Rearrange,
+    )
 if BACKEND['tf']:
     from .squeeze_excitation.tfse import TFSEModule
