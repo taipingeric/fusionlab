@@ -1,6 +1,6 @@
 import torch.nn as nn
 from typing import Union, Sequence, Optional, Callable
-
+from einops import rearrange
 from fusionlab.layers import ConvND, BatchNorm
 from fusionlab.utils import make_ntuple
 
@@ -82,3 +82,29 @@ class ConvNormAct(nn.Module):
         x = self.norm(x)
         x = self.act(x)
         return x
+
+class Rearrange(nn.Module):
+    '''
+    nn.Module wrapper for eion's rearrange function
+    '''
+
+    def __init__(self, pattern: str, **kwargs):
+        super().__init__()
+        self.pattern = pattern
+        self.kwargs = kwargs
+
+    def forward(self, x):
+        return rearrange(x, self.pattern, **self.kwargs)
+    
+
+if __name__ == '__main__':
+    import torch
+    inputs = torch.randn(1, 3, 128, 128)
+    l = Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)', p1=16, p2=16)
+    outputs = l(inputs)
+    print(outputs.shape)
+
+    inputs = torch.randn(1, 3, 128, 128)
+    l = Rearrange('b c h w -> b (c h w)')
+    outputs = l(inputs)
+    print(outputs.shape)
