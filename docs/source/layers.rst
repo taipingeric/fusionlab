@@ -72,6 +72,11 @@ N-dimensional layer
 .. autoclass:: Rearrange
     :members:
 
+`Patch Embedding`
+~~~~~~~~~~
+.. autoclass:: PatchEmbedding
+    :members:
+
 `Squeeze-Excitation`
 ~~~~~~~~~~
 .. autoclass:: SEModule
