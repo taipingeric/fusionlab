@@ -2,10 +2,17 @@ import collections
 from itertools import repeat
 from typing import Any, Tuple
 
-def autopad(kernal_size, padding=None):
-    # Pad to 'same'
+def autopad(kernel_size, padding=None, dilation=1, spatial_dims=2):
+    '''
+    Auto padding for convolutional layers
+    '''
     if padding is None:
-        padding = kernal_size//2 if isinstance(kernal_size, int) else [x//2 for x in kernal_size]
+        if isinstance(kernel_size, int) and isinstance(dilation, int):
+            padding = (kernel_size - 1) // 2 * dilation
+        else:
+            kernel_size = make_ntuple(kernel_size, spatial_dims)
+            dilation = make_ntuple(dilation, spatial_dims)
+            padding = tuple((kernel_size[i] - 1) // 2 * dilation[i] for i in range(spatial_dims))
     return padding
 
 def make_ntuple(x: Any, n: int) -> Tuple[Any, ...]:
