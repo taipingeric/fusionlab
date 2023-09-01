@@ -5,6 +5,7 @@ if BACKEND['torch']:
         ConvT,
         Upsample,
         BatchNorm,
+        InstanceNorm,
         MaxPool,
         AvgPool,
         AdaptiveMaxPool,
