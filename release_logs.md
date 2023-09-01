@@ -1,7 +1,7 @@
 0.1.10
 
 * Add: TransUNet, ViT
-* Add layer: Rearrange, PatchEmbedding
+* Add layer: Rearrange, PatchEmbedding, InstanceNorm ND
 * Add utils: trunc_normal_
 
 0.1.9

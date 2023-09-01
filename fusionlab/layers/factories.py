@@ -193,6 +193,41 @@ class BatchNorm:
             affine=affine,
             track_running_stats=track_running_stats)
 
+class InstanceNorm:
+    """
+    Factory class for creating instance normalization layers.
+
+    Args:
+        spatial_dims (int): number of spatial dimensions of the input data.
+        num_features: number of features or channels :math:`C` of the input
+        eps: a value added to the denominator for numerical stability.
+            Default: ``1e-5``
+        momentum: the value used for the running_mean and running_var
+            computation. Can be set to ``None`` for cumulative moving average
+            (i.e. simple average). Default: ``0.1``
+        affine: a boolean value that when set to ``True``, this module has learnable affine parameters, 
+            initialized the same way as done for batch normalization. Default: ``False``.
+        track_running_stats: a boolean value that when set to True, this module tracks the running mean and variance, 
+            and when set to False, this module does not track such statistics and always uses batch statistics in 
+            both training and eval modes. Default: False
+    """
+    def __new__(cls, 
+                spatial_dims: int, 
+                num_features: int,
+                eps: float = 1e-5,
+                momentum: float = 0.1,
+                affine: bool = False,
+                track_running_stats: bool = False):
+        if spatial_dims not in [1, 2, 3]:
+            raise ValueError(f'`spatial_dims` must be 1, 2, or 3, got {spatial_dims}')
+        in_type = getattr(nn, f'InstanceNorm{spatial_dims}d')
+        return in_type(
+            num_features=num_features,
+            eps=eps,
+            momentum=momentum,
+            affine=affine,
+            track_running_stats=track_running_stats)
+
 class MaxPool:
     """
     Factory class for creating maximum pooling layers.
@@ -373,6 +408,17 @@ if __name__ == '__main__':
     inputs = torch.randn(1, 3, 16) # create random input tensor
     layer = BatchNorm(spatial_dims=1, num_features=3) # create model instance
     outputs = layer(inputs) # pass input through model
+
+    # Test code for InstanceNorm
+    inputs = torch.randn(1, 3, 16) # create random input tensor
+    layer = InstanceNorm(spatial_dims=1, num_features=3) # create model instance
+    outputs = layer(inputs) # pass input through model
+    print('Instance Norm 1D', outputs.shape)
+
+    inputs = torch.randn(1, 3, 16, 16) # create random input tensor
+    layer = InstanceNorm(spatial_dims=2, num_features=3) # create model instance
+    outputs = layer(inputs) # pass input through model
+    print('Instance Norm 2D', outputs.shape)
 
     # Test code for MaxPool
     for Module in [MaxPool, AvgPool]:

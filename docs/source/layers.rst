@@ -32,6 +32,11 @@ N-dimensional layer
 .. autoclass:: BatchNorm
     :members:
 
+`InstanceNorm ND`
+~~~~~~~~~~
+.. autoclass:: InstanceNorm
+    :members:
+
 `Maxpool ND`
 ~~~~~~~~~~
 .. autoclass:: MaxPool
