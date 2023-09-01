@@ -39,6 +39,12 @@ Segmentation Model
 .. autoclass:: TransUNet
     :members:
 
+`UNETR`
+~~~~~~~~~~
+
+.. autoclass:: UNETR
+    :members:
+
 `HuggingFace Segmentation Model`
 ~~~~~~~~~~
 
