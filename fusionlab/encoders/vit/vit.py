@@ -215,14 +215,17 @@ class ViT(nn.Module):
         )
         self.norm = nn.LayerNorm(hidden_size)
 
-    def forward(self, x):
+    def forward(self, x, return_features=False):
         x = self.patch_embedding(x)
-        hidden_states_out = []
-        for blk in self.blocks:
-            x = blk(x)
-            hidden_states_out.append(x)
+        features = []
+        for block in self.blocks:
+            x = block(x)
+            features.append(x)
         x = self.norm(x)
-        return x, hidden_states_out
+        if return_features:
+            return x, features
+        else:
+            return x
     
 VisionTransformer = ViT
 
@@ -238,6 +241,9 @@ if __name__ == '__main__':
         # num_layers=12,
         num_heads=12,
     )
-    outputs, hidden = model(inputs)
+    outputs = model(inputs)
+    print(outputs.shape)
+
+    outputs, hidden = model(inputs, return_features=True)
     print(outputs.shape)
     [print(i.shape) for i in hidden]
