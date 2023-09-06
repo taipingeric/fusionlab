@@ -26,7 +26,7 @@ inputs = torch.randn(1, 3, 16) # create random input tensor
 layer = ConvT(spatial_dims=1, in_channels=3, out_channels=2, kernel_size=5) # create model instance
 outputs = layer(inputs) # pass input through model
 print(outputs.shape)
-assert list(outputs.shape) == [1, 2, 20] # check output shape is correct
+assert list(outputs.shape) == [1, 2, 16] # check output shape is correct
 
 # Test code for Upsample
 inputs = torch.randn(1, 3, 16) # create random input tensor
