@@ -1,6 +1,8 @@
 import torch.nn as nn
 from typing import Union, Sequence, Optional, Callable
 from einops import rearrange
+from torchvision.ops import StochasticDepth
+
 from fusionlab.layers import ConvND, BatchNorm
 from fusionlab.utils import make_ntuple
 
@@ -96,6 +98,7 @@ class Rearrange(nn.Module):
     def forward(self, x):
         return rearrange(x, self.pattern, **self.kwargs)
     
+DropPath = StochasticDepth
 
 if __name__ == '__main__':
     import torch

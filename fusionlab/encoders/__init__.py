@@ -27,6 +27,15 @@ if BACKEND['torch']:
         ViT, 
         VisionTransformer
     )
+    from .mit.mit import (
+        MiT,
+        MiTB0,
+        MiTB1,
+        MiTB2,
+        MiTB3,
+        MiTB4,
+        MiTB5,
+    )
 if BACKEND['tf']:
     from .alexnet.tfalexnet import TFAlexNet
     from .vgg.tfvgg import TFVGG16, TFVGG19

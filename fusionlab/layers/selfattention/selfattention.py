@@ -63,3 +63,48 @@ class SelfAttention(nn.Module):
         x = self.out_proj(x)
         x = self.drop_output(x)
         return x
+    
+class SRAttention(nn.Module):
+    """
+    Spatial Reduction Attention (SR-Attention) block, based on "Wang et al.,
+    Pyramid Vision Transformer: A Versatile Backbone for Dense Prediction without Convolutions <https://arxiv.org/abs/2102.12122v2>"
+
+    source code: https://github.com/sithu31296/semantic-segmentation/blob/main/semseg/models/backbones/mit.py
+    """
+    def __init__(self, dim, head, sr_ratio):
+        """
+        Args:
+            dim (int): input dimension
+            head (int): number of attention heads
+            sr_ratio (int): spatial reduction ratio
+            
+        """
+        super().__init__()
+        self.head = head
+        self.sr_ratio = sr_ratio 
+        self.scale = (dim // head) ** -0.5
+        self.q = nn.Linear(dim, dim)
+        self.kv = nn.Linear(dim, dim*2)
+        self.proj = nn.Linear(dim, dim)
+
+        if sr_ratio > 1:
+            self.sr = nn.Conv2d(dim, dim, sr_ratio, sr_ratio)
+            self.norm = nn.LayerNorm(dim)
+
+    def forward(self, x: torch.Tensor, H, W) -> torch.Tensor:
+        B, N, C = x.shape
+        q = self.q(x).reshape(B, N, self.head, C // self.head).permute(0, 2, 1, 3)
+
+        if self.sr_ratio > 1:
+            x = x.permute(0, 2, 1).reshape(B, C, H, W)
+            x = self.sr(x).reshape(B, C, -1).permute(0, 2, 1)
+            x = self.norm(x)
+            
+        k, v = self.kv(x).reshape(B, -1, 2, self.head, C // self.head).permute(2, 0, 3, 1, 4)
+
+        attn = (q @ k.transpose(-2, -1)) * self.scale
+        attn = attn.softmax(dim=-1)
+
+        x = (attn @ v).transpose(1, 2).reshape(B, N, C)
+        x = self.proj(x)
+        return x
