@@ -160,6 +160,8 @@ class MiTB5(MiT):
 
 if __name__ == '__main__':
     inputs = torch.randn(1, 3, 128, 128)
-    model = MiT(in_channels=3)
-    outputs = model(inputs)
-    print(outputs.shape)
+    for i in range(6):
+        # model = MiT(in_channels=3)
+        model = eval(f'MiTB{i}')(in_channels=3)
+        outputs = model(inputs)
+        print(outputs.shape)

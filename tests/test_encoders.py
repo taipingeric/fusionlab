@@ -194,4 +194,4 @@ class TestEncoders:
             input_size = tuple([1, 3] + [img_size] * 2)
             inputs = torch.randn(input_size)
             outputs = model(inputs)
-            assert outputs.shape == torch.Size([1, model.channels[-1], img_size//4, img_size//4])
+            assert outputs.shape == torch.Size([1, model.channels[-1], img_size//32, img_size//32])
