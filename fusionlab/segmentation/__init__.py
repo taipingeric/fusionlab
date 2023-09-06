@@ -4,7 +4,7 @@ if BACKEND['torch']:
     from .resunet.resunet import ResUNet
     from .unet2plus.unet2plus import UNet2plus
     from .transunet.transunet import TransUNet
-    from .unetr.unetr import UNetr
+    from .unetr.unetr import UNETR
     from .base import HFSegmentationModel
 if BACKEND['tf']:
     from .unet.tfunet import TFUNet
