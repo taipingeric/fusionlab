@@ -24,3 +24,7 @@ This module contains the loss functions used in the project.
 `Plot channels`
 ~~~~~~~~~~
 .. autofunction:: plot_channels
+
+`Convert LabelMe json to Mask`
+~~~~~~~~~~
+.. autofunction:: convert_labelme_json2mask
