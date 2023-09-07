@@ -292,7 +292,8 @@ class TransformerEncoder(nn.Module):
 
 class Transformer(nn.Module):
     def __init__(
-            self, 
+            self,
+            in_channels, 
             img_size,
             patch_size=(16, 16),
         ):
@@ -300,6 +301,7 @@ class Transformer(nn.Module):
         self.embeddings = Embeddings(
             patch_size=patch_size, 
             img_size=img_size,
+            in_channels=in_channels,
             num_layers=(3, 4, 9),
         )
         self.encoder = TransformerEncoder(
@@ -427,8 +429,9 @@ class TransUNetDecoder(nn.Module):
 class TransUNet(nn.Module):
     def __init__(
             self, 
+            in_channels=3,
             img_size=224, 
-            num_classes=21843, 
+            num_classes=2, 
             zero_head=False, 
             decoder_channels=[256, 128, 64, 16],
             hidden_size=768,
