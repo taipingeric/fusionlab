@@ -25,7 +25,7 @@ class TestSeg:
         from fusionlab.segmentation import UNet2plus
         for i in range(1, 4):
             inputs = generate_inputs(64, i)
-            model = UNet2plus(3, 2, spatial_dims=i)
+            model = UNet2plus(3, 2, 16, spatial_dims=i)
             outputs = model(inputs)
             assert outputs.shape == tuple([1, 2] + [64] * i)
     
@@ -33,7 +33,11 @@ class TestSeg:
         from fusionlab.segmentation import TransUNet
         for i in [2]:
             inputs = generate_inputs(64, i)
-            model = TransUNet(3, 2, spatial_dims=i)
+            model = TransUNet(
+                in_channels=3, 
+                num_classes=2, 
+                spatial_dims=i
+            )
             outputs = model(inputs)
             assert outputs.shape == tuple([1, 2] + [64] * i)
     
