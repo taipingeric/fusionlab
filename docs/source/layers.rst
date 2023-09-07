@@ -32,6 +32,11 @@ N-dimensional layer
 .. autoclass:: BatchNorm
     :members:
 
+`InstanceNorm ND`
+~~~~~~~~~~
+.. autoclass:: InstanceNorm
+    :members:
+
 `Maxpool ND`
 ~~~~~~~~~~
 .. autoclass:: MaxPool
@@ -65,6 +70,16 @@ N-dimensional layer
 `Conv|Norm|Act`
 ~~~~~~~~~~
 .. autoclass:: ConvNormAct
+    :members:
+
+`Rearrange`
+~~~~~~~~~~
+.. autoclass:: Rearrange
+    :members:
+
+`Patch Embedding`
+~~~~~~~~~~
+.. autoclass:: PatchEmbedding
     :members:
 
 `Squeeze-Excitation`

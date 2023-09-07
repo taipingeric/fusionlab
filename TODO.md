@@ -5,9 +5,13 @@
 
 ### Segmentation
 
-* FCN
+* SegFormer
+* nnUNet
+* Swin-Unetr
 * AttUNet
-* UNETR
+* EnsDiff
+* SegDiff
+* FCN
 * DeepLab
 * FPN
 * PSPNet

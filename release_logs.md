@@ -1,3 +1,9 @@
+0.1.10
+
+* Add: TransUNet, ViT, UNETER, SegFormer
+* Add layer: Rearrange, PatchEmbedding, InstanceNorm ND, DropPath
+* Add utils: trunc_normal_
+
 0.1.9
 
 * Add LSTimeClassificationDataset for time series classification

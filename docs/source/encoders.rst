@@ -78,3 +78,27 @@ PyTorch Encoders
     :members:
 .. autoclass:: ConvNeXtXLarge
     :members:
+
+`Vision Transformer`
+~~~~~~~~~~
+.. autoclass:: ViT
+    :members:
+.. autoclass:: VisionTransformer
+    :members:
+
+`Mix Transformer`
+~~~~~~~~~~
+.. autoclass:: MiT
+    :members:
+.. autoclass:: MiTB0
+    :members:
+.. autoclass:: MiTB1
+    :members:
+.. autoclass:: MiTB2
+    :members:
+.. autoclass:: MiTB3
+    :members:
+.. autoclass:: MiTB4
+    :members:
+.. autoclass:: MiTB5
+    :members:

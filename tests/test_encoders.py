@@ -178,3 +178,20 @@ class TestEncoders:
                     import torchinfo
                     log = torchinfo.summary(model, input_size=input_size, verbose=0)
                     assert log.total_params == target_params[i]
+                    
+    def test_mit(self):
+        from fusionlab.encoders import (
+            MiTB0,
+            MiTB1,
+            MiTB2,
+            MiTB3,
+            MiTB4,
+            MiTB5,
+        )
+        img_size = 128
+        for i in range(6):
+            model = eval(f'MiTB{i}')()
+            input_size = tuple([1, 3] + [img_size] * 2)
+            inputs = torch.randn(input_size)
+            outputs = model(inputs)
+            assert outputs.shape == torch.Size([1, model.channels[-1], img_size//32, img_size//32])

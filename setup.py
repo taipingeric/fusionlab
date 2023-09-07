@@ -19,7 +19,7 @@ DESCRIPTION = "Useful packages for DL"
 URL = "https://github.com/taipingeric/fusionlab"
 EMAIL = "taipingeric@gmail.com"
 AUTHOR = "Chih-Yang Li"
-REQUIRES_PYTHON = ">=3.6.0"
+REQUIRES_PYTHON = ">=3.8.0"
 VERSION = None
 
 # The rest you shouldn't have to touch too much :)

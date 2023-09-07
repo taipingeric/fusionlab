@@ -1,6 +1,7 @@
-from typing import Union, Sequence
+from typing import Union, Sequence, Optional
 import torch
 from torch import nn
+from fusionlab.utils import autopad
 
 __all__ = [
     'ConvND',
@@ -26,7 +27,7 @@ class ConvND:
         out_channels (int): number of channels produced by the convolution.
         kernel_size (int or tuple): size of the convolving kernel.
         stride (int or tuple, optional): stride of the convolution. Default: 1
-        padding (int or tuple, optional): zero-padding added to both sides of the input. Default: 0
+        padding (int or tuple, optional): zero-padding added to both sides of the input, ``None`` for same padding. Default: ``None``
         dilation (int or tuple, optional): spacing between kernel elements. Default: 1
         groups (int, optional): number of blocked connections from input channels to output channels. Default: 1
         bias (bool, optional): whether to add a bias to the convolution. Default: True
@@ -39,14 +40,16 @@ class ConvND:
                 out_channels: int,
                 kernel_size: Union[Sequence[int], int],
                 stride: Union[Sequence[int], int] = 1,
-                padding: Union[Sequence[int], str] = 0,
+                padding: Optional[Union[Sequence[int], int]] = None,
                 dilation: Union[Sequence[int], int] = 1,
                 groups: int = 1,
                 bias: bool = True,
                 padding_mode: str = 'zeros'):
         if spatial_dims not in [1, 2, 3]:
             raise ValueError(f'`spatial_dims` must be 1, 2, or 3, got {spatial_dims}')
+        
         conv_type = getattr(nn, f'Conv{spatial_dims}d')
+        padding = autopad(kernel_size, padding, dilation, spatial_dims)
         return conv_type(
             in_channels=in_channels,
             out_channels=out_channels,
@@ -120,13 +123,13 @@ class ConvT:
         in_channels (int): number of channels in the input data.
         out_channels (int): number of channels produced by the convolution.
         kernel_size (int or tuple): size of the convolving kernel.
-        stride (int or tuple, optional): stride of the convolution. Default: 1
-        padding (int or tuple, optional): zero-padding added to both sides of the input. Default: 0
-        output_padding (int or tuple, optional): additional size added to one side of each dimension in the output shape. Default: 0
-        groups (int, optional): number of blocked connections from input channels to output channels. Default: 1
-        bias (bool, optional): whether to add a bias to the convolution. Default: True
-        dilation (int or tuple, optional): spacing between kernel elements. Default: 1
-        padding_mode (str, optional): type of padding. Default: 'zeros'
+        stride (int or tuple, optional): stride of the convolution. Default: ``1``
+        padding (int or tuple, optional): zero-padding added to both sides of the input, ``None`` for same padding. Default: ``None``
+        output_padding (int or tuple, optional): additional size added to one side of each dimension in the output shape. Default: ``0``
+        groups (int, optional): number of blocked connections from input channels to output channels. Default: ``1``
+        bias (bool, optional): whether to add a bias to the convolution. Default: ``True``
+        dilation (int or tuple, optional): spacing between kernel elements. Default: ``1``
+        padding_mode (str, optional): type of padding. Default: ``zeros``
     """
     def __new__(cls, 
                 spatial_dims, 
@@ -134,7 +137,7 @@ class ConvT:
                 out_channels: int,
                 kernel_size: Union[Sequence[int], int],
                 stride: Union[Sequence[int], int] = 1,
-                padding: Union[Sequence[int], str] = 0,
+                padding: Optional[Union[Sequence[int], int]] = None,
                 output_padding: Union[Sequence[int], str] = 0,
                 groups: int = 1,
                 bias: bool = True,
@@ -143,6 +146,7 @@ class ConvT:
         if spatial_dims not in [1, 2, 3]:
             raise ValueError(f'`spatial_dims` must be 1, 2, or 3, got {spatial_dims}')
         conv_type = getattr(nn, f'ConvTranspose{spatial_dims}d')
+        padding = autopad(kernel_size, padding, dilation, spatial_dims)
         return conv_type(
             in_channels=in_channels,
             out_channels=out_channels,
@@ -187,6 +191,41 @@ class BatchNorm:
             raise ValueError(f'`spatial_dims` must be 1, 2, or 3, got {spatial_dims}')
         bn_type = getattr(nn, f'BatchNorm{spatial_dims}d')
         return bn_type(
+            num_features=num_features,
+            eps=eps,
+            momentum=momentum,
+            affine=affine,
+            track_running_stats=track_running_stats)
+
+class InstanceNorm:
+    """
+    Factory class for creating instance normalization layers.
+
+    Args:
+        spatial_dims (int): number of spatial dimensions of the input data.
+        num_features: number of features or channels :math:`C` of the input
+        eps: a value added to the denominator for numerical stability.
+            Default: ``1e-5``
+        momentum: the value used for the running_mean and running_var
+            computation. Can be set to ``None`` for cumulative moving average
+            (i.e. simple average). Default: ``0.1``
+        affine: a boolean value that when set to ``True``, this module has learnable affine parameters, 
+            initialized the same way as done for batch normalization. Default: ``False``.
+        track_running_stats: a boolean value that when set to True, this module tracks the running mean and variance, 
+            and when set to False, this module does not track such statistics and always uses batch statistics in 
+            both training and eval modes. Default: False
+    """
+    def __new__(cls, 
+                spatial_dims: int, 
+                num_features: int,
+                eps: float = 1e-5,
+                momentum: float = 0.1,
+                affine: bool = False,
+                track_running_stats: bool = False):
+        if spatial_dims not in [1, 2, 3]:
+            raise ValueError(f'`spatial_dims` must be 1, 2, or 3, got {spatial_dims}')
+        in_type = getattr(nn, f'InstanceNorm{spatial_dims}d')
+        return in_type(
             num_features=num_features,
             eps=eps,
             momentum=momentum,
@@ -373,6 +412,17 @@ if __name__ == '__main__':
     inputs = torch.randn(1, 3, 16) # create random input tensor
     layer = BatchNorm(spatial_dims=1, num_features=3) # create model instance
     outputs = layer(inputs) # pass input through model
+
+    # Test code for InstanceNorm
+    inputs = torch.randn(1, 3, 16) # create random input tensor
+    layer = InstanceNorm(spatial_dims=1, num_features=3) # create model instance
+    outputs = layer(inputs) # pass input through model
+    print('Instance Norm 1D', outputs.shape)
+
+    inputs = torch.randn(1, 3, 16, 16) # create random input tensor
+    layer = InstanceNorm(spatial_dims=2, num_features=3) # create model instance
+    outputs = layer(inputs) # pass input through model
+    print('Instance Norm 2D', outputs.shape)
 
     # Test code for MaxPool
     for Module in [MaxPool, AvgPool]:
