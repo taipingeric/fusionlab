@@ -443,8 +443,9 @@ class TransUNet(nn.Module):
         self.num_classes = num_classes
         self.zero_head = zero_head
         self.transformer = Transformer(
+            in_channels,
             img_size,
-            patch_size=patch_size)
+            patch_size)
         self.decoder = TransUNetDecoder(
             decoder_channels,
             hidden_size,
