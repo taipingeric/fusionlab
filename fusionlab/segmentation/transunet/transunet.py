@@ -423,7 +423,7 @@ class TransUNetDecoder(nn.Module):
             x = decoder_block(x, skip=skip)
         return x
 
-
+# TODO: ND version
 class TransUNet(nn.Module):
     def __init__(
             self, 

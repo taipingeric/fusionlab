@@ -7,7 +7,13 @@ from fusionlab.layers.factories import ConvND, ConvT, BatchNorm
 
 
 class ResUNet(SegmentationModel):
-    def __init__(self, cin, num_cls, base_dim, spatial_dims=2):
+    def __init__(
+            self, 
+            cin, 
+            num_cls, 
+            base_dim=64, 
+            spatial_dims=2
+        ):
         super().__init__()
         self.num_cls = num_cls
         self.encoder = Encoder(cin, base_dim, spatial_dims)
