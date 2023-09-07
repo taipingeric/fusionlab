@@ -45,6 +45,12 @@ Segmentation Model
 .. autoclass:: UNETR
     :members:
 
+`SegFormer`
+~~~~~~~~~~
+
+.. autoclass:: SegFormer
+    :members:
+
 `HuggingFace Segmentation Model`
 ~~~~~~~~~~
 
