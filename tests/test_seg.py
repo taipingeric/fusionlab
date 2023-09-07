@@ -31,15 +31,14 @@ class TestSeg:
     
     def test_transunet(self):
         from fusionlab.segmentation import TransUNet
-        for i in [2]:
-            inputs = generate_inputs(64, i)
-            model = TransUNet(
-                in_channels=3, 
-                num_classes=2, 
-                spatial_dims=i
-            )
-            outputs = model(inputs)
-            assert outputs.shape == tuple([1, 2] + [64] * i)
+        inputs = generate_inputs(64, 2)
+        model = TransUNet(
+            in_channels=3, 
+            img_size=64,
+            num_classes=2, 
+        )
+        outputs = model(inputs)
+        assert outputs.shape == tuple([1, 2] + [64] * 2)
     
     def test_unetr(self):
         from fusionlab.segmentation import UNETR
