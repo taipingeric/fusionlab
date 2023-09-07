@@ -1,3 +1,7 @@
+0.1.11
+
+* Add: convert labelme json to mask files
+
 0.1.10
 
 * Add: TransUNet, ViT, UNETER, SegFormer
