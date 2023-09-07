@@ -66,7 +66,11 @@ class SegFormer(nn.Module):
         num_classes (int): number of classes to segment
         mit_encoder_type (str): type of MiT encoder, one of ['B0', 'B1', 'B2', 'B3', 'B4', 'B5']
     """
-    def __init__(self, num_classes: int = 6, mit_encoder_type: str = 'B0'):
+    def __init__(
+            self, 
+            num_classes: int = 6, 
+            mit_encoder_type: str = 'B0'
+        ):
         super().__init__()
         self.encoder: MiT = eval(f'MiT{mit_encoder_type}')()
         embed_dim = self.encoder.channels[-1]
@@ -76,10 +80,11 @@ class SegFormer(nn.Module):
             num_classes,
         )
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        _, features = self.encoder(x, return_features=True)
+    def forward(self, inputs: torch.Tensor) -> torch.Tensor:
+        _, features = self.encoder(inputs, return_features=True)
         x = self.decode_head(features)   # 4x reduction in image size
-        x = F.interpolate(x, size=x.shape[2:], mode='bilinear', align_corners=False)    # to original image shape
+        print('decoder output ', x.shape)
+        x = F.interpolate(x, size=inputs.shape[2:], mode='bilinear', align_corners=False)
         return x
     
 if __name__ == '__main__':
