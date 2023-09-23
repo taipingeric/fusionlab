@@ -1,3 +1,7 @@
+0.1.12
+
+* Fix: remove print in SegFormer
+
 0.1.11
 
 * Add: convert labelme json to mask files
