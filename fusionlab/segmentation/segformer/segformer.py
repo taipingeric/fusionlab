@@ -83,7 +83,6 @@ class SegFormer(nn.Module):
     def forward(self, inputs: torch.Tensor) -> torch.Tensor:
         _, features = self.encoder(inputs, return_features=True)
         x = self.decode_head(features)   # 4x reduction in image size
-        print('decoder output ', x.shape)
         x = F.interpolate(x, size=inputs.shape[2:], mode='bilinear', align_corners=False)
         return x
     
