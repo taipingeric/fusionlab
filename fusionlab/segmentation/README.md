@@ -7,4 +7,4 @@
 | UNet++    | Unet2plus | TFUnet2plus | [UNet++: A Nested U-Net Architecture for Medical Image Segmentation (2018)](https://arxiv.org/abs/1807.10165)          |
 | TransUNet | TransUNet | X           | [TransUNet: Transformers Make Strong Encoders for Medical Image Segmentation (2021)](https://arxiv.org/abs/2102.04306) |
 | UNETR     | UNETR     | X           | [UNETR: Transformers for 3D Medical Image Segmentation (2021)](https://arxiv.org/abs/2103.10504)                       |
-| SegFor    | SegFormer | X           | [SegFormer: Simple and Efficient Design for Semantic Segmentation with Transformers (2021)](https://arxiv.org/abs/2105.15203) |
+| SegFormer | SegFormer | X           | [SegFormer: Simple and Efficient Design for Semantic Segmentation with Transformers (2021)](https://arxiv.org/abs/2105.15203) |
