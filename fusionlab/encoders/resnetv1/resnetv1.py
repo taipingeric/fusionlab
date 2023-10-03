@@ -291,7 +291,6 @@ class ResNet(nn.Module):
     def forward_features(self, x: Tensor) -> Tensor:
         # See note [TorchScript super()]
         x = self.conv1(x)
-        print(x.shape)
         x = self.conv2(x)
         x = self.conv3(x)
         x = self.conv4(x)
