@@ -30,10 +30,15 @@ def convert_labelme_json2mask(
         raise ValueError("Maximum number of classes is 255")
     
     cls_map = {name: i for i, name in enumerate(class_names)}
+    json_paths = glob(os.path.join(json_dir, '*.json'))
     print(f"Number of classes: {num_classes}")
     print("class name to index: ", cls_map)
-    json_paths = glob(os.path.join(json_dir, '*.json'))
-
+    print("Number of json files to convert: ", len(json_paths))
+    # check output directory exists, create if not exists
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+        print(f"Create output directory at: {output_dir}")
+    
     for path in tqdm(json_paths):
         json_data = json.load(open(path))
         h = json_data['imageHeight']
